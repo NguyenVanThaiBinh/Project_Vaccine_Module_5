@@ -22,21 +22,21 @@ public class MailText {
     String fullName;
     String CMND;
     int age;
-    String day;
-    String time;
+
     String address;
     int status;
     String link;
     String verifyURL;
 
 
-    public MailText(String fullName, String CMND, int age, String day, String time,
+
+
+    public MailText(String fullName, String CMND, int age,
                     String address, int status,String verifyURL) {
         this.fullName = fullName;
         this.CMND = CMND;
         this.age = age;
-        this.day = day;
-        this.time = time;
+
         this.address = address;
         this.status = status;
         this.verifyURL = verifyURL;
@@ -736,6 +736,7 @@ public class MailText {
 
 
     public String sentVerifyAccountEmail() {
+
         String mail = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional //EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
                 "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">\n" +
                 "<head>\n" +
@@ -1060,7 +1061,7 @@ public class MailText {
                 "  <div class=\"v-text-align\" style=\"color: #615e5e; line-height: 140%; text-align: left; word-wrap: break-word;\">\n" +
                 " <p style=\"font-size: 14px; line-height: 140%; text-align: center;\"><strong><span style=\"font-size: 22px; line-height: 19.6px;\">Click vào <a style=\"color: rgb(26, 26, 204);\" href=\""+verifyURL+"\" >ĐÂY</a> để xác minh tài khoản của bạn!!!</span></strong></p>\n" +
                 "    <br><br>\n" +
-                "    <p style=\"font-size: 14px; line-height: 140%; text-align: center;\"><strong><span style=\"font-size: 20px; line-height: 19.6px;\">Thông tin khách hàng</span></strong></p>"+
+                "    <p style=\"font-size: 14px; line-height: 140%; text-align: center;\"><strong><span style=\"font-size: 20px; line-height: 19.6px;\">Thông tin đã đăng ký</span></strong></p>"+
                 "\n" +
                 "  </div>\n" +
                 "\n" +
@@ -1331,7 +1332,7 @@ public class MailText {
                 "      <td style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Open Sans',sans-serif;\" align=\"left\">\n" +
                 "        \n" +
                 "  <div class=\"v-text-align\" style=\"color: #615e5e; line-height: 140%; text-align: center; word-wrap: break-word;\">\n" +
-                "    <p style=\"font-size: 14px; line-height: 140%;\"><span style=\"font-size: 14px; line-height: 19.6px;\">" + time + " " + day + "</span></p>\n" +
+                "    <p style=\"font-size: 14px; line-height: 140%;\"><span style=\"font-size: 14px; line-height: 19.6px;\">"+"Chờ xác minh tài khoản"+"</span></p>\n" +
                 "  </div>\n" +
                 "\n" +
                 "      </td>\n" +
@@ -1424,7 +1425,7 @@ public class MailText {
                 "      <td style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Open Sans',sans-serif;\" align=\"left\">\n" +
                 "        \n" +
                 "  <div class=\"v-text-align\" style=\"color: #df4949; line-height: 140%; text-align: center; word-wrap: break-word;\">\n" +
-                "    <p style=\"font-size: 14px; line-height: 140%;\"><span style=\"font-size: 18px; line-height: 22.4px;\"><strong>Kết quả</strong></span></p>\n" +
+                "    <p style=\"font-size: 14px; line-height: 140%;\"><span style=\"font-size: 18px; line-height: 22.4px;\"><strong>Kết quả đăng ký</strong></span></p>\n" +
                 "  </div>\n" +
                 "\n" +
                 "      </td>\n" +

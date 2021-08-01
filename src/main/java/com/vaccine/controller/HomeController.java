@@ -22,7 +22,6 @@ import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DecimalStyle;
 import java.util.List;
 import java.util.Optional;
 
@@ -111,7 +110,7 @@ public class HomeController {
     public ModelAndView createUser(Customer user, HttpServletRequest request) throws UnsupportedEncodingException, MessagingException
 //            ,@RequestParam(name ="g-recaptcha-response") String captchaResponse)
     {
-//        Recaptcha
+        //        Recaptcha
 //        String url = "https://www.google.com/recaptcha/api/siteverify";
 //        String params ="?secret=6LfXcRMbAAAAAIqUiv2NJ1GA3kjpkt3uTOnCHZrf&response="+captchaResponse;
 //
@@ -128,32 +127,23 @@ public class HomeController {
         user.setHealthy_status(2);
 //        user.setHealthy_status(setStatus(user));
 
-
-
         //        Gửi mail xác minh tài khoản
         if (user.getEmail() != null) {
-            customerServiceVerifyAccount.sendEmail("boyte.vaccine.covid@gmail.com", user,getSiteURL(request));
+            customerServiceVerifyAccount.sendEmailVerifyAccount("boyte.vaccine.covid@gmail.com", user,getSiteURL(request));
         }
 
-
-        Long destination_id = user.getDestination().getId();
-        //      get maxDay, maxTime from db
-        String str = iCustomerRepository.getMaxDayFromData(destination_id) + iCustomerRepository.getMaxTimeFromData(destination_id);
-        int countMaxTime = iCustomerRepository.countMaxTimeInDay(destination_id);
-        int countMaxDay = iCustomerRepository.countMaxDayToNext(destination_id);
-//      set day start and people per hour
-        if (user.getHealthy_status() == 1 || user.getHealthy_status() == 2) {
-            try {
-                setDayTimeStart(user.getDestination().getId());
-            } catch (Exception e) {
-                ModelAndView modelAndView = new ModelAndView("/index/form");
-                modelAndView.addObject("user", new Customer());
-                modelAndView.addObject("fail", "Chiến dịch chưa bắt đầu, vui lòng quay lại sau!");
-                return modelAndView;
-            }
-            setDayTimeVaccine(user, str, countMaxTime, countMaxDay);
+        // Kiểm tra đã có điểm tiêm đã có bắt đầu chưa?
+        try {
+            // Tìm không ra ID của điểm tiêm
+            setDayTimeStart(user.getDestination().getId());
+        } catch (Exception e) {
+            ModelAndView modelAndView = new ModelAndView("/index/form");
+            modelAndView.addObject("user", new Customer());
+            modelAndView.addObject("fail", "Chiến dịch chưa bắt đầu, vui lòng quay lại sau!");
+            return modelAndView;
         }
-//        Set encrytedPassword
+
+        //        Set encrytedPassword
         String password = user.getEncrytedPassword();
         String encrytedPassword = encrytePassword(password);
         user.setPassword(encrytedPassword);
@@ -166,17 +156,17 @@ public class HomeController {
             return modelAndView;
         }
         try {
-            //        Thêm quyền
+            //        Thêm quyền USER
             Customer_Role userRole = new Customer_Role();
             userRole.setAppUser(user);
             Role appRole = new Role();
             appRole.setRoleId(1L);
             userRole.setAppRole(appRole);
             iCustomerRoleRepository.save(userRole);
-            //        Thêm một quyền nữa
+            //        Thêm một quyền ADMIN
             appRole.setRoleId(2L);
             iCustomerRoleRepository.save(new Customer_Role(user, appRole));
-            //        Thêm một quyền nữa~~~
+            //        Thêm một quyền DOCTOR
             appRole.setRoleId(3L);
             iCustomerRoleRepository.save(new Customer_Role(user, appRole));
         } catch (Exception e) {
@@ -194,16 +184,26 @@ public class HomeController {
 
     @GetMapping("/verify")
     public ModelAndView verifyUser(@Param("code") String code) {
+        Customer customer = iCustomerRepository.findByVerificationCode(code);
         if (customerServiceVerifyAccount.isVerify(code)) {
+            if (customer.getHealthy_status() == 1 || customer.getHealthy_status() == 2) {
+                try{
+                    setDayTimeVaccine(customer);
+                }catch (Exception e){
+                    ModelAndView modelAndView = new ModelAndView("/index/form");
+                    modelAndView.addObject("user", new Customer());
+                    modelAndView.addObject("fail", "Đã xảy ra lỗi sắp xếp ngày!!!");
+                    return modelAndView;
+                }
+            }
             ModelAndView modelAndView = new ModelAndView("/index/form");
             modelAndView.addObject("user", new Customer());
-            modelAndView.addObject("createDone", "Chúc mừng bạn đã đăng ký thành công!\n \n" +
-                    "Đăng nhập ngay để xem thông tin!");
+            modelAndView.addObject("createDone", "Chúc mừng bạn đã đăng ký tài khoản thành công!");
             return modelAndView;
         } else {
             ModelAndView modelAndView = new ModelAndView("/index/form");
             modelAndView.addObject("user", new Customer());
-            modelAndView.addObject("fail", "Kích hoạt tài khoản không thành công :((");
+            modelAndView.addObject("fail", "Xác minh tài khoản thất bại :((");
             return modelAndView;
         }
     }
@@ -326,28 +326,36 @@ public class HomeController {
 
     }
 
-    public static void setDayTimeVaccine(Customer user, String str, Integer countMaxTime, int coutMaxDay) {
+    public  void setDayTimeVaccine(Customer user) {
+        Long destination_id = user.getDestination().getId();
+        //      get maxDay, maxTime from db
+        String str = iCustomerRepository.getMaxDayFromData(destination_id) + iCustomerRepository.getMaxTimeFromData(destination_id);
+        int countMaxTime = iCustomerRepository.countMaxTimeInDay(destination_id);
+        int countMaxDay = iCustomerRepository.countMaxDayToNext(destination_id);
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
 
 //       Set day to start
         if (str.equals("nullnull")) {
             str = timeStart + "08:00";
         }
-        LocalDateTime currentDateTime = LocalDateTime.parse(str, formatter);
-//      Divide date to time
+
+            LocalDateTime currentDateTime = LocalDateTime.parse(str, formatter);
+
+        //      Divide date to time
 //        CHÚ Ý CÓ DẤU " " CUỐI NGÀY
         DateTimeFormatter formatterDay = DateTimeFormatter.ofPattern("dd-MM-yyyy ");
         DateTimeFormatter formatterTime = DateTimeFormatter.ofPattern("HH:mm");
         //        Set 1 day with 8h,10h,14h,16h
-        if (countMaxTime != null) {
+
 //            lấy từ db, đếm số giờ để chuyển
             countTime = countMaxTime;
-        }
-        if (countMaxTime != null && countMaxTime == setPeoplePerHour) {
+
+        if ( countMaxTime == setPeoplePerHour) {
 //            lấy từ db, chuyển giờ liền
             countTime = setPeoplePerHour;
         }
-        if (coutMaxDay == setToChangeDay) {
+        if (countMaxDay == setToChangeDay) {
 //           lấy từ db, đếm số lần để chuyển ngày
             oneDayDone = setToChangeDay;
         }
@@ -372,6 +380,7 @@ public class HomeController {
             String formattedTime = currentDateTime.format(formatterTime);
             user.setTime_vaccine(formattedTime);
             user.setDate_vaccine(formattedDate);
+            iCustomerRepository.save(user);
             countTime++;
             oneDayDone++;
             return;

@@ -41,9 +41,7 @@ class UserDetailsServiceImpl implements UserDetailsService {
             System.err.println("User is disable !!! " + userName);
             throw new DisabledException("User " + userName + " was disable !!! ");
         }
-        System.out.println("*******************");
-        System.out.println(!appUser.isEnabled());
-        System.out.println(appUser.isEnabled());
+
 
 
 
