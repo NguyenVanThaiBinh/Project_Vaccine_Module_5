@@ -39,7 +39,7 @@ function deleteUser() {
                                             'Your file has been deleted.',
                                             'success'
                                         );
-                                        $('#userList').append(getUser(data2.content[data2.content.length-1]));
+                                        $('#customerList').append(getUser(data2.content[data2.content.length-1]));
                                     }
                                 })
                             }
@@ -76,11 +76,11 @@ function edit(){
     $.ajax({
         type: 'GET',
         url: '/admin/apiID/' + id,
-        success: function (user) {
-            $('#edName').val(user.userName);
-            $('#edEmail').val(user.email);
-            $('#edCMND').val(user.cmnd);
-            $('#edPhone').val(user.phoneNumber);
+        success: function (customer) {
+            $('#edName').val(customer.customer_name);
+            $('#edEmail').val(customer.email);
+            $('#edCMND').val(customer.cmnd);
+            $('#edPhone').val(customer.phone_number);
             $('#edId').val(id);
         }
     })
@@ -92,10 +92,10 @@ function editUser() {
     let phone = $('#edPhone').val();
     let email = $('#edEmail').val();
     let User = {
-        userName: name,
+        customer_name: name,
         email: email,
         cmnd: cmnd,
-        phoneNumber: phone
+        phone_number: phone
     }
     $.ajax({
         headers: {
@@ -114,7 +114,7 @@ function successHandler() {
     if(search==""){
         $.ajax({
             type: 'GET',
-            url: '/admin/api-doctor?page='+page,
+            url: '/admin/api-full?page='+page,
             success: function (data) {
                 let content = '<tr class="tr">\n' +
                     '<td>Id</td>\n' +
@@ -125,9 +125,9 @@ function successHandler() {
                     '<td>giờ tiêm chủng</td>\n' +
                     '</tr>';
                 for (let i = 0; i < data.content.length; i++) {
-                    content += getUser(data.content[i]);
+                    content += getCustomer(data.content[i]);
                 }
-                document.getElementById("userList").innerHTML = content;
+                document.getElementById("customerList").innerHTML = content;
                 $('.close-modal').click();
             }
         })
@@ -146,9 +146,9 @@ function successHandler() {
                     '<td>giờ tiêm chủng</td>\n' +
                     '</tr>';
                 for (let i = 0; i < data.content.length; i++) {
-                    content += getUser(data.content[i]);
+                    content += getCustomer(data.content[i]);
                 }
-                document.getElementById("userList").innerHTML = content;
+                document.getElementById("customerList").innerHTML = content;
                 $('.close-modal').click();
             }
         })
@@ -160,7 +160,7 @@ setInterval(function (){
     if(search==""){
         $.ajax({
             type: 'GET',
-            url: '/admin/api-doctor?page='+page,
+            url: '/admin/api-full?page='+page,
             success: function (data) {
                 let content = '<tr class="tr">\n' +
                     '<td>Id</td>\n' +
@@ -171,9 +171,9 @@ setInterval(function (){
                     '<td>Giờ tiêm </td>\n' +
                     '</tr>';
                 for (let i = 0; i < data.content.length; i++) {
-                    content += getUser(data.content[i]);
+                    content += getCustomer(data.content[i]);
                 }
-                document.getElementById("userList").innerHTML = content;
+                document.getElementById("customerList").innerHTML = content;
             }
         })
         numberPage();
@@ -192,10 +192,10 @@ setInterval(function (){
                     '<td>giờ tiêm chủng</td>\n' +
                     '</tr></thead><tbody>';
                 for (let i = 0; i < data.content.length; i++) {
-                    content += getUser(data.content[i]);
+                    content += getCustomer(data.content[i]);
                 }
                 content+='</tbody>';
-                document.getElementById("userList").innerHTML = content;
+                document.getElementById("customerList").innerHTML = content;
             }
         })
     }
@@ -216,7 +216,7 @@ function setInfo(){
     let page = $('#page').val();
     $.ajax({
         type:'GET',
-        url:'/admin/api-doctor?page='+page,
+        url:'/admin/api-full?page='+page,
         success:function (data){
             let from = data.number * data.size +1;
             let to = from + data.content.length-1;
@@ -226,7 +226,7 @@ function setInfo(){
         }
     })
 }
-function getUser(employee) {
+function getCustomer(employee) {
     if(employee.dateVaccine==null){
         employee.dateVaccine="";
     }
@@ -235,11 +235,11 @@ function getUser(employee) {
     }
     return `<tr id='row${employee.id}'>
         <td>${employee.id}</td>
-        <td>${employee.userName}</td>
+        <td>${employee.customer_name}</td>
         <td>${employee.cmnd}</td>
         <td>${employee.email}</td>
-        <td>${employee.dateVaccine}</td>
-        <td>${employee.timeVaccine}</td>
+        <td>${employee.date_vaccine}</td>
+        <td>${employee.time_vaccine}</td>
        <td>
        <button type="button" class="btn btn-primary edit"
                 data-toggle="modal" data-target="#exampleModal"
@@ -265,7 +265,7 @@ function search(){
 function successHandler2(searchCMND) {
     let url = "/admin/api/"+searchCMND;
     if(searchCMND==""){
-        url='/admin/api-doctor';
+        url='/admin/api-full';
     }
     $.ajax({
         type: "GET",
@@ -283,7 +283,7 @@ function successHandler2(searchCMND) {
                 '<td>giờ tiêm chủng</td>\n' +
                 '</tr>';
             for (let i = 0; i < data.content.length; i++) {
-                content += getUser(data.content[i]);
+                content += getCustomer(data.content[i]);
             }
             if(searchCMND==""){
                 $('#nav').show();
@@ -291,12 +291,11 @@ function successHandler2(searchCMND) {
             else{
                 $('#nav').hide();
             }
-            document.getElementById('userList').innerHTML = content;
+            document.getElementById('customerList').innerHTML = content;
         }
     });
 }
 function test(){
-    $('body').on('click','.delete',deleteUser);
     $('body').on('click','.edit',edit);
     $('body').on('input','#search',search);
 }

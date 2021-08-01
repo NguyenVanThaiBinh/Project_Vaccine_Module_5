@@ -576,7 +576,7 @@
                                 </div>
                                 <div class="table-responsive">
                                     <input type="hidden" id="page" th:value="${pageActive}">
-                                    <table class="table mt-3 border-top" id="userList">
+                                    <table class="table mt-3 border-top" id="customerList">
                                         <thead>
                                         <tr>
                                             <th>Id</th>
@@ -585,26 +585,26 @@
                                             <th>Email</th>
                                             <th>Ngày tiêm </th>
                                             <th>Giờ tiêm </th>
-
+                                            <th></th>
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <th:block th:each="u : ${user}">
+                                        <th:block th:each="u : ${customers}">
                                             <tr th:id="'row'+${u.id}">
                                                 <td th:text="${u.id}"></td>
-                                                <td th:text="${u.userName}"></td>
+                                                <td th:text="${u.customer_name}"></td>
                                                 <td th:text="${u.CMND}"></td>
                                                 <td th:text="${u.email}"></td>
-                                                <td th:text="${u.dateVaccine}"></td>
-                                                <td th:text="${u.timeVaccine}"></td>
-                                                <td style="width: 210px">
+                                                <td th:text="${u.date_vaccine}"></td>
+                                                <td th:text="${u.time_vaccine}"></td>
+                                                <td>
                                                     <button type="button" class="btn btn-primary edit"
                                                             data-toggle="modal" data-target="#exampleModal"
                                                             data-whatever="@mdo">Edit
                                                     </button>
-<!--                                                    <button class="btn btn-outline-danger delete"><i-->
-<!--                                                            class="fas fa-trash-alt"></i>Delete-->
-<!--                                                    </button>-->
+                                                    <!--                                                    <button class="btn btn-outline-danger delete"><i-->
+                                                    <!--                                                            class="fas fa-trash-alt"></i>Delete-->
+                                                    <!--                                                    </button>-->
                                                     <input type="hidden" id="idU" th:value="${u.id}">
                                                 </td>
                                             </tr>

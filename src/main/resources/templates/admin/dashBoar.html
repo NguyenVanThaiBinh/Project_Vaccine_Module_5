@@ -636,25 +636,25 @@
     function foo() {
         $.ajax({
             type: 'GET',
-            url: '/doctor/fullApiUser',
+            url: '/admin/api-full',
             success: function (data) {
                 let count = 0;
-                for (let i = 0; i < data.length; i++) {
-                    if (data[i].checkStatus == 1) {
+                for (let i = 0; i < data.content.length; i++) {
+                    if (data.content[i].checkStatus == 1) {
                         count++;
                     }
                 }
                 $('#amount1').html(count);
-                $('#amount2').html(data.length);
+                $('#amount2').html(data.totalElements);
             }
         })
-        $.ajax({
-            type: 'GET',
-            url: '/doctor/apiDateTime',
-            success: function (data) {
-                $('#amount3').html(data.people_per_hour * 4)
-            }
-        })
+        // $.ajax({
+        //     type: 'GET',
+        //     url: '/doctor/apiDateTime',
+        //     success: function (data) {
+        //         $('#amount3').html(data.people_per_hour * 4)
+        //     }
+        // })
     }
 
     foo();

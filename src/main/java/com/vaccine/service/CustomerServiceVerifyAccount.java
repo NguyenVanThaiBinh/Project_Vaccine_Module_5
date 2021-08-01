@@ -21,9 +21,6 @@ public class CustomerServiceVerifyAccount {
     private ICustomerRepository repo;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
     private JavaMailSender mailSender;
 
 

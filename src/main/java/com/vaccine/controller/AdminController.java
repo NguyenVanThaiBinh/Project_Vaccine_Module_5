@@ -1,49 +1,44 @@
-//package com.vaccine.controller;
+package com.vaccine.controller;
+
+
+import com.vaccine.model.Customer;
+import com.vaccine.model.Destination;
+import com.vaccine.repository.ICustomerRepository;
+import com.vaccine.repository.IDestinationRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+@RequestMapping(value = "/admin")
+public class AdminController {
+    //
 //
-//
-//import com.vaccine.model.*;
-//import com.vaccine.repository.*;
-//import com.vaccine.service.admindestination.IAdminDestinationService;
-//import com.vaccine.service.user.IUserService;
-//import com.vaccine.service.warehouseVaccine.IWarehouseVaccineService;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.data.domain.Page;
-//import org.springframework.data.domain.Pageable;
-//import org.springframework.data.web.PageableDefault;
-//import org.springframework.http.HttpStatus;
-//import org.springframework.http.ResponseEntity;
-//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-//import org.springframework.web.bind.annotation.*;
-//import org.springframework.web.servlet.ModelAndView;
-//
-//
-//import java.util.ArrayList;
-//import java.util.List;
-//import java.util.Optional;
-//
-//@RestController
-//@RequestMapping(value = "/admin")
-//public class AdminController {
-//
-//
-//    @Autowired
-//    IUserService userService;
 //
 //    @Autowired
 //    UserRoleRepository userRoleRepository;
 //
-//    @Autowired
-//    IUserRepository userRepository;
-//
+    @Autowired
+    ICustomerRepository customerRepository;
+    //
 //    @Autowired
 //    IWarehouseVaccineService warehouseVaccineService;
 //
 //    @Autowired
 //    IWarehouseRepository iWarehouseRepository;
 //
-//    @Autowired
-//    IAdminDestinationRepository adminDestinationRepository;
-//
+    @Autowired
+    IDestinationRepository destinationRepository;
+    //
 //    @Autowired
 //    IAdminDestinationService adminDestinationService;
 //
@@ -57,43 +52,37 @@
 //        return iWarehouseRepository.findAll();
 //    }
 //
-//    @GetMapping
-//    public ModelAndView showdb(){
-//        ModelAndView modelAndView = new ModelAndView("/admin/dashBoar");
-//        return modelAndView;
-//    }
-////  ajax user
-//    @GetMapping("/api-doctor")
-//    public ResponseEntity<Page<Customer>> allUser(@PageableDefault(value = 10) Pageable pageable){
-//        return new ResponseEntity<>(userService.findAll(pageable), HttpStatus.OK);
-//    }
-//    @GetMapping("/apiID/{id}")
-//    public ResponseEntity<Customer> getEntity(@PathVariable Long id){
-//        return new ResponseEntity<>(userService.findById(id).get(),HttpStatus.OK);
-//    }
-//    //ajax doctor
-//    @GetMapping("/api")
-//    public ResponseEntity<Iterable<Customer>> allUsers(){
-//        return new ResponseEntity<>(userService.getUserListIsDone("01-08-2021 "), HttpStatus.OK);
-//    }
-//
-//    @GetMapping("/api/{search}")
-//    public ResponseEntity<Page<Customer>> searchUsers(@PageableDefault(value = 10) Pageable pageable, @PathVariable String search){
-//        return new ResponseEntity<>(userService.searchUserAdmin(pageable,search), HttpStatus.OK);
-//    }
-//
-//
-////    @PutMapping("/edit/{id}")
-////    public ResponseEntity<Customer> editEntity(@RequestBody Customer user, @PathVariable Long id){
-////        Customer user1 = userService.findById(id).get();
-////        user1.setCMND(user.getCMND());
-////        user1.setUserName(user.getUserName());
-////        user1.setEmail(user.getEmail());
-////        user1.setPhoneNumber(user.getPhoneNumber());
-////        user1.setId(id);
-////        return new ResponseEntity<>(userService.save(user1),HttpStatus.OK);
-////    }
-//    @DeleteMapping("/{id}")
+    @GetMapping
+    public ModelAndView showdb(){
+        ModelAndView modelAndView = new ModelAndView("/admin/dashBoar");
+        return modelAndView;
+    }
+    ////  ajax user
+    @GetMapping("/api-full")
+    public ResponseEntity<Page<Customer>> allUser(@PageableDefault(value = 10) Pageable pageable){
+        return new ResponseEntity<>(customerRepository.findAll(pageable), HttpStatus.OK);
+    }
+    @GetMapping("/apiID/{id}")
+    public ResponseEntity<Customer> getEntity(@PathVariable Long id){
+        return new ResponseEntity<>(customerRepository.findById(id).get(), HttpStatus.OK);
+    }
+
+    @GetMapping("/api/{search}")
+    public ResponseEntity<Page<Customer>> searchUsers(@PageableDefault(value = 10) Pageable pageable, @PathVariable String search){
+        return new ResponseEntity<>(customerRepository.searchUserAdmin(search,pageable), HttpStatus.OK);
+    }
+
+
+    @PutMapping("/edit/{id}")
+    public ResponseEntity<Customer> editEntity(@RequestBody Customer customer, @PathVariable Long id){
+        Customer customer1 = customerRepository.findById(id).get();
+        customer1.setCMND(customer.getCMND());
+        customer1.setCustomer_name(customer.getCustomer_name());
+        customer1.setEmail(customer.getEmail());
+        customer1.setPhone_number(customer.getPhone_number());
+        return new ResponseEntity<>(customerRepository.save(customer1),HttpStatus.OK);
+    }
+    //    @DeleteMapping("/{id}")
 //    public ResponseEntity<Customer> deleteUsers(@PathVariable("id")Long id){
 //        Optional<Customer> optional = userService.findById(id);
 //        userService.remove(id);
@@ -102,23 +91,22 @@
 //
 //
 //
-//    @GetMapping("/user")
-//    public ModelAndView listUsers(@PageableDefault(value = 10) Pageable pageable,@RequestParam("page") Optional<Integer> page){
-//        int currentPage = page.orElse(0);
-//        Page<Customer> userList = userService.findAll(pageable);
-//        ModelAndView modelAndView = new ModelAndView("/admin/user");
-//        List<Integer> list = new ArrayList<>();
-////        System.out.println(userList.getNumberOfElements());
-//        for(int i=0;i<userList.getTotalPages();i++){
-//            list.add(i);
-//        }
-//        System.out.println(list.size());
-//        modelAndView.addObject("user",userList);
-//        modelAndView.addObject("list",list);
-//        modelAndView.addObject("pageActive",currentPage);
-//        return modelAndView;
-//    }
-//
+    @GetMapping("/user")
+    public ModelAndView listUsers(@PageableDefault(value = 10) Pageable pageable, @RequestParam("page") Optional<Integer> page){
+        int currentPage = page.orElse(0);
+        Page<Customer> customers = customerRepository.findAll(pageable);
+        ModelAndView modelAndView = new ModelAndView("/admin/user");
+        List<Integer> list = new ArrayList<>();
+
+        for(int i=0;i<customers.getTotalPages();i++){
+            list.add(i);
+        }
+        modelAndView.addObject("customers",customers);
+        modelAndView.addObject("list",list);
+        modelAndView.addObject("pageActive",currentPage);
+        return modelAndView;
+    }
+    //
 //    @GetMapping("/edit-user/{id}")
 //    public ModelAndView showEdit(@PathVariable("id") Long id){
 //        Customer user = userService.findById(id).get();
@@ -149,13 +137,13 @@
 //    }
 //
 //    //    ---------------------------------Điểm tiêm chủng------------------------------------------>
-//    @GetMapping("/destination")
-//    public ModelAndView listDestination() {
-//        List<Destination> adminDestinations = adminDestinationRepository.getListDestination();
-//        ModelAndView modelAndView = new ModelAndView("/admin/injectionPoint");
-//        modelAndView.addObject("destination", adminDestinations);
-//        return modelAndView;
-//    }
+    @GetMapping("/destination")
+    public ModelAndView listDestination() {
+        List<Destination> destinations = destinationRepository.findAll();
+        ModelAndView modelAndView = new ModelAndView("/admin/injectionPoint");
+        modelAndView.addObject("destination", destinations);
+        return modelAndView;
+    }
 //    @PostMapping("/create-DS")
 //    public ResponseEntity<Destination> createDestination(@RequestBody Destination adminDestination) {
 //        return new ResponseEntity<>(adminDestinationService.save(adminDestination), HttpStatus.CREATED);
@@ -221,9 +209,9 @@
 //    }
 //    @GetMapping("/hospital")
 //    public ModelAndView showHosp() {
-//        List<Customer> userList = userRepository.getDoctor();
+//        Page<Destination> destinations = customerRepository.getAllDestination();
 //        ModelAndView modelAndView = new ModelAndView("/admin/hospital");
-//        modelAndView.addObject("doctor", userList);
+//        modelAndView.addObject("destinations", destinations);
 //        return modelAndView;
 //    }
 ////    @PostMapping("/createDoctor")
@@ -269,5 +257,5 @@
 ////        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 ////        return encoder.encode(password);
 ////    }
-//}
+}
 //

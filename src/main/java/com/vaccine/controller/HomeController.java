@@ -128,9 +128,11 @@ public class HomeController {
 //        user.setHealthy_status(setStatus(user));
 
         //        Gửi mail xác minh tài khoản
-        if (user.getEmail() != null) {
-            customerServiceVerifyAccount.sendEmailVerifyAccount("boyte.vaccine.covid@gmail.com", user,getSiteURL(request));
-        }
+//        if (user.getEmail() != null) {
+//            customerServiceVerifyAccount.sendEmailVerifyAccount("boyte.vaccine.covid@gmail.com", user,getSiteURL(request));
+//        }
+
+
 
         // Kiểm tra đã có điểm tiêm đã có bắt đầu chưa?
         try {
@@ -140,6 +142,17 @@ public class HomeController {
             ModelAndView modelAndView = new ModelAndView("/index/form");
             modelAndView.addObject("user", new Customer());
             modelAndView.addObject("fail", "Chiến dịch chưa bắt đầu, vui lòng quay lại sau!");
+            return modelAndView;
+        }
+
+        //Test phân ngày
+        iCustomerRepository.save(user);
+        try{
+            setDayTimeVaccine(user);
+        }catch (Exception e){
+            ModelAndView modelAndView = new ModelAndView("/index/form");
+            modelAndView.addObject("user", new Customer());
+            modelAndView.addObject("fail", "Đã xảy ra lỗi sắp xếp ngày!!!");
             return modelAndView;
         }
 
@@ -326,8 +339,8 @@ public class HomeController {
 
     }
 
-    public  void setDayTimeVaccine(Customer user) {
-        Long destination_id = user.getDestination().getId();
+    public  void setDayTimeVaccine(Customer customer) {
+        Long destination_id = customer.getDestination().getId();
         //      get maxDay, maxTime from db
         String str = iCustomerRepository.getMaxDayFromData(destination_id) + iCustomerRepository.getMaxTimeFromData(destination_id);
         int countMaxTime = iCustomerRepository.countMaxTimeInDay(destination_id);
@@ -378,9 +391,9 @@ public class HomeController {
         while (countTime < setPeoplePerHour) {
             String formattedDate = currentDateTime.format(formatterDay);
             String formattedTime = currentDateTime.format(formatterTime);
-            user.setTime_vaccine(formattedTime);
-            user.setDate_vaccine(formattedDate);
-            iCustomerRepository.save(user);
+            customer.setTime_vaccine(formattedTime);
+            customer.setDate_vaccine(formattedDate);
+            iCustomerRepository.save(customer);
             countTime++;
             oneDayDone++;
             return;

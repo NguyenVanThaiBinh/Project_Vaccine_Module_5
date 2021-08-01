@@ -2,6 +2,8 @@ package com.vaccine.repository;
 
 
 import com.vaccine.model.Customer;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -28,6 +30,10 @@ public interface ICustomerRepository extends JpaRepository<Customer, Long> {
 
     @Query("SELECT u FROM Customer u WHERE u.verificationCode = ?1")
     public Customer findByVerificationCode(String code);
+
+//     Khanh
+    @Query("SELECT c FROM Customer c WHERE c.CMND LIKE %?1%")
+    Page<Customer> searchUserAdmin(String search, Pageable pageable);
 
 
 
