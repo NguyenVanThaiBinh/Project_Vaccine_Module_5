@@ -3,8 +3,11 @@ package com.vaccine.controller;
 
 import com.vaccine.model.Customer;
 import com.vaccine.model.Destination;
+import com.vaccine.model.Vaccine;
+import com.vaccine.model.WarehouseVaccine;
 import com.vaccine.repository.ICustomerRepository;
 import com.vaccine.repository.IDestinationRepository;
+import com.vaccine.repository.IVaccineRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,121 +24,69 @@ import java.util.Optional;
 @RestController
 @RequestMapping(value = "/admin")
 public class AdminController {
+
     //
-//
-//
-//    @Autowired
-//    UserRoleRepository userRoleRepository;
-//
     @Autowired
     ICustomerRepository customerRepository;
+
     //
-//    @Autowired
-//    IWarehouseVaccineService warehouseVaccineService;
-//
-//    @Autowired
-//    IWarehouseRepository iWarehouseRepository;
-//
     @Autowired
     IDestinationRepository destinationRepository;
-    //
-//    @Autowired
-//    IAdminDestinationService adminDestinationService;
-//
-//    @Autowired
-//    IDayTimeStart iDayTimeStart;
-//
-//    int countSort=0;
-//
-//    @ModelAttribute("warehouses")
-//    public Iterable<WarehouseVaccine> warehouseVaccineResponseEntity() {
-//        return iWarehouseRepository.findAll();
-//    }
-//
+
+    @Autowired
+    IVaccineRepository vaccineRepository;
+
     @GetMapping
-    public ModelAndView showdb(){
+    public ModelAndView showdb() {
         ModelAndView modelAndView = new ModelAndView("/admin/dashBoar");
         return modelAndView;
     }
+
     ////  ajax user
     @GetMapping("/api-full")
-    public ResponseEntity<Page<Customer>> allUser(@PageableDefault(value = 10) Pageable pageable){
-        return new ResponseEntity<>(customerRepository.findAll(pageable), HttpStatus.OK);
+    public ResponseEntity<Page<Customer>> allUser(@PageableDefault(value = 10) Pageable pageable) {
+        return new ResponseEntity<>(customerRepository.findAllCustomerAccount(pageable), HttpStatus.OK);
     }
+
     @GetMapping("/apiID/{id}")
-    public ResponseEntity<Customer> getEntity(@PathVariable Long id){
+    public ResponseEntity<Customer> getEntity(@PathVariable Long id) {
         return new ResponseEntity<>(customerRepository.findById(id).get(), HttpStatus.OK);
     }
 
     @GetMapping("/api/{search}")
-    public ResponseEntity<Page<Customer>> searchUsers(@PageableDefault(value = 10) Pageable pageable, @PathVariable String search){
-        return new ResponseEntity<>(customerRepository.searchUserAdmin(search,pageable), HttpStatus.OK);
+    public ResponseEntity<Page<Customer>> searchUsers(@PageableDefault(value = 10) Pageable pageable, @PathVariable String search) {
+        return new ResponseEntity<>(customerRepository.searchUserAdmin(search, pageable), HttpStatus.OK);
     }
 
 
     @PutMapping("/edit/{id}")
-    public ResponseEntity<Customer> editEntity(@RequestBody Customer customer, @PathVariable Long id){
+    public ResponseEntity<Customer> editEntity(@RequestBody Customer customer, @PathVariable Long id) {
         Customer customer1 = customerRepository.findById(id).get();
         customer1.setCMND(customer.getCMND());
         customer1.setCustomer_name(customer.getCustomer_name());
         customer1.setEmail(customer.getEmail());
         customer1.setPhone_number(customer.getPhone_number());
-        return new ResponseEntity<>(customerRepository.save(customer1),HttpStatus.OK);
+        return new ResponseEntity<>(customerRepository.save(customer1), HttpStatus.OK);
     }
-    //    @DeleteMapping("/{id}")
-//    public ResponseEntity<Customer> deleteUsers(@PathVariable("id")Long id){
-//        Optional<Customer> optional = userService.findById(id);
-//        userService.remove(id);
-//        return new ResponseEntity<>(optional.get(),HttpStatus.NO_CONTENT);
-//    }
-//
-//
-//
+
     @GetMapping("/user")
-    public ModelAndView listUsers(@PageableDefault(value = 10) Pageable pageable, @RequestParam("page") Optional<Integer> page){
+    public ModelAndView listUsers(@PageableDefault(value = 10) Pageable pageable, @RequestParam("page") Optional<Integer> page) {
         int currentPage = page.orElse(0);
-        Page<Customer> customers = customerRepository.findAll(pageable);
+        Page<Customer> customers = customerRepository.findAllCustomerAccount(pageable);
         ModelAndView modelAndView = new ModelAndView("/admin/user");
         List<Integer> list = new ArrayList<>();
 
-        for(int i=0;i<customers.getTotalPages();i++){
+        for (int i = 0; i < customers.getTotalPages(); i++) {
             list.add(i);
         }
-        modelAndView.addObject("customers",customers);
-        modelAndView.addObject("list",list);
-        modelAndView.addObject("pageActive",currentPage);
+        modelAndView.addObject("customers", customers);
+        modelAndView.addObject("list", list);
+        modelAndView.addObject("pageActive", currentPage);
         return modelAndView;
     }
+
+
     //
-//    @GetMapping("/edit-user/{id}")
-//    public ModelAndView showEdit(@PathVariable("id") Long id){
-//        Customer user = userService.findById(id).get();
-//        ModelAndView modelAndView = new ModelAndView("/editForm");
-//        modelAndView.addObject("user",user);
-//        return modelAndView;
-//    }
-//    @PostMapping("/edit-user")
-//    public ModelAndView editUser(@ModelAttribute("user") Customer user){
-//        userService.save(user);
-//        ModelAndView modelAndView = new ModelAndView("/editForm");
-//        modelAndView.addObject("user",new Customer());
-//        return modelAndView;
-//    }
-//
-//    //    ---------------------------------Thời gian tiêm chủng------------------------------------------>
-//
-//    @GetMapping("/timevaccine")
-//    public ModelAndView listTimeVaccine(){
-//        ModelAndView modelAndView = new ModelAndView("/admin/injectiontime");
-//        if(iDayTimeStart.findById(2L).isPresent()){
-//            modelAndView.addObject("error","Điểm tiêm đã được ấn định");
-//        }
-//
-//
-//
-//        return modelAndView;
-//    }
-//
 //    //    ---------------------------------Điểm tiêm chủng------------------------------------------>
     @GetMapping("/destination")
     public ModelAndView listDestination() {
@@ -144,76 +95,60 @@ public class AdminController {
         modelAndView.addObject("destination", destinations);
         return modelAndView;
     }
-//    @PostMapping("/create-DS")
-//    public ResponseEntity<Destination> createDestination(@RequestBody Destination adminDestination) {
-//        return new ResponseEntity<>(adminDestinationService.save(adminDestination), HttpStatus.CREATED);
-//    }
-////    @DeleteMapping("/deleteDestination/{id}")
-////    public ResponseEntity<AdminDestination> destinationResponseEntity(@PathVariable long id) {
-////        Optional<AdminDestination> adminDestination = adminDestinationService.findById(id);
-////        adminDestination.get().setDeleteStatus(1);
-////        return new ResponseEntity<>(adminDestination.get(), HttpStatus.NO_CONTENT);
-////    }
-////    @GetMapping("/apiDs/{id}")
-////    public ResponseEntity<AdminDestination> adminDestinationResponseEntity(@PathVariable Long id) {
-////        return new ResponseEntity<>(adminDestinationService.findById(id).get(), HttpStatus.OK);
-////    }
-////    @PutMapping("/editDs/{id}")
-////    public ResponseEntity<AdminDestination> editEntityDS(@RequestBody AdminDestination adminDestination, @PathVariable Long id) {
-////        adminDestination.setId(id);
-////        return new ResponseEntity<>(adminDestinationService.save(adminDestination), HttpStatus.OK);
-////    }
-//
-//
+
 //    //    ---------------------------------Nhà kho------------------------------------------>
-//
-//    @GetMapping("/all-W")
-//    public ResponseEntity<Iterable<WarehouseVaccine>> allwareHouse(){
-//    return new ResponseEntity<>(iWarehouseRepository.findAll(),HttpStatus.OK);
-//}
-//    @GetMapping("/warehouse")
-//    public ModelAndView listWareH(){
-//        List<WarehouseVaccine> warehouseVaccineList = iWarehouseRepository.findAll();
-//        ModelAndView modelAndView = new ModelAndView("/admin/warehousevaccine");
-//        modelAndView.addObject("warehousevaccine",warehouseVaccineList);
-//        return modelAndView;
-//    }
-//    @PostMapping("/create-W")
-//    public ResponseEntity<WarehouseVaccine> createCustomer(@RequestBody WarehouseVaccine warehouseVaccine) {
-//        warehouseVaccine.setAmountRegister(warehouseVaccine.getAmountVaccine());
-//        return new ResponseEntity<>(warehouseVaccineService.save(warehouseVaccine), HttpStatus.CREATED);
-//    }
-//    @GetMapping("/apiIdW/{id}")
-//    public ResponseEntity<WarehouseVaccine> getEntityById(@PathVariable Long id){
-//        return new ResponseEntity<>(warehouseVaccineService.findById(id).get(),HttpStatus.OK);
-//    }
-//    @PutMapping("/editW/{id}")
-//    public ResponseEntity<WarehouseVaccine> editEntityW(@RequestBody WarehouseVaccine warehouseVaccine,@PathVariable Long id){
-//        WarehouseVaccine  warehouseVaccine1 = warehouseVaccineService.findById(id).get();
-//        warehouseVaccine1.setId(id);
-//        warehouseVaccine1.setWarehouseName(warehouseVaccine.getWarehouseName());
-//        warehouseVaccine1.setWarehouseAddress(warehouseVaccine.getWarehouseAddress());
-//        warehouseVaccine1.setAmountVaccine(warehouseVaccine.getAmountVaccine());
-//        return new ResponseEntity<>(warehouseVaccineService.save(warehouseVaccine1),HttpStatus.OK);
-//    }
-//    @DeleteMapping("/delete-warehouse/{id}")
-//    public ResponseEntity<WarehouseVaccine> deleteWarehouse(@PathVariable long id) {
-//        Optional<WarehouseVaccine> customerOptional = warehouseVaccineService.findById(id);
-//        warehouseVaccineService.remove(id);
-//        return new ResponseEntity<>(customerOptional.get(), HttpStatus.NO_CONTENT);
-//    }
-//    //    ---------------------------------Bác sĩ------------------------------------------>
+
+    @GetMapping("/vaccine")
+    public ModelAndView listWareH() {
+        List<Vaccine> vaccineList = vaccineRepository.findAll();
+        ModelAndView modelAndView = new ModelAndView("/admin/vaccine");
+        modelAndView.addObject("vaccineList", vaccineList);
+        return modelAndView;
+    }
+
+    @PostMapping("/create-V")
+    public ResponseEntity<Vaccine> createCustomer(@RequestBody Vaccine vaccine) {
+//        Một kho cho nên set thẳng luôn
+        WarehouseVaccine warehouseVaccine = new WarehouseVaccine();
+        warehouseVaccine.setId(1L);
+
+        vaccine.setWarehouseVaccine(warehouseVaccine);
+        return new ResponseEntity<>(vaccineRepository.save(vaccine), HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/delete-vaccine/{id}")
+    public ResponseEntity<Vaccine> deleteWarehouse(@PathVariable long id) {
+        Optional<Vaccine> vaccine = vaccineRepository.findById(id);
+        vaccineRepository.deleteById(id);
+        return new ResponseEntity<>(vaccine.get(), HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping("/editV/{id}")
+    public ResponseEntity<Vaccine> editEntityW(@RequestBody Vaccine vaccine, @PathVariable Long id) {
+        Vaccine vaccine1 = vaccineRepository.getById(id);
+        vaccine1.setVaccine_name(vaccine.getVaccine_name());
+        vaccine1.setVaccine_amount(vaccine.getVaccine_amount());
+
+        return new ResponseEntity<>(vaccineRepository.save(vaccine1), HttpStatus.OK);
+    }
+
+        @GetMapping("/apiIdV/{id}")
+    public ResponseEntity<Vaccine> getEntityById(@PathVariable Long id){
+        return new ResponseEntity<>(vaccineRepository.findById(id).get(),HttpStatus.OK);
+    }
+
+//    //    ---------------------------------Tài khoản điểm tiêm------------------------------------------>
 //    @GetMapping("/all-H")
 //    public ResponseEntity<Iterable<Customer>> listHosp() {
 //        return new ResponseEntity<>(userRepository.getDoctor(), HttpStatus.OK);
 //    }
-//    @GetMapping("/hospital")
-//    public ModelAndView showHosp() {
-//        Page<Destination> destinations = customerRepository.getAllDestination();
-//        ModelAndView modelAndView = new ModelAndView("/admin/hospital");
-//        modelAndView.addObject("destinations", destinations);
-//        return modelAndView;
-//    }
+    @GetMapping("/destinationAccount")
+    public ModelAndView showHosp() {
+        List<Customer> customerPage = customerRepository.getAllDestinationAccount();
+        ModelAndView modelAndView = new ModelAndView("admin/destination_account");
+        modelAndView.addObject("destinations", customerPage);
+        return modelAndView;
+    }
 ////    @PostMapping("/createDoctor")
 ////    public ResponseEntity<Customer> createDoctor(@RequestBody Customer user) {
 ////

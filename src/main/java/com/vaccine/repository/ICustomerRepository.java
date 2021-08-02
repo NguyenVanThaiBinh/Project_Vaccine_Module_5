@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ICustomerRepository extends JpaRepository<Customer, Long> {
 
@@ -34,6 +36,15 @@ public interface ICustomerRepository extends JpaRepository<Customer, Long> {
 //     Khanh
     @Query("SELECT c FROM Customer c WHERE c.CMND LIKE %?1%")
     Page<Customer> searchUserAdmin(String search, Pageable pageable);
+
+//    Destination Account
+    @Query("SELECT e FROM Customer e WHERE e.isDoctor = 1")
+    List<Customer> getAllDestinationAccount();
+
+    @Query("SELECT e FROM Customer e WHERE e.isDoctor = 0")
+    Page<Customer> findAllCustomerAccount(Pageable pageable);
+
+
 
 
 

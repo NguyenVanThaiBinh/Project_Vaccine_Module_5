@@ -1,5 +1,5 @@
-function deleteWareHouse(id){
-    let a = '#row'+id;
+function deleteWareHouse(id) {
+    let a = '#row' + id;
     Swal.fire({
         title: 'Bạn chắc chắn muốn xoá?',
         text: "Nội dung xoá sẽ mất vĩnh viễn",
@@ -13,13 +13,13 @@ function deleteWareHouse(id){
         if (result.isConfirmed) {
             $.ajax({
                 type: "DELETE",
-                url: '/admin/delete-warehouse/'+id,
+                url: '/admin/delete-vaccine/' + id,
                 //xử lý khi thành công
                 success: function (data) {
                     $(a).remove();
                     swal.fire(
                         "Thành công!",
-                        "Một kho đã được xoá!",
+                        "Một vaccine đã được xoá!",
                         "success"
                     )
                 }
@@ -38,34 +38,35 @@ function deleteWareHouse(id){
     })
 
 }
+
 function editWareHouse() {
     let id = $('#kId').val();
     let name = $('#kName').val();
-    let address = $('#kAddress').val();
     let amount = $('#kAmount').val();
-    let newWareHouse = {
-        warehouseName: name,
-        warehouseAddress: address,
-        amountVaccine: amount,
+    let vaccine = {
+        vaccine_name: name,
+        vaccine_amount: amount,
     }
-    if (id==0){
+
+    if (id == 0) {
         $.ajax({
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
             type: "POST",
-            data: JSON.stringify(newWareHouse),
-            url: "/admin/create-W",
+            data: JSON.stringify(vaccine),
+            url: "/admin/create-V",
             success: function (houses) {
-                $('#wareHouseList tbody').prepend(' <tr id="row' + houses.id + '">\n' +
+
+                $('#wareHouseList tbody').append(' <tr id="row' + houses.id + '">\n' +
                     '      <td>' + houses.id + '</td>\n' +
-                    '      <td>' + houses.warehouseName + '</td>\n' +
-                    '      <td>' + houses.warehouseAddress + '</td>\n' +
-                    '      <td>' + houses.amountVaccine + '</td>\n' +
-                    '      <td><button onclick="loadEditData('+houses.id+')" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo">Edit</button>' +
+                    '      <td>' + houses.vaccine_name + '</td>\n' +
+
+                    '      <td>' + houses.vaccine_amount + '</td>\n' +
+                    '      <td><button onclick="loadEditData(' + houses.id + ')" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo">Edit</button>' +
                     '<input type="hidden" id="id" value="' + houses.id + '"></td>\n' +
-                    ' <td><button onclick="deleteWareHouse('+houses.id+')" class="btn btn-outline-danger" ><i class="fas fa-trash-alt"></i>Delete</button>    </td>' +
+                    ' <td><button onclick="deleteWareHouse(' + houses.id + ')" class="btn btn-outline-danger" ><i class="fas fa-trash-alt"></i>Delete</button>    </td>' +
                     ' </tr>');
                 //sư kiện nào thực hiện Ajax
                 $('.close-modal').click();
@@ -77,30 +78,29 @@ function editWareHouse() {
                 })
             }
         });
-    }else{
+    } else {
         $.ajax({
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
             type: "PUT",
-            data: JSON.stringify(newWareHouse),
-            url: '/admin/editW/' + id,
+            data: JSON.stringify(vaccine),
+            url: '/admin/editV/' + id,
             success: function (house) {
                 console.log(house);
                 $('#row' + id + ' td').remove();
                 $('#row' + id).html(`
                         <td>${house.id}</td>
-                        <td>${house.warehouseName}</td>
-                        <td>${house.warehouseAddress}</td>
-                        <td>${house.amountVaccine}</td>
+                        <td>${house.vaccine_name}</td>
+                       <td>${house.vaccine_amount}</td>
                        <td><button onclick="loadEditData(${house.id})" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo">Edit</button>
                        <input type="hidden" id="id" value="' + customer.id + '"></td>
                       <td><button onclick="deleteWareHouse(${house.id})" class="btn btn-outline-danger" ><i class="fas fa-trash-alt"></i>Delete</button></td>`);
                 $('.close-modal').click();
                 Swal.fire({
                     icon: 'success',
-                    title: 'You have changed successfull',
+                    title: 'Chỉnh sửa vaccine thành công!',
                     showConfirmButton: false,
                     timer: 1500
                 })
@@ -108,27 +108,32 @@ function editWareHouse() {
         });
     }
 }
-function loadEditData(id){
+
+function loadEditData(id) {
     $.ajax({
         type: 'GET',
-        url: '/admin/apiIdW/' + id,
+        url: '/admin/apiIdV/' + id,
         success: function (house) {
-            $('#exampleModalLabelSpan').text("Chỉnh sửa kho vaccine");
+
+            $('#exampleModalLabelSpan').text("Chỉnh sửa Vaccine");
             $('#kId').val(house.id);
-            $('#kName').val(house.warehouseName);
-            $('#kAddress').val(house.warehouseAddress);
-            $('#kAmount').val(house.amountVaccine);
+            $('#kName').val(house.vaccine_name);
+            $('#button_submit').text("Chỉnh sửa");
+            $('#kAmount').val(house.vaccine_amount);
         }
     })
 }
+
 function loadAddnew() {
-    $('#exampleModalLabelSpan').text("Tạo thêm kho Vaccine");
+    $('#exampleModalLabelSpan').text("Thêm mới loại vaccine");
+    $('#button_submit').text("Tạo mới");
     $('#kId').val(0);
     $('#kName').val("");
     $('#kAddress').val("");
     $('#kAmount').val("");
 }
-function  createWareHouse(){
+
+function createWareHouse() {
     let name = $('#kName').val();
     let address = $('#kAddress').val();
     let amount = $('#kAmount').val();
