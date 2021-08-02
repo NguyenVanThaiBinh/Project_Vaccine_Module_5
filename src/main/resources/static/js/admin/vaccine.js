@@ -29,11 +29,7 @@ function deleteWareHouse(id) {
             /* Read more about handling dismissals below */
             result.dismiss === Swal.DismissReason.cancel
         ) {
-            swal.fire(
-                "Cancelled",
-                "Lỗi đã xảy ra :(",
-                "error"
-            )
+
         }
     })
 
@@ -72,7 +68,7 @@ function editWareHouse() {
                 $('.close-modal').click();
                 Swal.fire({
                     icon: 'success',
-                    title: 'Your work has been saved',
+                    title: 'Thêm mới vaccine thành công!',
                     showConfirmButton: false,
                     timer: 1500
                 })
@@ -133,42 +129,3 @@ function loadAddnew() {
     $('#kAmount').val("");
 }
 
-function createWareHouse() {
-    let name = $('#kName').val();
-    let address = $('#kAddress').val();
-    let amount = $('#kAmount').val();
-    let newWareHouse = {
-        warehouseName: name,
-        warehouseAddress: address,
-        amountVaccine: amount,
-    }
-    $.ajax({
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        type: "POST",
-        data: JSON.stringify(newWareHouse),
-        url: "/admin/create-W",
-        success: function (house) {
-            $('#wareHouseList tbody').prepend(' <tr id="row' + house.id + '">\n' +
-                '      <td>' + house.id + '</td>\n' +
-                '      <td>' + house.warehouseName + '</td>\n' +
-                '      <td>' + house.warehouseAddress + '</td>\n' +
-                '      <td>' + house.amountVaccine + '</td>\n' +
-                '      <td><button type="button" class="btn btn-primary edit" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo">Edit</button>' +
-                '<input type="hidden" id="id" value="' + house.id + '"></td>\n' +
-                ' <td><button class="btn btn-outline-danger" ><i class="fas fa-trash-alt"></i>Delete</button></td>' +
-                ' </tr>');
-            //sư kiện nào thực hiện Ajax
-            $('.close-modal').click();
-            Swal.fire({
-                position: 'top-end',
-                icon: 'success',
-                title: 'Your work has been saved',
-                showConfirmButton: false,
-                timer: 1500
-            })
-        }
-    });
-}

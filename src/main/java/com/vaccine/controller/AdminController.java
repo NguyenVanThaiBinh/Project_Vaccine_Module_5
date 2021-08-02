@@ -1,11 +1,9 @@
 package com.vaccine.controller;
 
 
-import com.vaccine.model.Customer;
-import com.vaccine.model.Destination;
-import com.vaccine.model.Vaccine;
-import com.vaccine.model.WarehouseVaccine;
+import com.vaccine.model.*;
 import com.vaccine.repository.ICustomerRepository;
+import com.vaccine.repository.ICustomerRoleRepository;
 import com.vaccine.repository.IDestinationRepository;
 import com.vaccine.repository.IVaccineRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -35,6 +34,9 @@ public class AdminController {
 
     @Autowired
     IVaccineRepository vaccineRepository;
+
+    @Autowired
+    ICustomerRoleRepository customerRoleRepository;
 
     @GetMapping
     public ModelAndView showdb() {
@@ -96,7 +98,7 @@ public class AdminController {
         return modelAndView;
     }
 
-//    //    ---------------------------------Nhà kho------------------------------------------>
+//    //    ---------------------------------Quản lý vaccine------------------------------------------>
 
     @GetMapping("/vaccine")
     public ModelAndView listWareH() {
@@ -132,65 +134,95 @@ public class AdminController {
         return new ResponseEntity<>(vaccineRepository.save(vaccine1), HttpStatus.OK);
     }
 
-        @GetMapping("/apiIdV/{id}")
-    public ResponseEntity<Vaccine> getEntityById(@PathVariable Long id){
-        return new ResponseEntity<>(vaccineRepository.findById(id).get(),HttpStatus.OK);
+    @GetMapping("/apiIdV/{id}")
+    public ResponseEntity<Vaccine> getEntityById(@PathVariable Long id) {
+        return new ResponseEntity<>(vaccineRepository.findById(id).get(), HttpStatus.OK);
     }
 
-//    //    ---------------------------------Tài khoản điểm tiêm------------------------------------------>
+    //    //    ---------------------------------Tài khoản điểm tiêm------------------------------------------>
 //    @GetMapping("/all-H")
 //    public ResponseEntity<Iterable<Customer>> listHosp() {
 //        return new ResponseEntity<>(userRepository.getDoctor(), HttpStatus.OK);
 //    }
     @GetMapping("/destinationAccount")
     public ModelAndView showHosp() {
-        List<Customer> customerPage = customerRepository.getAllDestinationAccount();
+        List<Customer> allDestinationAccount = customerRepository.getAllDestinationAccount();
+        List<Destination> destinationList = destinationRepository.findAll();
         ModelAndView modelAndView = new ModelAndView("admin/destination_account");
-        modelAndView.addObject("destinations", customerPage);
+        modelAndView.addObject("allDestinationAccount", allDestinationAccount);
+        modelAndView.addObject("destinationList", destinationList);
         return modelAndView;
     }
-////    @PostMapping("/createDoctor")
-////    public ResponseEntity<Customer> createDoctor(@RequestBody Customer user) {
-////
-////        user.setCheckDoctor(1);
-////
-//////        Ma` hoa'
-////        String password = user.getPassword();
-////        String encrytedPassword = encrytePassword(password);
-////        user.setPassword(encrytedPassword);
-////        try {
-////            userService.save(user);
-////        } catch (Exception e) {
-////            return new ResponseEntity<>(userService.save(user), HttpStatus.EXPECTATION_FAILED);
-////        }
-//////        Them quyen`
-////        //        Thêm quyền
-////        Customer_Role userRole = new Customer_Role();
-////        userRole.setAppUser(user);
-////        Role appRole = new Role();
-////        appRole.setRoleId(3L);
-////        userRole.setAppRole(appRole);
-////        userRoleRepository.save(userRole);
-////        return new ResponseEntity<>(userService.save(user), HttpStatus.CREATED);
-////    }
-////    @DeleteMapping("/deleteDoctor/{id}")
-////    public ModelAndView delete(@PathVariable Long id) {
-////        userService.remove(id);
-////        ModelAndView modelAndView = new ModelAndView("/admin/hospital");
-////        return modelAndView;
-////    }
-////    @PutMapping("/edit-D/{id}")
-////    public ResponseEntity<Customer> userResponseEntity(@RequestBody Customer user, @PathVariable Long id) {
-////        Customer user1 = userService.findById(id).get();
-////        user1.setId(id);
-////        user1.setUserName(user.getUserName());
-////        user1.setCMND(user.getCMND());
-////        return new ResponseEntity<>(userService.save(user1), HttpStatus.OK);
-////    }
-////    // Ma~ hoa mat khau~
-////    public static String encrytePassword(String password) {
-////        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-////        return encoder.encode(password);
-////    }
+
+    @PostMapping("/createDestinationAccount")
+    public ResponseEntity<Customer> createDestinationAccount(@RequestBody Customer user) {
+
+
+        //      Set là tài khoản điểm tiêm
+        user.setIsDoctor(1);
+        //        Mã hoá mật khẩu
+        String password = user.getPassword();
+        String encrytedPassword = encrytePassword(password);
+        user.setPassword(encrytedPassword);
+        try {
+            customerRepository.save(user);
+        } catch (Exception e) {
+            return new ResponseEntity<>(user, HttpStatus.CREATED);
+        }
+
+
+        //  Lấy thông tin điểm tiêm về
+        Optional<Destination> destination = destinationRepository.findById(user.getDestination().getId());
+        user.setDestination(destination.get());
+
+
+        //        Thêm quyền
+        Customer_Role userRole = new Customer_Role();
+        userRole.setAppUser(user);
+        Role appRole = new Role();
+        appRole.setRoleId(3L);
+        userRole.setAppRole(appRole);
+        customerRoleRepository.save(userRole);
+
+        return new ResponseEntity<>(customerRepository.save(user), HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/delete_destination_account/{id}")
+    public void deleteDestinationAccount(@PathVariable Long id) {
+        Customer_Role customer_role = customerRoleRepository.findCustomer_RoleByIdCustomer(id);
+        customerRoleRepository.deleteById(customer_role.getId());
+
+        customerRepository.deleteById(id);
+
+    }
+
+    @GetMapping("/api_destination_account/{id}")
+    public ResponseEntity<Customer> getAPIDestiontionAccount(@PathVariable Long id) {
+        return new ResponseEntity<>(customerRepository.findById(id).get(), HttpStatus.OK);
+    }
+
+    @PutMapping("/edit_destination_account/{id}")
+    public ResponseEntity<Customer> userResponseEntity(@RequestBody Customer user, @PathVariable Long id) {
+        Optional<Destination> destination = destinationRepository.findById(user.getDestination().getId());
+
+        Customer user1 = customerRepository.findById(id).get();
+        user1.setCMND(user.getCMND());
+        user1.setDestination(destination.get());
+        user1.setPassword(encrytePassword(user.getPassword()));
+        try {
+            customerRepository.save(user1);
+        } catch (Exception e) {
+            user.setCMND("-1");
+            return new ResponseEntity<>(user, HttpStatus.CREATED);
+        }
+
+        return new ResponseEntity<>(customerRepository.save(user1), HttpStatus.OK);
+    }
+
+    // Ma~ hoa mat khau~
+    public static String encrytePassword(String password) {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        return encoder.encode(password);
+    }
 }
 //

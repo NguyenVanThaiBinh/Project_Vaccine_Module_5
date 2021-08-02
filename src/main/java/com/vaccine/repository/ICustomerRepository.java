@@ -41,6 +41,7 @@ public interface ICustomerRepository extends JpaRepository<Customer, Long> {
     @Query("SELECT e FROM Customer e WHERE e.isDoctor = 1")
     List<Customer> getAllDestinationAccount();
 
+    //    Customer Account
     @Query("SELECT e FROM Customer e WHERE e.isDoctor = 0")
     Page<Customer> findAllCustomerAccount(Pageable pageable);
 
