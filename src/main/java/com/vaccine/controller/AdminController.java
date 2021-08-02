@@ -119,10 +119,17 @@ public class AdminController {
     }
 
     @DeleteMapping("/delete-vaccine/{id}")
-    public ResponseEntity<Vaccine> deleteWarehouse(@PathVariable long id) {
-        Optional<Vaccine> vaccine = vaccineRepository.findById(id);
-        vaccineRepository.deleteById(id);
-        return new ResponseEntity<>(vaccine.get(), HttpStatus.NO_CONTENT);
+    public Vaccine deleteWarehouse(@PathVariable long id) {
+      Vaccine vaccine = vaccineRepository.findById(id).get();
+
+        try{
+            vaccineRepository.deleteById(id);
+        }catch (Exception e){
+            vaccine.setVaccine_amount(-1);
+            return vaccine;
+        }
+
+        return vaccine;
     }
 
     @PutMapping("/editV/{id}")

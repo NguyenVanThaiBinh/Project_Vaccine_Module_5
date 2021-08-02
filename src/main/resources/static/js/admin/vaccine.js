@@ -16,12 +16,24 @@ function deleteWareHouse(id) {
                 url: '/admin/delete-vaccine/' + id,
                 //xử lý khi thành công
                 success: function (data) {
-                    $(a).remove();
-                    swal.fire(
-                        "Thành công!",
-                        "Một vaccine đã được xoá!",
-                        "success"
-                    )
+                    // console.log(data);
+                    if (data.vaccine_amount == -1){
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Vaccine này đang được sử dụng :((',
+                            showConfirmButton: false,
+                            timer: 2500
+                        })
+                    }else {
+                        $(a).remove();
+                        swal.fire(
+                            "Thành công!",
+                            "Một vaccine đã được xoá!",
+                            "success"
+                        )
+                    }
+
                 }
             });
             //chặn sự kiện mặc định của thẻ
