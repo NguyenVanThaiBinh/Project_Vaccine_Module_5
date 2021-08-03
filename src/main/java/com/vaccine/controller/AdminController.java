@@ -3,8 +3,10 @@ package com.vaccine.controller;
 
 import com.vaccine.model.Customer;
 import com.vaccine.model.Destination;
+import com.vaccine.model.WarehouseVaccine;
 import com.vaccine.repository.ICustomerRepository;
 import com.vaccine.repository.IDestinationRepository;
+import com.vaccine.repository.IWarehouseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,8 +38,8 @@ public class AdminController {
 //    @Autowired
 //    IWarehouseVaccineService warehouseVaccineService;
 //
-//    @Autowired
-//    IWarehouseRepository iWarehouseRepository;
+    @Autowired
+    IWarehouseRepository iWarehouseRepository;
 //
     @Autowired
     IDestinationRepository destinationRepository;
@@ -47,10 +52,10 @@ public class AdminController {
 //
 //    int countSort=0;
 //
-//    @ModelAttribute("warehouses")
-//    public Iterable<WarehouseVaccine> warehouseVaccineResponseEntity() {
-//        return iWarehouseRepository.findAll();
-//    }
+    @ModelAttribute("warehouses")
+    public Iterable<WarehouseVaccine> warehouseVaccineResponseEntity() {
+        return iWarehouseRepository.findAll();
+    }
 //
     @GetMapping
     public ModelAndView showdb(){
@@ -137,23 +142,32 @@ public class AdminController {
 //    }
 //
 //    //    ---------------------------------Điểm tiêm chủng------------------------------------------>
+
+    @GetMapping("/destination/api-full")
+    public ResponseEntity<Page<Destination>> fullApi(Pageable pageable){
+        return new ResponseEntity<>(destinationRepository.findAll(pageable),HttpStatus.OK);
+    }
+
     @GetMapping("/destination")
-    public ModelAndView listDestination() {
-        List<Destination> destinations = destinationRepository.findAll();
+    public ModelAndView listDestination(Pageable pageable) throws ParseException {
+        Page<Destination> destinations = destinationRepository.findAllBySttDelete(0,pageable);
         ModelAndView modelAndView = new ModelAndView("/admin/injectionPoint");
+//        System.out.println(new SimpleDateFormat("yyy-mm-dd").format(new SimpleDateFormat("dd-mm-yyyy").parse(destinationRepository.findById(1L).get().getDate_end().trim())));
         modelAndView.addObject("destination", destinations);
+        modelAndView.addObject("dateNow",LocalDate.now().toString());
         return modelAndView;
     }
-//    @PostMapping("/create-DS")
-//    public ResponseEntity<Destination> createDestination(@RequestBody Destination adminDestination) {
-//        return new ResponseEntity<>(adminDestinationService.save(adminDestination), HttpStatus.CREATED);
-//    }
-////    @DeleteMapping("/deleteDestination/{id}")
-////    public ResponseEntity<AdminDestination> destinationResponseEntity(@PathVariable long id) {
-////        Optional<AdminDestination> adminDestination = adminDestinationService.findById(id);
-////        adminDestination.get().setDeleteStatus(1);
-////        return new ResponseEntity<>(adminDestination.get(), HttpStatus.NO_CONTENT);
-////    }
+    @PostMapping("/destination/create")
+    public ResponseEntity<Destination> createDestination(@RequestBody Destination adminDestination) {
+        return new ResponseEntity<>(destinationRepository.save(adminDestination), HttpStatus.CREATED);
+    }
+    @DeleteMapping("/destination/{id}")
+    public ResponseEntity<Destination> destinationResponseEntity(@PathVariable long id) {
+        Destination Destination = destinationRepository.findById(id).get();
+        Destination.setIsDelete(1);
+        destinationRepository.save(Destination);
+        return new ResponseEntity<>(Destination, HttpStatus.NO_CONTENT);
+    }
 ////    @GetMapping("/apiDs/{id}")
 ////    public ResponseEntity<AdminDestination> adminDestinationResponseEntity(@PathVariable Long id) {
 ////        return new ResponseEntity<>(adminDestinationService.findById(id).get(), HttpStatus.OK);
