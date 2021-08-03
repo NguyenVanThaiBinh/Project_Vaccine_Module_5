@@ -8,12 +8,14 @@ import com.vaccine.repository.IDestinationRepository;
 import com.vaccine.repository.IVaccineRepository;
 import com.vaccine.service.CustomerServiceVerifyAccount;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.data.repository.query.Param;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import springfox.documentation.RequestHandler;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -24,10 +26,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.*;
 
 @RestController
 @RequestMapping(value = {"/"}, method = RequestMethod.GET, produces = "application/x-www-form-urlencoded;charset=UTF-8")
-public class HomeController {
+public class HomeController{
 
     @Autowired
     JavaMailSender mailSender;
@@ -105,9 +108,8 @@ public class HomeController {
         return siteURL.replace(request.getServletPath(), "");
     }
 
-
     @PostMapping("/create")
-    public ModelAndView createUser(Customer user, HttpServletRequest request) throws UnsupportedEncodingException, MessagingException
+    public ModelAndView createUser(Customer user, HttpServletRequest request) throws InterruptedException, ExecutionException
 //            ,@RequestParam(name ="g-recaptcha-response") String captchaResponse)
     {
         //        Recaptcha
@@ -127,12 +129,14 @@ public class HomeController {
         user.setHealthy_status(2);
 //        user.setHealthy_status(setStatus(user));
 
-        //        Gửi mail xác minh tài khoản
-//        if (user.getEmail() != null) {
-//            customerServiceVerifyAccount.sendEmailVerifyAccount("boyte.vaccine.covid@gmail.com", user,getSiteURL(request));
-//        }
 
-
+//                Gửi mail xác minh tài khoản
+        Thread thread1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                customerServiceVerifyAccount.sendEmailVerifyAccount("boyte.vaccine.covid@gmail.com", user,getSiteURL(request));
+            }
+        });
 
         // Kiểm tra đã có điểm tiêm đã có bắt đầu chưa?
         try {
@@ -142,6 +146,7 @@ public class HomeController {
             ModelAndView modelAndView = new ModelAndView("/index/form");
             modelAndView.addObject("user", new Customer());
             modelAndView.addObject("fail", "Chiến dịch chưa bắt đầu, vui lòng quay lại sau!");
+
             return modelAndView;
         }
 
@@ -191,7 +196,11 @@ public class HomeController {
 
         ModelAndView modelAndView = new ModelAndView("/index/form");
         modelAndView.addObject("user", new Customer());
+        if (user.getEmail() != null) {
+            thread1.start();
+        }
         modelAndView.addObject("fail", "Vui lòng kiểm tra email để xác minh tài khoản!");
+//        thread1.currentThread().interrupt();
         return modelAndView;
     }
 
@@ -405,6 +414,4 @@ public class HomeController {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         return encoder.encode(password);
     }
-
-
 }

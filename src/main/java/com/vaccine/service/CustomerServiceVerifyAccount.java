@@ -7,7 +7,7 @@ import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
@@ -38,8 +38,7 @@ public class CustomerServiceVerifyAccount {
 
 
     }
-    public void sendEmailVerifyAccount(String from, Customer customer, String siteURL) {
-
+    public void sendEmailVerifyAccount(String from, Customer customer, String siteURL){
         MimeMessage msg = mailSender.createMimeMessage();
         try {
             MimeMessageHelper helper = new MimeMessageHelper(msg, true, "UTF-8");
@@ -55,7 +54,6 @@ public class CustomerServiceVerifyAccount {
             customer.setVerificationCode(randomCode);
             customer.setEnabled(false);
             repo.save(customer);
-
             String verifyURL = siteURL  + "/verify?code=" + customer.getVerificationCode();
             MailText mailText = new MailText(customer.getCustomer_name(), customer.getCMND(),
                     customer.getAge(),customer.getDestination().getDestination_name(), customer.getHealthy_status(),verifyURL);
@@ -65,7 +63,6 @@ public class CustomerServiceVerifyAccount {
         } catch (Exception e) {
             System.err.println("Gửi email bị lỗi!!!!!!!!!!!!!!!!!!!!!");
         }
-
     }
 
     public boolean isVerify(String verificationCode) {
