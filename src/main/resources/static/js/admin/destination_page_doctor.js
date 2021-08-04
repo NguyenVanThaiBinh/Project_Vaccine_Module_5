@@ -1,7 +1,7 @@
+
+//          <------------------------------------ Pageable------------------------------------->
 //chang status
-    // Bind click event on all the buttons inside .card
     function click() {
-        // Check if the clicked button has class `btn_s`
         if ($(this).hasClass('btn-success')) {
             $(this).text('Chưa tiêm');
             $(this).removeClass('btn btn-success');
@@ -10,16 +10,16 @@
             $(this).text('Đã tiêm');
             $(this).removeClass('btn btn-danger');
             $(this).toggleClass('btn btn-success');
-
         }
     }
-
+// API gọi thay đổi trạng thái
 function setInjectionStatus() {
     let notIsInjectionList = [];
     let IsInjectionListDone = [];
 
     let table = document.getElementById("orderItems");
     let cells = (table.rows[2].cells.length - 1);
+    // Quét hết cái bảng hiện tại
     for (let i = 1; i < table.rows.length; i++) {
         for (let j = 0; j <= cells; j++) {
             // console.log(table.rows[i].cells[j].innerHTML);
@@ -87,7 +87,7 @@ function setInjectionStatus() {
 // })
 //voi vao active so 1
 $( document ).ready(function() {
-    $("#0_button").addClass("active");
+    $("#0_button").click();
 });
 
 
@@ -97,25 +97,35 @@ function changePage(value) {
     //value 0 1
     let maxPage = $('#maxPage').val();
     let pageNumber = [];
-
+    //Khi giảm dần số trang
     if (value > 0) {
         $("#prev").removeClass("disable_css");
-        $("#prev").val(value - 1);
         $(`#${value}_button`).addClass("active");
         $(`#${value + 1}_button`).removeClass("active");
+        $("#prev").val(value - 1);
+
     } else {
+        if(value == 0){
+            $(`#${value}_button`).addClass("active");
+            $(`#${value + 1}_button`).removeClass("active");
+        }
         $("#prev").addClass("disable_css");
         $("#prev").val("");
     }
+    // Khi tăng dần số trăng
     if (value < maxPage - 1) {
         $("#next").removeClass("disable_css");
+        $(`#${value}_button`).addClass("active");
+        $(`#${value - 1}_button`).removeClass("active");
         $("#next").val(value + 1);
     } else {
+        if(value == (maxPage-1)){
+            $(`#${value}_button`).addClass("active");
+            $(`#${value - 1}_button`).removeClass("active");
+        }
         $("#next").addClass("disable_css");
         $("#next").val("");
     }
-
-
     pageNumber.push(value);
     $.ajax({
         type: "POST",
@@ -155,12 +165,18 @@ function get(customer){
             </tr>
         `
 }
-
+//Hàm đổi trạng thái
 function main(){
     $('body').on('click','.row_button',click);
 }
+//Kick đâu active nấy
 $("ul li button").click(function (){
     $("li button").removeClass("active");
     $(this).addClass("active");
 })
 main();
+
+//          <------------------------------------ Search------------------------------------->
+$('input[name="search"]').keyup(function(){
+    let key_search = $(this).val();
+});

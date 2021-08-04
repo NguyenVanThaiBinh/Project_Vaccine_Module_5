@@ -28,7 +28,7 @@ public class DoctorController {
             Customer user = new Customer();
             user = icustomerRepository.findByUserCMND(userName);
 // ----------------->>    Còn thiếu hàm convert ngày hiện tại thành String + " "
-            Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay("01-10-2021 ",user.getDestination().getId(), PageRequest.of(0, 10));
+            Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay("01-10-2021 ",user.getDestination().getId(), PageRequest.of(0, 2));
             ModelAndView modelAndView = new ModelAndView("doctor/ListUserIsDone");
             modelAndView.addObject("customerListIsDone",customerListIsDone);
             modelAndView.addObject("customerInfo",user);
@@ -41,22 +41,12 @@ public class DoctorController {
     @ResponseBody
     @RequestMapping(path = "/setInjectToNone", method = RequestMethod.POST)
     public String setInjectToNone(@RequestBody String[] itemIDs, Principal principal){
-//        String userName = principal.getName();
-//        Customer customer1 = icustomerRepository.findByUserCMND(userName);
-////        Set hết cho những người đến tiêm
-//        Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay("01-10-2021 ",customer1.getDestination().getId(), PageRequest.of(0, 5));
-//
-//        for (Customer customer:customerListIsDone) {
-//            customer.setIsInjection(1);
-//            icustomerRepository.save(customer);
-//        }
-//          Set lại mấy thằng chưa đến tiêm
+        //          Set lại mấy thằng chưa đến tiêm
         for (String cmnd_customer : itemIDs) {
             Customer customer = icustomerRepository.findByUserCMND(cmnd_customer);
             customer.setIsInjection(0);
             icustomerRepository.save(customer);
         }
-
         return "Done";
     }
     @ResponseBody
@@ -77,7 +67,7 @@ public class DoctorController {
         String userName = principal.getName();
         Customer customer1 = icustomerRepository.findByUserCMND(userName);
 //        Lấy danh sách
-        Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay("01-10-2021 ",customer1.getDestination().getId(), PageRequest.of(Integer.parseInt(pageNumber[0]), 5));
+        Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay("01-10-2021 ",customer1.getDestination().getId(), PageRequest.of(Integer.parseInt(pageNumber[0]), 2));
         return  customerListIsDone;
     }
 
