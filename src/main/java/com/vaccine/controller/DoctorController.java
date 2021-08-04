@@ -1,26 +1,87 @@
-//package com.vaccine.controller;
-//import com.vaccine.model.Customer;
-//import com.vaccine.model.WarehouseVaccine;
-//import com.vaccine.repository.IDayVaccineRegisterRepository;
-//import com.vaccine.repository.IUserRepository;
-//import com.vaccine.service.admindestination.IAdminDestinationService;
-//import com.vaccine.service.user.IUserService;
-//import com.vaccine.service.warehouseVaccine.IWarehouseVaccineService;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.data.domain.Page;
-//import org.springframework.data.domain.Pageable;
-//import org.springframework.data.web.PageableDefault;
-//import org.springframework.http.HttpStatus;
-//import org.springframework.http.ResponseEntity;
-//import org.springframework.web.bind.annotation.*;
-//import org.springframework.web.servlet.ModelAndView;
-//import java.time.LocalDate;
-//import java.util.ArrayList;
-//import java.util.List;
-//import java.util.Optional;
-//@RestController
-//@RequestMapping(value = "/doctor")
-//public class DoctorController {
+package com.vaccine.controller;
+
+import com.vaccine.model.Customer;
+import com.vaccine.repository.ICustomerRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import java.security.Principal;
+import java.util.List;
+
+@RestController
+@RequestMapping(value = "/doctor")
+public class DoctorController {
+
+    @Autowired
+    ICustomerRepository icustomerRepository;
+
+    @GetMapping
+    public ModelAndView showFormListDone(HttpServletRequest request, Principal principal) {
+//        Kiểm tra tài khoản và truy cập vào điểm tiêm tương ứng
+        if (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("ROLE_DOCTOR")) {
+            String userName = principal.getName();
+            Customer user = new Customer();
+            user = icustomerRepository.findByUserCMND(userName);
+// ----------------->>    Còn thiếu hàm convert ngày hiện tại thành String + " "
+            Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay("01-10-2021 ",user.getDestination().getId(), PageRequest.of(0, 10));
+            ModelAndView modelAndView = new ModelAndView("doctor/ListUserIsDone");
+            modelAndView.addObject("customerListIsDone",customerListIsDone);
+            modelAndView.addObject("customerInfo",user);
+            return modelAndView;
+        } else {
+            ModelAndView modelAndView = new ModelAndView("index/home");
+            return modelAndView;
+        }
+    }
+    @ResponseBody
+    @RequestMapping(path = "/setInjectToNone", method = RequestMethod.POST)
+    public String setInjectToNone(@RequestBody String[] itemIDs, Principal principal){
+//        String userName = principal.getName();
+//        Customer customer1 = icustomerRepository.findByUserCMND(userName);
+////        Set hết cho những người đến tiêm
+//        Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay("01-10-2021 ",customer1.getDestination().getId(), PageRequest.of(0, 5));
+//
+//        for (Customer customer:customerListIsDone) {
+//            customer.setIsInjection(1);
+//            icustomerRepository.save(customer);
+//        }
+//          Set lại mấy thằng chưa đến tiêm
+        for (String cmnd_customer : itemIDs) {
+            Customer customer = icustomerRepository.findByUserCMND(cmnd_customer);
+            customer.setIsInjection(0);
+            icustomerRepository.save(customer);
+        }
+
+        return "Done";
+    }
+    @ResponseBody
+    @RequestMapping(path = "/setInjectToDone", method = RequestMethod.POST)
+    public String setInjectToDone(@RequestBody String[] itemIDs, Principal principal){
+        for (String cmnd_customer : itemIDs) {
+            Customer customer = icustomerRepository.findByUserCMND(cmnd_customer);
+            customer.setIsInjection(1);
+            icustomerRepository.save(customer);
+        }
+        return "Done";
+    }
+
+    @ResponseBody
+    @RequestMapping(path = "/changePage", method = RequestMethod.POST)
+    public Page<Customer> changePage(@RequestBody String[]  pageNumber,Principal principal){
+//        Lấy lại quyền để lấy ID
+        String userName = principal.getName();
+        Customer customer1 = icustomerRepository.findByUserCMND(userName);
+//        Lấy danh sách
+        Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay("01-10-2021 ",customer1.getDestination().getId(), PageRequest.of(Integer.parseInt(pageNumber[0]), 5));
+        return  customerListIsDone;
+    }
+
+
 //    int count=0;
 //    int countSort=0;
 //    static int countCheckBefore =0;
@@ -89,100 +150,64 @@
 //        modelAndView.addObject("dateUrl",date);
 //        return modelAndView;
 //    }
-////    @GetMapping
-////    public ModelAndView showForm(@PageableDefault(value = 15) Pageable pageable, @RequestParam("page") Optional<Integer> page) {
-////        if(checkSetAll==0){
-////            listTest = iUserRepository.getUserOneDay(date);
-////        }
-////        for(int i=0;i<listTest.size();i++){
-////            userService.save(listTest.get(i));
-////        }
-////        count=0;
-////        countCheckBefore=0;
-////        countCheckAfter=0;
-////        int currentPage = page.orElse(0);
-////        ModelAndView modelAndView = new ModelAndView("doctor/ListUserIsDone");
-////        Page<Customer> userList = userService.findAllPageListOne(pageable,date);
-////        modelAndView.addObject("userList", listTest);
-////        List<Integer> list = new ArrayList<>();
-////        for(int i=0;i<userList.getTotalPages();i++){
-////            list.add(i);
-////        }
-////        for(Customer item:userList){
-////            if(item.getCheckStatus()==0){
-////                countCheckBefore++;
-////            }
-////        }
-////        int hours = LocalDateTime.now().getHour();
-////        // set hours check
-////        if(hours<18){
-////            modelAndView.addObject("checkTime",0);
-////        }
-////        else{
-////            modelAndView.addObject("checkTime",1);
-////        }
-////        modelAndView.addObject("check",0);
-////        modelAndView.addObject("list",list);
-////        modelAndView.addObject("pageActive",currentPage);
-////        return modelAndView;
-////    }
-////    @GetMapping("/check/{id}")
-////    public void setCheck(@PathVariable Long id,@PageableDefault(value = 15) Pageable pageable){
-////        Customer user = userService.findById(id).get();
-////        user.setCheckStatus(1);
-////        userService.save(user);
-////        checkSetAll++;
-////        count++;
-////    }
-////    @GetMapping("/unchecked/{id}")
-////    public void setUnchecked(@PathVariable Long id,@PageableDefault(value = 15) Pageable pageable){
-////        Customer user = userService.findById(id).get();
-////        user.setCheckStatus(0);
-////        userService.save(user);
-////        checkSetAll++;
-////        count--;
-////    }
-////    @GetMapping("/setAll")
-////    public ModelAndView setAll(@PageableDefault(value = 15) Pageable pageable,@RequestParam("page") Optional<Integer> page){
-////        AmountVaccineRegisterInDay amountVaccineRegisterInDay = dayVaccineService.findByDate(date).get();
-////        Page<Customer> list = userService.findAllPageListOne(pageable,date);
-////        listTest = iUserRepository.getUserOneDay(date);
-////        for(Customer item:list){
-////            if(item.getCheckStatus()==0){
-////                countCheckAfter++;
-////            }
-////        }
-////        WarehouseVaccine warehouseVaccine = warehouseVaccineService.findById(1L).get();
-////        if(amountVaccineRegisterInDay.getCountSubmit()==0){
-////            warehouseVaccine.setAmountRegister(warehouseVaccine.getAmountRegister()-countCheckBefore+countCheckAfter+list.getTotalElements());
-////        }
-////        else{
-////            if(countCheckAfter!=countCheckBefore){
-////                warehouseVaccine.setAmountRegister(warehouseVaccine.getAmountRegister()-countCheckBefore+countCheckAfter);
-////            }
-////        }
-////        amountVaccineRegisterInDay.setCountSubmit(amountVaccineRegisterInDay.getCountSubmit()+1);
-////        dayVaccineService.save(amountVaccineRegisterInDay);
-////        warehouseVaccine.setAmountVaccine(warehouseVaccine.getAmountVaccine()-count);
-////        warehouseVaccineService.save(warehouseVaccine);
-////        countCheckBefore=0;
-////        countCheckAfter=0;
-////        count=0;
-////        checkSetAll=0;
-////        return showForm(pageable,page);
-////    }
-////    @GetMapping("/sort")
-////    public ModelAndView sortByName(){
-////        ModelAndView modelAndView = new ModelAndView("/admin/ListUserIsDone");
-////        Iterable<Customer> userList;
-////        if(countSort%2==0){
-////            userList = userService.sortById();
-////        }
-////        else{
-////            userList = userService.sortByIdDesc();
-////        }
-////        modelAndView.addObject("userList",userList);
-////        countSort++;
-////        return modelAndView;
-////    }
-//}
+//
+//    @GetMapping("/check/{id}")
+//    public void setCheck(@PathVariable Long id,@PageableDefault(value = 15) Pageable pageable){
+//        Customer user = userService.findById(id).get();
+//        user.setCheckStatus(1);
+//        userService.save(user);
+//        checkSetAll++;
+//        count++;
+//    }
+//    @GetMapping("/unchecked/{id}")
+//    public void setUnchecked(@PathVariable Long id,@PageableDefault(value = 15) Pageable pageable){
+//        Customer user = userService.findById(id).get();
+//        user.setCheckStatus(0);
+//        userService.save(user);
+//        checkSetAll++;
+//        count--;
+//    }
+//    @GetMapping("/setAll")
+//    public ModelAndView setAll(@PageableDefault(value = 15) Pageable pageable,@RequestParam("page") Optional<Integer> page){
+//        AmountVaccineRegisterInDay amountVaccineRegisterInDay = dayVaccineService.findByDate(date).get();
+//        Page<Customer> list = userService.findAllPageListOne(pageable,date);
+//        listTest = iUserRepository.getUserOneDay(date);
+//        for(Customer item:list){
+//            if(item.getCheckStatus()==0){
+//                countCheckAfter++;
+//            }
+//        }
+//        WarehouseVaccine warehouseVaccine = warehouseVaccineService.findById(1L).get();
+//        if(amountVaccineRegisterInDay.getCountSubmit()==0){
+//            warehouseVaccine.setAmountRegister(warehouseVaccine.getAmountRegister()-countCheckBefore+countCheckAfter+list.getTotalElements());
+//        }
+//        else{
+//            if(countCheckAfter!=countCheckBefore){
+//                warehouseVaccine.setAmountRegister(warehouseVaccine.getAmountRegister()-countCheckBefore+countCheckAfter);
+//            }
+//        }
+//        amountVaccineRegisterInDay.setCountSubmit(amountVaccineRegisterInDay.getCountSubmit()+1);
+//        dayVaccineService.save(amountVaccineRegisterInDay);
+//        warehouseVaccine.setAmountVaccine(warehouseVaccine.getAmountVaccine()-count);
+//        warehouseVaccineService.save(warehouseVaccine);
+//        countCheckBefore=0;
+//        countCheckAfter=0;
+//        count=0;
+//        checkSetAll=0;
+//        return showForm(pageable,page);
+//    }
+//    @GetMapping("/sort")
+//    public ModelAndView sortByName(){
+//        ModelAndView modelAndView = new ModelAndView("/admin/ListUserIsDone");
+//        Iterable<Customer> userList;
+//        if(countSort%2==0){
+//            userList = userService.sortById();
+//        }
+//        else{
+//            userList = userService.sortByIdDesc();
+//        }
+//        modelAndView.addObject("userList",userList);
+//        countSort++;
+//        return modelAndView;
+//    }
+}
