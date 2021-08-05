@@ -130,17 +130,13 @@ public class AdminController {
 
     //
 //    //    ---------------------------------Điểm tiêm chủng------------------------------------------>
-    @PostMapping("/destination/create")
-    public ResponseEntity<Destination> createDestination(@RequestBody Destination adminDestination) {
-        return new ResponseEntity<>(destinationRepository.save(adminDestination), HttpStatus.CREATED);
-    }
-    @DeleteMapping("/destination/{id}")
-    public ResponseEntity<Destination> destinationResponseEntity(@PathVariable long id) {
-        Destination Destination = destinationRepository.findById(id).get();
-        Destination.setIsDelete(1);
-        destinationRepository.save(Destination);
-        return new ResponseEntity<>(Destination, HttpStatus.NO_CONTENT);
-    }
+//    @DeleteMapping("/destination/{id}")
+//    public ResponseEntity<Destination> destinationResponseEntity(@PathVariable long id) {
+//        Destination Destination = destinationRepository.findById(id).get();
+//        Destination.setIsDelete(1);
+//        destinationRepository.save(Destination);
+//        return new ResponseEntity<>(Destination, HttpStatus.NO_CONTENT);
+//    }
     @PutMapping("/destination/edit/{id}")
     public ResponseEntity<Destination> editDestination(@RequestBody Destination destination,@PathVariable Long id){
         destination.setId(id);
@@ -327,7 +323,6 @@ public class AdminController {
     }
 
     //    //    ---------------------------------Tài khoản điểm tiêm------------------------------------------>
-
 ////    @GetMapping("/apiDs/{id}")
 ////    public ResponseEntity<AdminDestination> adminDestinationResponseEntity(@PathVariable Long id) {
 ////        return new ResponseEntity<>(adminDestinationService.findById(id).get(), HttpStatus.OK);
@@ -376,12 +371,22 @@ public class AdminController {
 //        warehouseVaccineService.remove(id);
 //        return new ResponseEntity<>(customerOptional.get(), HttpStatus.NO_CONTENT);
 //    }
+    @PostMapping("/destination/create")
+    public ResponseEntity<Destination> createDestination(@RequestBody Destination adminDestination) {
+        return new ResponseEntity<>(destinationRepository.save(adminDestination), HttpStatus.CREATED);
+    }
+    @DeleteMapping("/destination/{id}")
+    public ResponseEntity<Destination> destinationResponseEntity(@PathVariable long id) {
+        Destination Destination = destinationRepository.findById(id).get();
+        Destination.setIsDelete(1);
+        destinationRepository.save(Destination);
+        return new ResponseEntity<>(Destination, HttpStatus.NO_CONTENT);
+    }
+
+
 //    //    ---------------------------------Bác sĩ------------------------------------------>
 
-//    @GetMapping("/all-H")
-//    public ResponseEntity<Iterable<Customer>> listHosp() {
-//        return new ResponseEntity<>(userRepository.getDoctor(), HttpStatus.OK);
-//    }
+
     @GetMapping("/destinationAccount")
     public ModelAndView showHosp() {
         List<Customer> allDestinationAccount = customerRepository.getAllDestinationAccount();
@@ -412,7 +417,8 @@ public class AdminController {
         //  Lấy thông tin điểm tiêm về
         Optional<Destination> destination = destinationRepository.findById(user.getDestination().getId());
         user.setDestination(destination.get());
-
+        //        Set enable
+        user.setEnabled(true);
 
         //        Thêm quyền
         Customer_Role userRole = new Customer_Role();

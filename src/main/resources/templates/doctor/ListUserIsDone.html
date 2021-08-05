@@ -2,15 +2,21 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Bệnh nhân tiêm trong ngày</title>
-    <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/4.6.0/css/bootstrap.min.css">
-    <script src="webjars/bootstrap/4.6.0/js/p">
+    <title>Điểm tiêm</title>
+
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,200;0,300;0,400;0,500;0,600;1,400;1,500;1,600&display=swap"
           rel="stylesheet">
-    <script rel="stylesheet" type="text/javascript" src="/webjars/bootstrap/4.6.0/js/bootstrap.js"></script>
-    <link rel="stylesheet" type="text/css" href="/css/cssList.css">
+
+
+    <script src="/webjars/popper.js/2.5.4/umd/popper.min.js"></script>
     <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-    <script src="/js/adminjs.js"></script>
+    <script src="/webjars/jquery-validation/1.15.0/jquery.validate.min.js"></script>
+    <script src="/webjars/sweetalert2/11.0.17/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="/webjars/sweetalert2/11.0.17/dist/sweetalert2.min.css">
+    <script src="/webjars/bootstrap/4.6.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/webjars/bootstrap/4.6.0/css/bootstrap.min.css">
+
+
     <link href="https://vnvc.vn/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
     <style>
 
@@ -21,13 +27,25 @@
             right: 50px;
         }
 
+        .active {
+            background-color: #00000040;
+        }
+
+        .disable_css {
+            border: 1px solid #999999;
+            background-color: #cccccc;
+            color: #666666;
+            pointer-events: none;
+            cursor: default;
+        }
+
     </style>
 </head>
 <body>
 
 <div>
-    <a href="https://vnvc.vn/virus-corona-2019/">
-        <img style="height: 113px; width: 100%"
+    <a href="/">
+        <img style="width: 100%;"
              alt="virus corona 2019"
              class="img-responsive hidden-xs"
              src="https://vnvc.vn/wp-content/uploads/2021/06/virus-corona-covid-19-pc.jpg"
@@ -43,108 +61,73 @@
 
 
 <div class="container">
-    <h1>List Customer Done</h1>
-    <div class="form-group col-md-4 col-sm-6 col-xs-12">
-        <label class="form-control-wrap">
-            <input id="search" type="search" size="25" name="search" class="form-control"/>
+    <h1 th:if="${customerInfo != null}"
+        th:text="'Khách hàng đã đến tiêm tại '+ ${customerInfo.destination.destination_name}+ ' hôm nay'"></h1>
+    <br><br>
+    <div class="row">
+        <label class="col-sm">
+            <input id="search" type="search" size="20" name="search" placeholder="Tìm kiếm theo CMND"
+                   class="form-control"/>
         </label>
-    </div>
-    <form>
-        <div class="form-group col-md-2 col-sm-4 col-xs-6">
-            <label class="form-control-wrap">
-                <input id="date" type="date" size="25" name="date" class="form-control"/>
-            </label>
-        </div>
-        <input type="hidden" id="dateUrl" th:value="${dateUrl}">
-    </form>
 
-    <table id="orderItems" class="table table-hover" border="1">
-        <thead>
+        <lable class="col-sm"></lable>
+        <lable class="col-sm"></lable>
+
+    </div>
+    <br>
+    <table id="orderItems" class="table table-hover" border="1" style="text-align: center">
         <tr>
             <th>#</th>
-            <th>FullName</th>
-            <th>Phone</th>
+            <th>Tên</th>
+            <th>Số CMND</th>
             <th>Email</th>
-            <th>CMND</th>
-            <th>Date</th>
-            <th>Time</th>
-            <th></th>
-            <th></th>
+            <th>Giờ tiêm</th>
+            <th>Ngày tiêm</th>
+            <th>Trạng thái</th>
         </tr>
-        </thead>
-        <tbody>
-        <th:block th:each="employee : ${userList}">
+
+        <th:block th:each="employee : ${customerListIsDone}">
             <tr>
                 <th scope="row" th:text="${employee.id}"></th>
-                <td th:text="${employee.userName}"></td>
-                <td th:text="${employee.phoneNumber}"></td>
-                <td th:text="${employee.email}"></td>
+                <td th:text="${employee.customer_name}"></td>
                 <td th:text="${employee.CMND}"></td>
-                <td th:text="${employee.dateVaccine}"></td>
-                <td th:text="${employee.timeVaccine}"></td>
-                <th:block th:if="${employee.checkStatus==0}">
-                    <th:block th:if="${check==0}">
-                        <th:block th:if="${checkTime}==1">
-                            <td class="button">
-                                <button class="btn btn-success check">Check</button>
-                                <input type="hidden" class="id" th:value="${employee.id}">
-                            </td>
-                        </th:block>
-                        <th:block th:if="${checkTime}==0">
-                            <td class="button">
-                                <button class="btn btn-success" disabled>Check</button>
-                            </td>
-                        </th:block>
-                    </th:block>
-                    <th:block th:if="${check==1}">
-                        <td class="button">
-                            <button class="btn btn-success" disabled>Check</button>
-                        </td>
-                    </th:block>
-                </th:block>
-                <th:block th:if="${employee.checkStatus==1}">
-                    <th:block th:if="${check==0}">
-                        <th:block th:if="${checkTime}==1">
-                            <td class="button">
-                                <button class="btn btn-danger uncheck">Uncheck</button>
-                                <input type="hidden" class="id" th:value="${employee.id}">
-                            </td>
-                        </th:block>
-                        <th:block th:if="${checkTime}==0">
-                            <td class="button">
-                                <button class="btn btn-danger" disabled>Uncheck</button>
-                            </td>
-                        </th:block>
-                    </th:block>
-                    <th:block th:if="${check==1}">
-                        <td class="button">
-                            <button class="btn btn-danger" disabled>Uncheck</button>
-                        </td>
-                    </th:block>
-                </th:block>
+                <td th:text="${employee.email}"></td>
+                <td th:text="${employee.time_vaccine}"></td>
+                <td th:text="${employee.date_vaccine}"></td>
+                <td th:if="${employee.isInjection == 0}">
+                    <button class="row_button btn btn-danger">Chưa tiêm</button>
+                </td>
+                <td th:if="${employee.isInjection == 1}">
+                    <button class="row_button btn btn-success">Đã tiêm</button>
+                </td>
             </tr>
         </th:block>
-        </tbody>
+
+
     </table>
-    <input type="hidden" id="checkTime" th:value="${checkTime}">
-    <input type="hidden" id="check" th:value="${check}">
-    <div id="page" class="page" th:if="${list.size()>1}">
-            <span th:each="number: ${list}" th:class="${pageActive==numberStat.index}?active" th:if="${dateUrl}==null">
-                <a th:href="@{'/doctor'(page=${numberStat.index})}" th:text="${numberStat.index + 1}"></a>
-            </span>
-            <span th:each="number: ${list}" th:class="${pageActive==numberStat.index}?active" th:if="${dateUrl}!=null">
-                <a th:href="@{__${dateUrl}__(page=${numberStat.index})}" th:text="${numberStat.index + 1}"></a>
-            </span>
+    <div class="row">
+        <input type="hidden" id="maxPage" th:value="${maxPage}">
+        <div class="col-sm-8" style="text-align: center;">
+            <button class="btn btn-secondary" onclick="setInjectionStatus()">Ấn định</button>
+<!--            <button class="btn btn-warning">Gửi email</button>-->
+        </div>
+        <div class="col-sm-4">
+
+            <ul class="pagination">
+                <li class="page-item"><a id="prev" onclick="changePage(this.value)" class="page-link">Previous</a></li>
+                <li th:each="number : ${pageNumber}" class="page-item">
+                    <button class="page-link" th:id="${number}+'_button'" th:value="${number}"
+                            th:onclick="'javascript:changePage('+${number}+')'" th:text="${number + 1}"></button>
+                </li>
+                <li class="page-item"><a id="next" class="page-link" onclick="changePage(this.value)">Next</a></li>
+            </ul>
+
+        </div>
     </div>
-    <input type="hidden" id="pageActive" th:value="${pageActive}">
-    <th:block th:if="${check}==0">
-        <th:block th:if="${checkTime}==1">
-            <a href="/doctor/setAll"><button class="btn btn-primary">Submit</button></a>
-        </th:block>
-        <th:block th:if="${checkTime}==0">
-            <button class="btn btn-primary" disabled>Submit</button>
-        </th:block>
-    </th:block>
-</div>
+
+
+    </label>
+
+    <script th:src="@{/js/admin/destination_page_doctor.js}"></script>
 </body>
 </html>
