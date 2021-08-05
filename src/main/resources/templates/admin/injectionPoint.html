@@ -4,10 +4,70 @@
 
 </head>
 <body class="boxed-layout">
-
+    <nav class="navbar col-lg-12 col-12 p-0">
+        <div>
+            <a href="/">
+                <img style="width: 100%;"
+                     alt="virus corona 2019"
+                     class="img-responsive hidden-xs"
+                     src="https://vnvc.vn/wp-content/uploads/2021/06/virus-corona-covid-19-pc.jpg"
+                />
+            </a>
+        </div>
+    </nav>
     <div class="container-fluid page-body-wrapper">
         <a href="/logout"><button class="btn btn-primary buttonout">Đăng xuất</button></a>
         <div class="row row-offcanvas row-offcanvas-right">
+            <div class="theme-setting-wrapper">
+                <div id="settings-trigger">
+                    <i class="mdi mdi-settings"></i>
+                </div>
+                <div id="theme-settings" class="settings-panel">
+                    <i class="settings-close mdi mdi-close"></i>
+                    <p class="settings-heading">SIDEBAR SKINS</p>
+                    <div
+                            class="sidebar-bg-options selected"
+                            id="sidebar-light-theme"
+                    >
+                        <div
+                                class="
+                                        img-ss
+                                        rounded-circle
+                                        bg-light
+                                        border
+                                        mr-3
+                                    "
+                        ></div>
+                        Light
+                    </div>
+                    <div
+                            class="sidebar-bg-options"
+                            id="sidebar-dark-theme"
+                    >
+                        <div
+                                class="
+                                        img-ss
+                                        rounded-circle
+                                        bg-dark
+                                        border
+                                        mr-3
+                                    "
+                        ></div>
+                        Dark
+                    </div>
+                    <p class="settings-heading mt-2">HEADER SKINS</p>
+                    <div class="color-tiles mx-0 px-4">
+                        <div class="tiles primary"></div>
+                        <div class="tiles success"></div>
+                        <div class="tiles warning"></div>
+                        <div class="tiles danger"></div>
+                        <div class="tiles pink"></div>
+                        <div class="tiles info"></div>
+                        <div class="tiles dark"></div>
+                        <div class="tiles default"></div>
+                    </div>
+                </div>
+            </div>
             <footer th:replace="/layout/footer::footer">
             </footer>
             <!-- partial -->
@@ -22,6 +82,7 @@
                             <th>Số lượng</th>
                             <th>Tên kho vaccine</th>
                             <th></th>
+                            <th></th>
                         </tr>
                         <th:block th:each="u : ${destination}">
                             <tr th:id="${u.id+'-row'}">
@@ -31,23 +92,25 @@
                                 <td th:text="${u.date_end}"></td>
                                 <td th:text="${u.people_perHour}"></td>
                                 <td th:text="${u.warehouseVaccine.getWarehouseName()}"></td>
-                                <td>
-                                    <button class="btn btn-primary">Edit</button>
-                                    <th:block th:if="${u.date_end.trim().split('-')[2]+'-'+u.date_end.split('-')[1]+'-'+u.date_end.split('-')[0]}>${dateNow} and
-                                                        ${u.date_start.trim().split('-')[2]+'-'+u.date_start.split('-')[1]+'-'+u.date_start.split('-')[0]}<${dateNow}">
-                                        <button class="btn btn-danger" disabled th:onclick="'javascript:getDelete('+${u.id}+')'">Delete</button>
+                                <td style="float:left;">
+                                    <button class="btn btn-primary" data-toggle="modal" href="#myModal" th:onclick="'javascript:setEdit('+${u.id}+')'"><i class="fas fa-edit"></i></button>
+                                    <th:block th:if="${u.date_end.trim().split('-')[2]+'-'+u.date_end.split('-')[1]+'-'+u.date_end.split('-')[0]}<${dateNow} or
+                                            ${u.date_start.trim().split('-')[2]+'-'+u.date_start.split('-')[1]+'-'+u.date_start.split('-')[0]}>${dateNow} or ${u.isOpen}==0">
+                                                <button class="btn btn-danger" th:onclick="'javascript:getDelete('+${u.id}+')'"><i class="far fa-trash-alt"></i></button>
                                     </th:block>
-                                    <th:block th:if="${u.date_end.trim().split('-')[2]+'-'+u.date_end.split('-')[1]+'-'+u.date_end.split('-')[0]}<${dateNow}">
-                                        <button class="btn btn-danger" th:onclick="'javascript:getDelete('+${u.id}+')'">Delete</button>
+                                    <th:block th:if="${u.isOpen==1}">
+                                        <button class="btn btn-warning" th:onclick="'javascript:off('+${u.id}+')'">Off</button>
                                     </th:block>
                                 </td>
                             </tr>
                         </th:block>
                         <button class="btn btn-primary" style="font-weight: bold;font-size: 18px;"
-                                data-toggle="modal" href="#myModal" >
+                                data-toggle="modal" href="#myModal" onclick="setCreate()">
                             <i class="fas fa-plus-circle"></i>
                             Tạo Mới Địa Điểm
                         </button>
+                        <button class="btn btn-success" style="font-weight: bold;font-size: 18px; float: right">
+                            <i class="far fa-clock"></i>Kho</button>
                     </table>
                 </div>
                 <footer class="footer">
@@ -68,7 +131,7 @@
                 <div class="modal-content">
                     <!-- Modal Header -->
                     <div class="modal-header">
-                        <h4 class="modal-title">Modal Heading</h4>
+                        <h4 class="modal-title">Tạo mới địa điểm</h4>
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
                     <!-- Modal body -->
@@ -81,26 +144,29 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Thời gian bắt đầu</label>
-                                    <input type="date" class="form-control" id="date-start">
+                                    <input type="text" class="form-control" id="date-start" readonly>
                                 </div>
                                 <div class="form-group">
                                     <label>Thời gian kết thúc</label>
-                                    <input type="date" class="form-control" id="date-end">
+                                    <input type="text" class="form-control" id="date-end" readonly>
                                 </div>
                                 <div class="form-group">
                                     <label>Số mũi tiêm/ giờ</label>
                                     <input type="number" class="form-control" id="people_perHour">
                                 </div>
                                 <div class="form-group">
-                                    <label for="wareHouseVaccine">Kho Vaccine</label>
+                                    <label>Kho Vaccine</label>
                                     <select class="select-group col-md-12" style="height: 37px;" id="wareHouseVaccine"
                                             th:object="${warehouses}">
                                         <option th:each="p : ${warehouses}" th:value="${p.id}" th:text="${p.getWarehouseName()}"></option>
                                     </select>
                                 </div>
+                                <input type="hidden" id="idModal">
+                                <input type="hidden" id="dateend_before">
+                                <input type="hidden" id="datestart_before">
                                 <!-- Modal footer -->
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-primary create" onclick="create()">Tạo mới</button>
+                                <div class="modal-footer d-flex justify-content-center">
+                                    <button style="float: left" type="button" class="btn btn-primary create">Tạo mới</button>
                                 </div>
                             </div>
                         </form>
@@ -157,6 +223,7 @@
 
 
 <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script type="text/javascript" src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
 <script src="/webjars/bootstrap/4.6.0/js/bootstrap.min.js"></script>
 <script th:src="@{/js/admin/destination_vaccine.js}"></script>
 <script th:src="@{/js/admin/sweetalert2.min.js}"></script>

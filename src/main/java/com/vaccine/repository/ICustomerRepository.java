@@ -31,7 +31,7 @@ public interface ICustomerRepository extends JpaRepository<Customer, Long> {
     String getMaxTimeFromData(Long id_destination);
 
     @Query("SELECT u FROM Customer u WHERE u.verificationCode = ?1")
-    public Customer findByVerificationCode(String code);
+    Customer findByVerificationCode(String code);
 
 //     Khanh
     @Query("SELECT c FROM Customer c WHERE c.CMND LIKE %?1%")
@@ -45,10 +45,6 @@ public interface ICustomerRepository extends JpaRepository<Customer, Long> {
     @Query("SELECT e FROM Customer e WHERE e.isDoctor = 0")
     Page<Customer> findAllCustomerAccount(Pageable pageable);
 
-
-
-
-
-
-
+    @Query("SELECT c from  Customer  c WHERE c.destination.id=?1 and c.isInjection=0")
+    List<Customer> findByDestination(Long id);
 }

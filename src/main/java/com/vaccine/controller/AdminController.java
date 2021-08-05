@@ -16,6 +16,7 @@ import com.vaccine.repository.IVaccineRepository;
 
 import com.vaccine.repository.IWarehouseRepository;
 
+import com.vaccine.service.CustomerServiceVerifyAccount;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +27,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -57,6 +59,9 @@ public class AdminController {
 //
     @Autowired
     IWarehouseRepository iWarehouseRepository;
+
+    @Autowired
+    CustomerServiceVerifyAccount customerServiceVerifyAccount;
 //
     //
 //    @Autowired
@@ -125,16 +130,148 @@ public class AdminController {
 
     //
 //    //    ---------------------------------Điểm tiêm chủng------------------------------------------>
+    @PostMapping("/destination/create")
+    public ResponseEntity<Destination> createDestination(@RequestBody Destination adminDestination) {
+        return new ResponseEntity<>(destinationRepository.save(adminDestination), HttpStatus.CREATED);
+    }
+    @DeleteMapping("/destination/{id}")
+    public ResponseEntity<Destination> destinationResponseEntity(@PathVariable long id) {
+        Destination Destination = destinationRepository.findById(id).get();
+        Destination.setIsDelete(1);
+        destinationRepository.save(Destination);
+        return new ResponseEntity<>(Destination, HttpStatus.NO_CONTENT);
+    }
+    @PutMapping("/destination/edit/{id}")
+    public ResponseEntity<Destination> editDestination(@RequestBody Destination destination,@PathVariable Long id){
+        destination.setId(id);
+        return new ResponseEntity<>(destinationRepository.save(destination),HttpStatus.OK);
+    }
 
-    @GetMapping("/destination/api-full")
-    public ResponseEntity<Page<Destination>> fullApi(Pageable pageable){
-        return new ResponseEntity<>(destinationRepository.findAll(pageable),HttpStatus.OK);
+    @GetMapping("/destination/api-full-0")
+    public ResponseEntity<Page<Destination>> fullApi0(Pageable pageable){
+        return new ResponseEntity<>(destinationRepository.findAllBySttDelete(0,pageable),HttpStatus.OK);
+    }
+    @GetMapping("/destination/api-full-1")
+    public ResponseEntity<Page<Destination>> fullApi1(Pageable pageable){
+        return new ResponseEntity<>(destinationRepository.findAllBySttDelete(1,pageable),HttpStatus.OK);
+    }
+    @GetMapping("/destination/apiId/{id}")
+    public ResponseEntity<Destination> getApiId(@PathVariable Long id){
+        return new ResponseEntity<>(destinationRepository.findById(id).get(),HttpStatus.OK);
+    }
+
+    @GetMapping("/destination/allCusByDes/{id}")
+    public ResponseEntity<List<Customer>> getFullCustomerByDestination(@PathVariable Long id){
+        return new ResponseEntity<>(customerRepository.findByDestination(id),HttpStatus.OK);
+    }
+
+    private String getSiteURL(HttpServletRequest request) {
+        String siteURL = request.getRequestURL().toString();
+        return siteURL.replace(request.getServletPath(), "");
+    }
+
+    @GetMapping("/destination/sendEmailEnd/{id}/{date}")
+    public void sendEmailDateEnd(@PathVariable("id") Long id, @PathVariable("date") String date, HttpServletRequest request){
+        Thread thread1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int countCustomer=0;
+                String[] arr2 = date.trim().split("-");
+                String date_end = arr2[2]+"-"+arr2[1]+"-"+arr2[0];
+                List<Customer> list = customerRepository.findByDestination(id);
+                for(int i=0;i<list.size();i++){
+                    if(list.get(i).getDate_vaccine()!=null){
+                        String[] arr = list.get(i).getDate_vaccine().trim().split("-");
+                        String date_vaccine = arr[2]+"-"+arr[1]+"-"+arr[0];
+                        if(date_vaccine.compareTo(date_end)>0){
+                            // Set date_vaccine , time = null
+                            list.get(i).setDate_vaccine(list.get(i).getDate_vaccine()+"cancel");
+                            list.get(i).setTime_vaccine(list.get(i).getDate_vaccine()+"cancel");
+                            customerRepository.save(list.get(i));
+                            // Hàm gửi email
+                            countCustomer++;
+//                            customerServiceVerifyAccount.sendEmailVerifyAccount("boyte.vaccine.covid@gmail.com", list.get(i),getSiteURL(request));
+                        }
+                    }
+                }
+                System.out.println("end:"+countCustomer);
+            }
+        });
+        thread1.start();
+    }
+
+    @GetMapping("/destination/sendEmailStart/{id}/{date}")
+    public void sendEmailDateStart(@PathVariable("id") Long id, @PathVariable("date") String date){
+        Thread thread2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int countCustomer=0;
+                String[] arr2 = date.trim().split("-");
+                String date_end = arr2[2]+"-"+arr2[1]+"-"+arr2[0];
+                List<Customer> list = customerRepository.findByDestination(id);
+                for(int i=0;i<list.size();i++){
+                    if(list.get(i).getDate_vaccine()!=null){
+                        String[] arr = list.get(i).getDate_vaccine().trim().split("-");
+                        String date_vaccine = arr[2]+"-"+arr[1]+"-"+arr[0];
+                        if(date_vaccine.compareTo(date_end)<0){
+                            list.get(i).setDate_vaccine(list.get(i).getDate_vaccine()+"cancel");
+                            list.get(i).setTime_vaccine(list.get(i).getDate_vaccine()+"cancel");
+                            customerRepository.save(list.get(i));
+                            // Hàm gửi email
+                            // Set date_vaccine , time = null
+                            countCustomer++;
+                        }
+                    }
+                }
+                System.out.println("start"+countCustomer);
+            }
+        });
+        thread2.start();
+    }
+//
+//    @PutMapping("/destination/setOff/{id}")
+//    public ResponseEntity<Destination> setOff(Long id){
+//        Destination destination = destinationRepository.findById(id).get();
+//        destination.setIsOpen(0);
+//        return new ResponseEntity<>(destinationRepository.save(destination),HttpStatus.NO_CONTENT);
+//    }
+
+    @GetMapping("/destination/sendEmailOff/{id}")
+    public void sendMailOff(@PathVariable Long id){
+        Destination destination = destinationRepository.findById(id).get();
+        destination.setIsOpen(0);
+        destinationRepository.save(destination);
+        System.out.println(destination.toString());
+        String dateNow = LocalDate.now().toString();
+        List<Customer> list = customerRepository.findByDestination(id);
+        for(int i=0;i<list.size();i++){
+            if(list.get(i).getIsInjection()==0 && list.get(i).getHealthy_status()!=3){
+                String[] arr = list.get(i).getDate_vaccine().trim().split("-");
+                String date = arr[2]+"-"+arr[1]+"-"+arr[0];
+                if(date.compareTo(dateNow)>0){
+                    //Gui mail
+                    System.out.println(1);
+                }
+            }
+        }
     }
 
     @GetMapping("/destination")
     public ModelAndView listDestination(Pageable pageable) throws ParseException {
         Page<Destination> destinations = destinationRepository.findAllBySttDelete(0,pageable);
         ModelAndView modelAndView = new ModelAndView("/admin/injectionPoint");
+        for(Destination d:destinations){
+            String[] arr_S = d.getDate_start().trim().split("-");
+            String[] arr_E = d.getDate_end().trim().split("-");
+            String dateS = arr_S[2]+"-"+arr_S[1]+"-"+arr_S[0];
+            String dateE = arr_E[2]+"-"+arr_E[1]+"-"+arr_E[0];
+            String dateNow = LocalDate.now().toString();
+            if(dateS.compareTo(dateNow)<0 && dateE.compareTo(dateNow)>0 && d.getAmountOff()==0){
+                d.setIsOpen(1);
+                d.setAmountOff(1);
+                destinationRepository.save(d);
+            }
+        }
 //        System.out.println(new SimpleDateFormat("yyy-mm-dd").format(new SimpleDateFormat("dd-mm-yyyy").parse(destinationRepository.findById(1L).get().getDate_end().trim())));
         modelAndView.addObject("destination", destinations);
         modelAndView.addObject("dateNow",LocalDate.now().toString());
@@ -191,17 +328,6 @@ public class AdminController {
 
     //    //    ---------------------------------Tài khoản điểm tiêm------------------------------------------>
 
-    @PostMapping("/destination/create")
-    public ResponseEntity<Destination> createDestination(@RequestBody Destination adminDestination) {
-        return new ResponseEntity<>(destinationRepository.save(adminDestination), HttpStatus.CREATED);
-    }
-    @DeleteMapping("/destination/{id}")
-    public ResponseEntity<Destination> destinationResponseEntity(@PathVariable long id) {
-        Destination Destination = destinationRepository.findById(id).get();
-        Destination.setIsDelete(1);
-        destinationRepository.save(Destination);
-        return new ResponseEntity<>(Destination, HttpStatus.NO_CONTENT);
-    }
 ////    @GetMapping("/apiDs/{id}")
 ////    public ResponseEntity<AdminDestination> adminDestinationResponseEntity(@PathVariable Long id) {
 ////        return new ResponseEntity<>(adminDestinationService.findById(id).get(), HttpStatus.OK);

@@ -39,4 +39,7 @@ public class Destination {
     @ManyToOne
     @JoinColumn(name = "id_warehouse_vaccine")
     private WarehouseVaccine warehouseVaccine;
+
+    @Column(columnDefinition = "integer default '0'")
+    int amountOff;
 }

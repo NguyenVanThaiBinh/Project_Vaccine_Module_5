@@ -1696,4 +1696,7 @@ public class MailText {
                 "</html>\n";
         return mail;
     }
+
+
+    //send email error
 }

@@ -11,4 +11,5 @@ import org.springframework.stereotype.Repository;
 public interface IDestinationRepository extends JpaRepository<Destination,Long> {
     @Query("select d from Destination d WHERE d.isDelete=?1")
     Page<Destination> findAllBySttDelete(int isDelete, Pageable pageable);
+
 }
