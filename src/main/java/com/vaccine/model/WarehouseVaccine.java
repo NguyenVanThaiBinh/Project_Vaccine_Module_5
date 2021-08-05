@@ -18,8 +18,12 @@ public class WarehouseVaccine {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
-    Long amountVaccine;
+
+
+
     String WarehouseName;
+
     String warehouseAddress;
-    Long amountRegister;
+
+
 }
