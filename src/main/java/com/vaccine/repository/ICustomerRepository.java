@@ -49,8 +49,8 @@ public interface ICustomerRepository extends JpaRepository<Customer, Long> {
     @Query("SELECT e from Customer  e WHERE e.date_vaccine = ?1 AND e.destination.id = ?2")
     Page<Customer> findCustomerIsDoneInDay(String date_vaccine, Long id_destination,Pageable pageable);
 
-    @Query("SELECT e from Customer  e WHERE e.date_vaccine = ?1 AND e.destination.id = ?2")
-    Page
+    @Query("SELECT e from Customer  e WHERE e.date_vaccine = ?1 AND e.destination.id = ?2 AND e.CMND like %?3% ")
+    Page<Customer> searchCustomerByCMND(String date_vaccine, Long id_destination,Pageable pageable,String cmnd);
 
 
 

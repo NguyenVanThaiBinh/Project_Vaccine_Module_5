@@ -28,7 +28,7 @@ public class DoctorController {
             Customer user = new Customer();
             user = icustomerRepository.findByUserCMND(userName);
 // ----------------->>    Còn thiếu hàm convert ngày hiện tại thành String + " "
-            Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay("01-10-2021 ",user.getDestination().getId(), PageRequest.of(0, 2));
+            Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay("01-10-2021 ",user.getDestination().getId(), PageRequest.of(0, 5));
             ModelAndView modelAndView = new ModelAndView("doctor/ListUserIsDone");
             modelAndView.addObject("customerListIsDone",customerListIsDone);
             modelAndView.addObject("customerInfo",user);
@@ -67,8 +67,24 @@ public class DoctorController {
         String userName = principal.getName();
         Customer customer1 = icustomerRepository.findByUserCMND(userName);
 //        Lấy danh sách
-        Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay("01-10-2021 ",customer1.getDestination().getId(), PageRequest.of(Integer.parseInt(pageNumber[0]), 2));
+        Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay("01-10-2021 ",customer1.getDestination().getId(), PageRequest.of(Integer.parseInt(pageNumber[0]), 5));
         return  customerListIsDone;
+    }
+
+    @ResponseBody
+    @RequestMapping(path = "/search/{key}", method = RequestMethod.POST)
+    public Page<Customer> searchByCMND(@PathVariable String key,Principal principal,@RequestBody String[]  pageNumber){
+        System.out.println( "Key is: "+key);
+//        Lấy lại quyền để lấy ID
+        String userName = principal.getName();
+        Customer customer1 = icustomerRepository.findByUserCMND(userName);
+//        Lấy danh sách
+        Page<Customer> searchResultCustomer = icustomerRepository.searchCustomerByCMND("01-10-2021 ",customer1.getDestination().getId(),PageRequest.of(Integer.parseInt(pageNumber[0]), 5), key);
+        if(key.equals("binhhu")){
+            Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay("01-10-2021 ",customer1.getDestination().getId(), PageRequest.of(Integer.parseInt(pageNumber[0]), 5));
+            return  customerListIsDone;
+        }
+        return  searchResultCustomer;
     }
 
 

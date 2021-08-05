@@ -72,7 +72,7 @@ public class HomeController {
             Customer user = new Customer();
             user = iCustomerRepository.findByUserCMND(userName);
 //            Phân trang
-            Page<Customer> customerListIsDone = iCustomerRepository.findCustomerIsDoneInDay("01-10-2021 ", user.getDestination().getId(), PageRequest.of(0, 2));
+            Page<Customer> customerListIsDone = iCustomerRepository.findCustomerIsDoneInDay("01-10-2021 ", user.getDestination().getId(), PageRequest.of(0, 5));
 //          Lấy số page
             List<Integer> pageNumber = new ArrayList<>();
             for (int i = 0; i < customerListIsDone.getTotalPages(); i++) {

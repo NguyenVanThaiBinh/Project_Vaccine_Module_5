@@ -83,6 +83,7 @@
             <th>Ngày tiêm</th>
             <th>Trạng thái</th>
         </tr>
+
         <th:block th:each="employee : ${customerListIsDone}">
             <tr>
                 <th scope="row" th:text="${employee.id}"></th>
@@ -95,6 +96,8 @@
                 <td th:if="${employee.isInjection == 1}" ><button class="row_button btn btn-success" >Đã tiêm</button></td>
             </tr>
         </th:block>
+
+
     </table>
     <div class="row">
         <input type="hidden" id="maxPage" th:value="${maxPage}">
