@@ -15,6 +15,7 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
@@ -24,6 +25,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private UserDetailsService userDetailsService;
+
+    @Autowired
+    private JwtRequestFilter jwtRequestFilter;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -38,6 +42,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // Và sét đặt PasswordEncoder.
         auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
     }
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -72,6 +79,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .passwordParameter("password")
                 // Cấu hình cho Logout Page.
                 .and().logout().logoutUrl("/logout").logoutSuccessUrl("/")
+                .deleteCookies("JWT").invalidateHttpSession(true)
+                .permitAll()
 //                 Session het' han~
                 .and().sessionManagement().invalidSessionUrl("/");
 
@@ -79,6 +88,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().and() //
                 .rememberMe().tokenRepository(this.persistentTokenRepository()) //
                 .tokenValiditySeconds(60*9); //9 minute
+        // Cấu hình jwtRequestFilter
+        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
+                .csrf().disable();
 
     }
 
