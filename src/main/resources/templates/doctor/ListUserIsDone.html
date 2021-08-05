@@ -26,10 +26,12 @@
             bottom: 72px;
             right: 50px;
         }
-        .active{
+
+        .active {
             background-color: #00000040;
         }
-        .disable_css{
+
+        .disable_css {
             border: 1px solid #999999;
             background-color: #cccccc;
             color: #666666;
@@ -59,18 +61,18 @@
 
 
 <div class="container">
-    <h1 th:if="${customerInfo != null}" th:text="'Khách hàng đã đến tiêm tại '+ ${customerInfo.destination.destination_name}+ ' hôm nay'"></h1>
+    <h1 th:if="${customerInfo != null}"
+        th:text="'Khách hàng đã đến tiêm tại '+ ${customerInfo.destination.destination_name}+ ' hôm nay'"></h1>
     <br><br>
     <div class="row">
-        <label class="col">
-            <input id="search" type="search" size="20" name="search"  placeholder="Tìm kiếm theo CMND" class="form-control"/>
+        <label class="col-sm">
+            <input id="search" type="search" size="20" name="search" placeholder="Tìm kiếm theo CMND"
+                   class="form-control"/>
         </label>
-        <form class="col">
-            <label class="form-control-wrap">
-                    <input id="date" type="date" size="25" name="date" class="form-control"/>
-            </label>
 
-        </form>
+        <lable class="col-sm"></lable>
+        <lable class="col-sm"></lable>
+
     </div>
     <br>
     <table id="orderItems" class="table table-hover" border="1" style="text-align: center">
@@ -92,8 +94,12 @@
                 <td th:text="${employee.email}"></td>
                 <td th:text="${employee.time_vaccine}"></td>
                 <td th:text="${employee.date_vaccine}"></td>
-                <td th:if="${employee.isInjection == 0}" ><button class="row_button btn btn-danger" >Chưa tiêm</button></td>
-                <td th:if="${employee.isInjection == 1}" ><button class="row_button btn btn-success" >Đã tiêm</button></td>
+                <td th:if="${employee.isInjection == 0}">
+                    <button class="row_button btn btn-danger">Chưa tiêm</button>
+                </td>
+                <td th:if="${employee.isInjection == 1}">
+                    <button class="row_button btn btn-success">Đã tiêm</button>
+                </td>
             </tr>
         </th:block>
 
@@ -102,25 +108,26 @@
     <div class="row">
         <input type="hidden" id="maxPage" th:value="${maxPage}">
         <div class="col-sm-8" style="text-align: center;">
-          <button class="btn btn-secondary" onclick="setInjectionStatus()">Ấn định</button>
-          <button class="btn btn-warning">Gửi email</button>
+            <button class="btn btn-secondary" onclick="setInjectionStatus()">Ấn định</button>
+<!--            <button class="btn btn-warning">Gửi email</button>-->
         </div>
         <div class="col-sm-4">
 
-                <ul class="pagination">
-                    <li class="page-item"><a id="prev"  onclick="changePage(this.value)"   class="page-link" >Previous</a></li>
-                    <li th:each="number : ${pageNumber}" class="page-item">
-                        <button class="page-link" th:id="${number}+'_button'" th:value="${number}" th:onclick="'javascript:changePage('+${number}+')'"  th:text="${number + 1}"></button>
-                    </li>
-                    <li class="page-item" ><a id="next" class="page-link"  onclick="changePage(this.value)" >Next</a></li>
-                </ul>
+            <ul class="pagination">
+                <li class="page-item"><a id="prev" onclick="changePage(this.value)" class="page-link">Previous</a></li>
+                <li th:each="number : ${pageNumber}" class="page-item">
+                    <button class="page-link" th:id="${number}+'_button'" th:value="${number}"
+                            th:onclick="'javascript:changePage('+${number}+')'" th:text="${number + 1}"></button>
+                </li>
+                <li class="page-item"><a id="next" class="page-link" onclick="changePage(this.value)">Next</a></li>
+            </ul>
 
         </div>
     </div>
 
 
-</div>
+    </label>
 
-<script th:src="@{/js/admin/destination_page_doctor.js}"></script>
+    <script th:src="@{/js/admin/destination_page_doctor.js}"></script>
 </body>
 </html>

@@ -41,13 +41,8 @@ class UserDetailsServiceImpl implements UserDetailsService {
             System.err.println("User is disable !!! " + userName);
             throw new DisabledException("User " + userName + " was disable !!! ");
         }
-
-
-
-
         // [ROLE_USER, ROLE_ADMIN,..]
         List<Customer_Role> userRoleList = this.userRoleRepository.findByAppUser(appUser);
-
 
         List<GrantedAuthority> grantList = new ArrayList<GrantedAuthority>();
         if (userRoleList != null) {
@@ -57,7 +52,6 @@ class UserDetailsServiceImpl implements UserDetailsService {
                 grantList.add(authority);
             }
         }
-
         UserDetails userDetails = (UserDetails) new User(appUser.getCMND(), //
                 appUser.getEncrytedPassword(), grantList);
 
