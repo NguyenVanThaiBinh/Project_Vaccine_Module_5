@@ -7,15 +7,18 @@ import com.vaccine.repository.ICustomerRoleRepository;
 import com.vaccine.repository.IDestinationRepository;
 import com.vaccine.repository.IVaccineRepository;
 import com.vaccine.service.CustomerServiceVerifyAccount;
+import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.repository.query.Param;
+import org.springframework.http.HttpMethod;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 import springfox.documentation.RequestHandler;
 
@@ -53,10 +56,13 @@ public class HomeController {
     @Autowired
     CustomerServiceVerifyAccount customerServiceVerifyAccount;
 
+    @Autowired
+    private RestTemplate restTemplate;
+
 
     @ModelAttribute("destinations")
     public List<Destination> destinationList() {
-        return iDestinationRepository.findAll();
+        return iDestinationRepository.findAllIsOpenDestination();
     }
 
     @ModelAttribute("vaccineList")
@@ -78,7 +84,6 @@ public class HomeController {
             for (int i = 0; i < customerListIsDone.getTotalPages(); i++) {
                 pageNumber.add(i);
             }
-
             ModelAndView modelAndView = new ModelAndView("doctor/ListUserIsDone");
             modelAndView.addObject("customerListIsDone", customerListIsDone);
             modelAndView.addObject("customerInfo", user);
@@ -87,16 +92,18 @@ public class HomeController {
             return modelAndView;
         }
         if (request.isUserInRole("ROLE_USER")) {
-            ModelAndView modelAndView = new ModelAndView("index/home");
+            ModelAndView modelAndView = new ModelAndView("user/userPage");
             String userName = principal.getName();
             Customer user = iCustomerRepository.findByUserCMND(userName);
-            modelAndView.addObject("userInfo", user.getCustomer_name());
+            modelAndView.addObject("userInfo", user);
+            return modelAndView;
         }
         if (request.isUserInRole("ROLE_ADMIN")) {
             ModelAndView modelAndView = new ModelAndView("admin/dashBoar");
             String userName = principal.getName();
             Customer user = iCustomerRepository.findByUserCMND(userName);
-            modelAndView.addObject("userInfo", user.getCustomer_name());
+            modelAndView.addObject("userInfo", user);
+            return modelAndView;
         }
         ModelAndView modelAndView = new ModelAndView("index/home");
         modelAndView.addObject("user", new Customer());
@@ -135,8 +142,9 @@ public class HomeController {
     }
 
     @PostMapping("/create")
-    public ModelAndView createUser(Customer user, HttpServletRequest request) throws InterruptedException, ExecutionException
-//            ,@RequestParam(name ="g-recaptcha-response") String captchaResponse)
+    public ModelAndView createUser(Customer user, HttpServletRequest request ) throws InterruptedException, ExecutionException
+
+//            ,@RequestParam(name ="g-recaptcha-response") String captchaResponse
     {
         //        Recaptcha
 //        String url = "https://www.google.com/recaptcha/api/siteverify";
@@ -145,7 +153,7 @@ public class HomeController {
 //        ReCaptchaResponse reCaptchaResponse = restTemplate.exchange(url+params, HttpMethod.POST,null,ReCaptchaResponse.class).getBody();
 //        if(!reCaptchaResponse.isSuccess()){
 //            ModelAndView modelAndView = new ModelAndView("/index/form");
-//            modelAndView.addObject("user", new User());
+//            modelAndView.addObject("user", new Customer());
 //            modelAndView.addObject("fail", "Vui lòng hoàn thành Captcha!!!");
 //            return modelAndView;
 //        }
@@ -176,10 +184,13 @@ public class HomeController {
             return modelAndView;
         }
 
-        //Test phân ngày
+        // <-------------- Test phân ngày thật chất là phải xác mình tài khoản rồi mới phân -------->
+        //              <-------------- Thêm có quyền đăng nhập Enable -------->
         iCustomerRepository.save(user);
         try {
             setDayTimeVaccine(user);
+            user.setEnabled(true);
+            iCustomerRepository.save(user);
         } catch (Exception e) {
             ModelAndView modelAndView = new ModelAndView("/index/form");
             modelAndView.addObject("user", new Customer());
@@ -207,12 +218,13 @@ public class HomeController {
             appRole.setRoleId(1L);
             userRole.setAppRole(appRole);
             iCustomerRoleRepository.save(userRole);
-            //        Thêm một quyền ADMIN
-            appRole.setRoleId(2L);
-            iCustomerRoleRepository.save(new Customer_Role(user, appRole));
-            //        Thêm một quyền DOCTOR
-            appRole.setRoleId(3L);
-            iCustomerRoleRepository.save(new Customer_Role(user, appRole));
+
+            //        Thêm một quyền ADMIN và DOCTOR
+//            appRole.setRoleId(2L);
+//            iCustomerRoleRepository.save(new Customer_Role(user, appRole));
+//            appRole.setRoleId(3L);
+//            iCustomerRoleRepository.save(new Customer_Role(user, appRole));
+
         } catch (Exception e) {
             ModelAndView modelAndView = new ModelAndView("/index/form");
             modelAndView.addObject("user", new Customer());
@@ -222,11 +234,15 @@ public class HomeController {
 
         ModelAndView modelAndView = new ModelAndView("/index/form");
         modelAndView.addObject("user", new Customer());
+
+            //  Gửi email đa luồng
 //        if (user.getEmail() != null) {
 //            thread1.start();
 //        }
+
         modelAndView.addObject("fail", "Vui lòng kiểm tra email để xác minh tài khoản!");
-//        thread1.currentThread().interrupt();
+//            Đóng luồng
+        //        thread1.currentThread().interrupt();
         return modelAndView;
     }
 
@@ -274,16 +290,26 @@ public class HomeController {
 
     @PostMapping("/get-password")
     public ModelAndView getPassword(@RequestParam(value = "CMND", required = false) String CMND,
-                                    @RequestParam(value = "email", required = false) String email) {
+                                    @RequestParam(value = "email", required = false) String email,
+                                    HttpServletRequest request) {
         ModelAndView modelAndView = new ModelAndView("/security/forgotPassword");
         Customer user = iCustomerRepository.findByUserCMND(CMND);
         if (user != null && user.getEmail().equals(email)) {
             modelAndView.addObject("msg", "Kiểm tra mail để lấy lại mật khẩu!");
+        //      Tạo mã ngẫu nhiên
+            String randomCode = RandomString.make(64);
+            user.setVerificationCode(randomCode);
+            iCustomerRepository.save(user);
+        //      Tạo link email
+            String link = getSiteURL(request)+"/set-password/" + user.getVerificationCode();
+            Thread thread1 = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    getPasswordByMail(user.getCustomer_name(), user.getEmail(), link);
+                }
+            });
+            thread1.start();
 
-//            Tuỳ trường hợp
-//            String link1 = "https://vaccinevietnam.herokuapp.com/set-password/" + user.getCMND();
-            String link = "http://localhost:8080/set-password/" + user.getCMND();
-            getPasswordByMail(user.getCustomer_name(), user.getEmail(), link);
             return modelAndView;
         } else {
             modelAndView.addObject("msg", "Tài khoản không tồn tại!!!");
@@ -308,29 +334,31 @@ public class HomeController {
         }
     }
 
-    @GetMapping("/set-password/{token}")
-    public ModelAndView setNewPassword(@PathVariable String token) {
+    @GetMapping("/set-password/{randomCode}")
+    public ModelAndView setNewPassword(@PathVariable String randomCode) {
 
         ModelAndView modelAndView = new ModelAndView("/security/setNewPassword");
-        modelAndView.addObject("userInfo", token);
+        // Bỏ vào form tàn hình
+        modelAndView.addObject("userInfo", randomCode);
         return modelAndView;
     }
 
     @PostMapping("/set-new-password")
-    public ModelAndView setNewPassword2(@RequestParam("CMND") String CMND,
+    public ModelAndView setNewPassword2(@RequestParam("CMND") String randomCode,
                                         @RequestParam("password") String newPassword) {
+//        // cmnd là bằng với token trong form tàn hình
+        System.out.println("CMND is: "+randomCode);
         ModelAndView modelAndView = new ModelAndView("/security/setNewPassword");
-        Customer user = iCustomerRepository.findByUserCMND(CMND);
-        String lastPassword = user.getPassword();
-        if (user.getPassword().equals(lastPassword)) {
+        try{
+            Customer user = iCustomerRepository.findByVerificationCode(randomCode);
             user.setPassword(encrytePassword(newPassword));
+            user.setVerificationCode(null);
             iCustomerRepository.save(user);
-            modelAndView.addObject("msg", "Mật khẩu đã thay đổi thành công!");
-        } else {
+        }catch (Exception e){
             modelAndView.addObject("msg", "Oh no! Đã có lỗi xảy ra!");
+            return modelAndView;
         }
-
-
+        modelAndView.addObject("msg", "Mật khẩu đã thay đổi thành công!");
         return modelAndView;
     }
 
