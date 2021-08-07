@@ -24,12 +24,15 @@ import springfox.documentation.RequestHandler;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
@@ -88,7 +91,7 @@ public class HomeController {
             modelAndView.addObject("customerListIsDone", customerListIsDone);
             modelAndView.addObject("customerInfo", user);
             modelAndView.addObject("pageNumber", pageNumber);
-            modelAndView.addObject("maxPage",customerListIsDone.getTotalPages());
+            modelAndView.addObject("maxPage", customerListIsDone.getTotalPages());
             return modelAndView;
         }
         if (request.isUserInRole("ROLE_USER")) {
@@ -108,6 +111,60 @@ public class HomeController {
         ModelAndView modelAndView = new ModelAndView("index/home");
         modelAndView.addObject("user", new Customer());
         return modelAndView;
+
+    }
+    @GetMapping("/checkRole")
+    public ModelAndView checkRoleAndSession(HttpServletRequest request, Principal principal) {
+
+        // Nếu có remember me
+        for (Cookie c : request.getCookies()) {
+            System.out.println(c.getName());
+            if (c.getName().equals("remember-me") || c.getName().equals("JSESSIONID")) {
+                //    <----------------------------- Phân trang đúng quyền ------------------------------>
+                if (request.isUserInRole("ROLE_DOCTOR")) {
+                    String userName = principal.getName();
+                    Customer user = new Customer();
+                    user = iCustomerRepository.findByUserCMND(userName);
+//            Phân trang
+                    Page<Customer> customerListIsDone = iCustomerRepository.findCustomerIsDoneInDay("01-10-2021 ", user.getDestination().getId(), PageRequest.of(0, 5));
+//          Lấy số page
+                    List<Integer> pageNumber = new ArrayList<>();
+                    for (int i = 0; i < customerListIsDone.getTotalPages(); i++) {
+                        pageNumber.add(i);
+                    }
+                    ModelAndView modelAndView = new ModelAndView("doctor/ListUserIsDone");
+                    modelAndView.addObject("customerListIsDone", customerListIsDone);
+                    modelAndView.addObject("customerInfo", user);
+                    modelAndView.addObject("pageNumber", pageNumber);
+                    modelAndView.addObject("maxPage", customerListIsDone.getTotalPages());
+                    return modelAndView;
+                }
+                if (request.isUserInRole("ROLE_USER")) {
+                    ModelAndView modelAndView = new ModelAndView("user/userPage");
+                    String userName = principal.getName();
+                    Customer user = iCustomerRepository.findByUserCMND(userName);
+                    modelAndView.addObject("userInfo", user);
+                    return modelAndView;
+                }
+                if (request.isUserInRole("ROLE_ADMIN")) {
+                    ModelAndView modelAndView = new ModelAndView("admin/dashBoar");
+                    String userName = principal.getName();
+                    Customer user = iCustomerRepository.findByUserCMND(userName);
+                    modelAndView.addObject("userInfo", user);
+                    return modelAndView;
+                }
+            }
+        }
+        HttpSession session = request.getSession(false);
+        if (session == null || !request.isRequestedSessionIdValid()) {
+            ModelAndView modelAndView = new ModelAndView("/security/login");
+            modelAndView.addObject("sessionIdValid", "Phiên làm việc đã hết hạn!");
+            return modelAndView;
+        }
+        ModelAndView modelAndView = new ModelAndView("index/home");
+        modelAndView.addObject("user", new Customer());
+        return modelAndView;
+
     }
 
     @GetMapping("/form")
@@ -142,21 +199,18 @@ public class HomeController {
     }
 
     @PostMapping("/create")
-    public ModelAndView createUser(Customer user, HttpServletRequest request ) throws InterruptedException, ExecutionException
-
-//            ,@RequestParam(name ="g-recaptcha-response") String captchaResponse
-    {
+    public ModelAndView createUser(Customer user, HttpServletRequest request, @RequestParam(name = "g-recaptcha-response") String captchaResponse) throws InterruptedException, ExecutionException {
         //        Recaptcha
-//        String url = "https://www.google.com/recaptcha/api/siteverify";
-//        String params ="?secret=6LfXcRMbAAAAAIqUiv2NJ1GA3kjpkt3uTOnCHZrf&response="+captchaResponse;
-//
-//        ReCaptchaResponse reCaptchaResponse = restTemplate.exchange(url+params, HttpMethod.POST,null,ReCaptchaResponse.class).getBody();
-//        if(!reCaptchaResponse.isSuccess()){
-//            ModelAndView modelAndView = new ModelAndView("/index/form");
-//            modelAndView.addObject("user", new Customer());
-//            modelAndView.addObject("fail", "Vui lòng hoàn thành Captcha!!!");
-//            return modelAndView;
-//        }
+        String url = "https://www.google.com/recaptcha/api/siteverify";
+        String params = "?secret=6LfXcRMbAAAAAIqUiv2NJ1GA3kjpkt3uTOnCHZrf&response=" + captchaResponse;
+
+        ReCaptchaResponse reCaptchaResponse = restTemplate.exchange(url + params, HttpMethod.POST, null, ReCaptchaResponse.class).getBody();
+        if (!reCaptchaResponse.isSuccess()) {
+            ModelAndView modelAndView = new ModelAndView("/index/form");
+            modelAndView.addObject("user", new Customer());
+            modelAndView.addObject("fail", "Vui lòng hoàn thành Captcha!!!");
+            return modelAndView;
+        }
 
         //       set age and status
         user.setAge(java.time.LocalDate.now().getYear() - user.getAge());
@@ -235,7 +289,7 @@ public class HomeController {
         ModelAndView modelAndView = new ModelAndView("/index/form");
         modelAndView.addObject("user", new Customer());
 
-            //  Gửi email đa luồng
+        //  Gửi email đa luồng
 //        if (user.getEmail() != null) {
 //            thread1.start();
 //        }
@@ -296,12 +350,12 @@ public class HomeController {
         Customer user = iCustomerRepository.findByUserCMND(CMND);
         if (user != null && user.getEmail().equals(email)) {
             modelAndView.addObject("msg", "Kiểm tra mail để lấy lại mật khẩu!");
-        //      Tạo mã ngẫu nhiên
+            //      Tạo mã ngẫu nhiên
             String randomCode = RandomString.make(64);
             user.setVerificationCode(randomCode);
             iCustomerRepository.save(user);
-        //      Tạo link email
-            String link = getSiteURL(request)+"/set-password/" + user.getVerificationCode();
+            //      Tạo link email
+            String link = getSiteURL(request) + "/set-password/" + user.getVerificationCode();
             Thread thread1 = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -347,14 +401,14 @@ public class HomeController {
     public ModelAndView setNewPassword2(@RequestParam("CMND") String randomCode,
                                         @RequestParam("password") String newPassword) {
 //        // cmnd là bằng với token trong form tàn hình
-        System.out.println("CMND is: "+randomCode);
+        System.out.println("CMND is: " + randomCode);
         ModelAndView modelAndView = new ModelAndView("/security/setNewPassword");
-        try{
+        try {
             Customer user = iCustomerRepository.findByVerificationCode(randomCode);
             user.setPassword(encrytePassword(newPassword));
             user.setVerificationCode(null);
             iCustomerRepository.save(user);
-        }catch (Exception e){
+        } catch (Exception e) {
             modelAndView.addObject("msg", "Oh no! Đã có lỗi xảy ra!");
             return modelAndView;
         }

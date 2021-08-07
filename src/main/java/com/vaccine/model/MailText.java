@@ -2231,7 +2231,7 @@ public class MailText {
                 "      <td style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Open Sans',sans-serif;\" align=\"left\">\n" +
                 "        \n" +
                 "  <div class=\"v-text-align\" style=\"color: #df4949; line-height: 140%; text-align: center; word-wrap: break-word;\">\n" +
-                "    <p style=\"font-size: 14px; line-height: 140%;\"><span style=\"font-size: 18px; line-height: 22.4px;\"><strong>"+checkStatus(status)+"</strong></span></p>\n" +
+                "    <p style=\"font-size: 14px; line-height: 140%;\"><span style=\"font-size: 18px; line-height: 22.4px;\"><strong>Đang chờ xác minh</strong></span></p>\n" +
                 "  </div>\n" +
                 "\n" +
                 "      </td>\n" +

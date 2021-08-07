@@ -52,6 +52,8 @@
      style="color:red;margin:10px 0px;text-align: center;font-size: 27px;">
    Sai tài khoản hoặc mật khẩu!<br />
 </div>
+<div   style="color:red;margin:10px 0px;text-align: center;font-size: 27px;"
+       th:if="${sessionIdValid != null}" th:text="${sessionIdValid}"></div>
 <div class="limiter">
     <div class="container-login100">
         <div class="wrap-login100">
