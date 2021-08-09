@@ -88,12 +88,13 @@ public class DoctorController {
     @ResponseBody
     @RequestMapping(path = "/search/{key}", method = RequestMethod.POST)
     public Page<Customer> searchByCMND(@PathVariable String key,Principal principal,@RequestBody String[]  pageNumber){
-        System.out.println( "Key is: "+key);
+//        System.out.println( "Key is: "+key);
+//        System.out.println( "Page currently: "+pageNumber[0]);
 //        Lấy lại quyền để lấy ID
         String userName = principal.getName();
         Customer customer1 = icustomerRepository.findByUserCMND(userName);
 //        Lấy danh sách
-        Page<Customer> searchResultCustomer = icustomerRepository.searchCustomerByCMND("01-10-2021 ",customer1.getDestination().getId(),PageRequest.of(Integer.parseInt(pageNumber[0]), 5), key);
+        Page<Customer> searchResultCustomer = icustomerRepository.searchCustomerByCMND("01-10-2021 ",customer1.getDestination().getId(), key,PageRequest.of(0, Integer.MAX_VALUE));
         if(key.equals("binhhu")){
             Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay("01-10-2021 ",customer1.getDestination().getId(), PageRequest.of(Integer.parseInt(pageNumber[0]), 5));
             return  customerListIsDone;

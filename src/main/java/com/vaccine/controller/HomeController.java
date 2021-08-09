@@ -118,13 +118,13 @@ public class HomeController {
 
         // Nếu có remember me
         for (Cookie c : request.getCookies()) {
-            System.out.println(c.getName());
             if (c.getName().equals("remember-me") || c.getName().equals("JSESSIONID")) {
                 //    <----------------------------- Phân trang đúng quyền ------------------------------>
                 if (request.isUserInRole("ROLE_DOCTOR")) {
                     String userName = principal.getName();
                     Customer user = new Customer();
                     user = iCustomerRepository.findByUserCMND(userName);
+                    System.out.println("ID destination: "+user.getDestination().getId());
 //            Phân trang
                     Page<Customer> customerListIsDone = iCustomerRepository.findCustomerIsDoneInDay("01-10-2021 ", user.getDestination().getId(), PageRequest.of(0, 5));
 //          Lấy số page
@@ -199,18 +199,19 @@ public class HomeController {
     }
 
     @PostMapping("/create")
-    public ModelAndView createUser(Customer user, HttpServletRequest request, @RequestParam(name = "g-recaptcha-response") String captchaResponse) throws InterruptedException, ExecutionException {
+    public ModelAndView createUser(Customer user, HttpServletRequest request) throws InterruptedException, ExecutionException {
         //        Recaptcha
-        String url = "https://www.google.com/recaptcha/api/siteverify";
-        String params = "?secret=6LfXcRMbAAAAAIqUiv2NJ1GA3kjpkt3uTOnCHZrf&response=" + captchaResponse;
-
-        ReCaptchaResponse reCaptchaResponse = restTemplate.exchange(url + params, HttpMethod.POST, null, ReCaptchaResponse.class).getBody();
-        if (!reCaptchaResponse.isSuccess()) {
-            ModelAndView modelAndView = new ModelAndView("/index/form");
-            modelAndView.addObject("user", new Customer());
-            modelAndView.addObject("fail", "Vui lòng hoàn thành Captcha!!!");
-            return modelAndView;
-        }
+//        , @RequestParam(name = "g-recaptcha-response") String captchaResponse
+//        String url = "https://www.google.com/recaptcha/api/siteverify";
+//        String params = "?secret=6LfXcRMbAAAAAIqUiv2NJ1GA3kjpkt3uTOnCHZrf&response=" + captchaResponse;
+//
+//        ReCaptchaResponse reCaptchaResponse = restTemplate.exchange(url + params, HttpMethod.POST, null, ReCaptchaResponse.class).getBody();
+//        if (!reCaptchaResponse.isSuccess()) {
+//            ModelAndView modelAndView = new ModelAndView("/index/form");
+//            modelAndView.addObject("user", new Customer());
+//            modelAndView.addObject("fail", "Vui lòng hoàn thành Captcha!!!");
+//            return modelAndView;
+//        }
 
         //       set age and status
         user.setAge(java.time.LocalDate.now().getYear() - user.getAge());
@@ -470,6 +471,7 @@ public class HomeController {
         }
 
         LocalDateTime currentDateTime = LocalDateTime.parse(str, formatter);
+
 
         //      Divide date to time
 //        CHÚ Ý CÓ DẤU " " CUỐI NGÀY
