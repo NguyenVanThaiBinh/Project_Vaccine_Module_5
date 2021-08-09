@@ -55,4 +55,7 @@ public interface ICustomerRepository extends JpaRepository<Customer, Long> {
     @Query("SELECT e from Customer  e WHERE e.date_vaccine = ?1 AND e.destination.id = ?2 AND e.CMND like %?3% ")
     Page<Customer> searchCustomerByCMND(String date_vaccine, Long id_destination,String cmnd,Pageable pageable);
 
+    @Query("SELECT DISTINCT  e.date_vaccine from Customer  e WHERE  e.destination.id = ?1 and e.isDoctor = 0")
+    List<String> findDayInOneDestination(Long id_destination);
+
 }

@@ -2,7 +2,8 @@
 // setday
 $( function() {
     let dateToday = new Date();
-    dateToday.setDate(dateToday.getDate()+3);
+    // Tắt chức năng ngày hiện tại +3 cho dễ test
+    dateToday.setDate(dateToday.getDate());
     let dates = $("#date-start,#date-end").datepicker({
         defaultDate: "+0w",
         // changeMonth: true,

@@ -18,6 +18,7 @@ import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.security.Principal;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -30,6 +31,11 @@ public class DoctorController {
     @Autowired
     JavaMailSender mailSender;
 
+    //        Xử lý lấy ngày hiện tại
+    LocalDate localDate = LocalDate.now();
+    String[] day = localDate.toString().split("-");
+    String currentDay = day[2] + "-" + day[1] + "-" + day[0] + " ";
+
     @GetMapping
     public ModelAndView showFormListDone(HttpServletRequest request, Principal principal) {
 //        Kiểm tra tài khoản và truy cập vào điểm tiêm tương ứng
@@ -37,20 +43,20 @@ public class DoctorController {
             String userName = principal.getName();
             Customer user = new Customer();
             user = icustomerRepository.findByUserCMND(userName);
-// ----------------->>    Còn thiếu hàm convert ngày hiện tại thành String + " "
-            Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay("01-10-2021 ",user.getDestination().getId(), PageRequest.of(0, 5));
+            Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay(currentDay, user.getDestination().getId(), PageRequest.of(0, 5));
             ModelAndView modelAndView = new ModelAndView("doctor/ListUserIsDone");
-            modelAndView.addObject("customerListIsDone",customerListIsDone);
-            modelAndView.addObject("customerInfo",user);
+            modelAndView.addObject("customerListIsDone", customerListIsDone);
+            modelAndView.addObject("customerInfo", user);
             return modelAndView;
         } else {
             ModelAndView modelAndView = new ModelAndView("index/home");
             return modelAndView;
         }
     }
+
     @ResponseBody
     @RequestMapping(path = "/setInjectToNone", method = RequestMethod.POST)
-    public String setInjectToNone(@RequestBody String[] itemIDs, Principal principal){
+    public String setInjectToNone(@RequestBody String[] itemIDs, Principal principal) {
         //          Set lại mấy thằng chưa đến tiêm
         for (String cmnd_customer : itemIDs) {
             Customer customer = icustomerRepository.findByUserCMND(cmnd_customer);
@@ -59,9 +65,10 @@ public class DoctorController {
         }
         return "Done";
     }
+
     @ResponseBody
     @RequestMapping(path = "/setInjectToDone", method = RequestMethod.POST)
-    public String setInjectToDone(@RequestBody String[] itemIDs, Principal principal){
+    public String setInjectToDone(@RequestBody String[] itemIDs, Principal principal) {
         for (String cmnd_customer : itemIDs) {
             Customer customer = icustomerRepository.findByUserCMND(cmnd_customer);
 //            Gửi mail xác nhận
@@ -76,33 +83,56 @@ public class DoctorController {
 
     @ResponseBody
     @RequestMapping(path = "/changePage", method = RequestMethod.POST)
-    public Page<Customer> changePage(@RequestBody String[]  pageNumber,Principal principal){
+    public Page<Customer> changePage(@RequestBody String[] pageNumber, Principal principal) {
 //        Lấy lại quyền để lấy ID
         String userName = principal.getName();
         Customer customer1 = icustomerRepository.findByUserCMND(userName);
 //        Lấy danh sách
-        Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay("01-10-2021 ",customer1.getDestination().getId(), PageRequest.of(Integer.parseInt(pageNumber[0]), 5));
-        return  customerListIsDone;
+        Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay(currentDay, customer1.getDestination().getId(), PageRequest.of(Integer.parseInt(pageNumber[0]), 5));
+        return customerListIsDone;
     }
 
     @ResponseBody
     @RequestMapping(path = "/search/{key}", method = RequestMethod.POST)
-    public Page<Customer> searchByCMND(@PathVariable String key,Principal principal,@RequestBody String[]  pageNumber){
+    public Page<Customer> searchByCMND(@PathVariable String key, Principal principal, @RequestBody String[] pageNumber) {
 //        System.out.println( "Key is: "+key);
 //        System.out.println( "Page currently: "+pageNumber[0]);
 //        Lấy lại quyền để lấy ID
         String userName = principal.getName();
         Customer customer1 = icustomerRepository.findByUserCMND(userName);
 //        Lấy danh sách
-        Page<Customer> searchResultCustomer = icustomerRepository.searchCustomerByCMND("01-10-2021 ",customer1.getDestination().getId(), key,PageRequest.of(0, Integer.MAX_VALUE));
-        if(key.equals("binhhu")){
-            Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay("01-10-2021 ",customer1.getDestination().getId(), PageRequest.of(Integer.parseInt(pageNumber[0]), 5));
-            return  customerListIsDone;
+        Page<Customer> searchResultCustomer = icustomerRepository.searchCustomerByCMND(currentDay, customer1.getDestination().getId(), key, PageRequest.of(0, Integer.MAX_VALUE));
+        if (key.equals("binhhu")) {
+            Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay(currentDay, customer1.getDestination().getId(), PageRequest.of(Integer.parseInt(pageNumber[0]), 5));
+            return customerListIsDone;
         }
-        return  searchResultCustomer;
+        return searchResultCustomer;
     }
 
-//    <-------------------------------- Gửi mail chứng nhận ------------------------>
+    @ResponseBody
+    @RequestMapping(path = "/getCustomerByDay/{day}", method = RequestMethod.POST)
+    public Page<Customer> getCustomerByDay(@PathVariable String day, Principal principal) {
+        System.out.println("Key is: " + day);
+        //        Lấy lại quyền để lấy ID
+        String userName = principal.getName();
+        Customer customer1 = icustomerRepository.findByUserCMND(userName);
+        // Nếu không có giá trị, tức bằng -1
+        if (day.equals("-1")) {
+            Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay(currentDay, customer1.getDestination().getId(), PageRequest.of(0, 5));
+            return customerListIsDone;
+        }
+//        Lấy danh sách
+        Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay(day+" ", customer1.getDestination().getId(), PageRequest.of(0, Integer.MAX_VALUE));
+//        Page<Customer> searchResultCustomer = icustomerRepository.searchCustomerByCMND(currentDay,customer1.getDestination().getId(), key,PageRequest.of(0, Integer.MAX_VALUE));
+//        if(key.equals("binhhu")){
+//            Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay(currentDay,customer1.getDestination().getId(), PageRequest.of(Integer.parseInt(pageNumber[0]), 5));
+//            return  customerListIsDone;
+//        }
+        return customerListIsDone;
+    }
+
+
+    //    <-------------------------------- Gửi mail chứng nhận ------------------------>
     public void sendMailToCustomerCame(Customer customer) {
         MimeMessage msg = mailSender.createMimeMessage();
         try {
@@ -111,7 +141,7 @@ public class DoctorController {
             helper.setFrom("boyte.vaccine.covid@gmail.com");
             helper.setTo(customer.getEmail());
 
-            MailText mailText = new MailText(customer.getCustomer_name(), customer.getCMND(),customer.getIsInjection());
+            MailText mailText = new MailText(customer.getCustomer_name(), customer.getCMND(), customer.getIsInjection());
             String path1 = "src\\main\\resources\\static\\ChungNhanTiemChung.txt";
             FileSystemResource file2 = new FileSystemResource(new File(path1));
             helper.addAttachment("Giấy Chứng Nhận", file2);

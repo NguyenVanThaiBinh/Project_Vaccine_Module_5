@@ -1,3 +1,5 @@
+
+
 //          <------------------------------------ Pageable------------------------------------->
 //chang status
 
@@ -83,7 +85,7 @@ function setInjectionStatus() {
     })
 }
 
-//voi vao active so 1
+// Mới vào cái là lick để active trang số 1
 $(document).ready(function () {
     $("#0_button").click();
 });
@@ -229,3 +231,57 @@ $('input[name="search"]').keyup(function () {
         }
     })
 });
+                // Lấy theo danh sách ngày
+function getCustomerByDay(value){
+   console.log(value);
+    $.ajax({
+        type: 'POST',
+        url: '/doctor/getCustomerByDay/' + value,
+        contentType: "application/json; charset=utf-8",
+        success: function (data) {
+            console.log(data);
+            var today = new Date();
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+            var yyyy = today.getFullYear();
+
+            today = dd + '-' + mm + '-' + yyyy+" ";
+            console.log(today);
+
+            let day = data.content[0].date_vaccine;
+            console.log("Day is: "+day);
+
+            $('#last_row ').show();
+
+            if (day !=  today){
+                console.log("AAA")
+                $('#last_row ').hide();
+            }
+            $('#orderItems ').empty();
+            $.each(data.content, function (index, item) {
+                $('#orderItems ').append(`
+                     <tr>
+                <th scope="row" >${item.id}</th>
+                <td >${item.customer_name}</td>
+                <td >${item.cmnd}</td>
+                <td>${item.email}</td>
+                <td >${item.time_vaccine}</td>
+                <td >${item.date_vaccine}</td>
+                   <td ><button class="row_button btn ${item.isInjection == 0? 'btn-danger':'btn-success'}" >${item.isInjection == 0? 'Chưa tiêm':'Đã tiêm'}</button></td>
+               </tr>
+                    `);
+            });
+            $('#orderItems').prepend('<tr>\n' +
+                '            <th>#</th>\n' +
+                '            <th>Tên</th>\n' +
+                '            <th>Số CMND</th>\n' +
+                '            <th>Email</th>\n' +
+                '            <th>Giờ tiêm</th>\n' +
+                '            <th>Ngày tiêm</th>\n' +
+                '            <th>Trạng thái</th>\n' +
+                '        </tr>\n');
+
+        }
+    });
+
+}

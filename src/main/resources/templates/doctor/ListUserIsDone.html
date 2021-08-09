@@ -65,10 +65,19 @@
         th:text="'Khách hàng đã đến tiêm tại '+ ${customerInfo.destination.destination_name}+ ' hôm nay'"></h1>
     <br><br>
     <div class="row">
-        <label class="col-sm">
+        <div class="col">
             <input id="search" type="search" size="20" name="search" placeholder="Tìm kiếm theo CMND"
                    class="form-control"/>
-        </label>
+        </div>
+        <div class="col-sm">
+            <select class="form-control " name="dayVaccineByDay" id="dayVaccineByDay" onclick="getCustomerByDay(this.value)" style="width: 61%" >
+                <option value="-1">-- Chọn ngày  --</option>
+                <option th:each="vac:${stringDayList}"
+                        th:value="${vac}"
+                        th:text="'        &ensp;&ensp;'+${vac}">
+                </option>
+            </select>
+        </div>
 
         <lable class="col-sm"></lable>
         <lable class="col-sm"></lable>
@@ -105,7 +114,7 @@
 
 
     </table>
-    <div class="row">
+    <div class="row" id="last_row">
         <input type="hidden" id="maxPage" th:value="${maxPage}">
         <div class="col-sm-8" style="text-align: center;">
             <button class="btn btn-secondary" onclick="setInjectionStatus()">Ấn định</button>

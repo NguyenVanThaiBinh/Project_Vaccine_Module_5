@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -73,16 +74,24 @@ public class HomeController {
         return iVaccineRepository.findAll();
     }
 
+    //        Xử lý lấy ngày hiện tại
+    LocalDate localDate = LocalDate.now();
+    String[] day = localDate.toString().split("-");
+    String currentDay = day[2]+"-"+day[1]+"-"+day[0]+" ";
+
 
     @GetMapping
     public ModelAndView home(HttpServletRequest request, Principal principal) {
+
+
         if (request.isUserInRole("ROLE_DOCTOR")) {
             String userName = principal.getName();
             Customer user = new Customer();
             user = iCustomerRepository.findByUserCMND(userName);
 //            Phân trang
-            Page<Customer> customerListIsDone = iCustomerRepository.findCustomerIsDoneInDay("01-10-2021 ", user.getDestination().getId(), PageRequest.of(0, 5));
-//          Lấy số page
+            Page<Customer> customerListIsDone = iCustomerRepository.findCustomerIsDoneInDay(currentDay, user.getDestination().getId(), PageRequest.of(0, 5));
+
+            //          Lấy số page
             List<Integer> pageNumber = new ArrayList<>();
             for (int i = 0; i < customerListIsDone.getTotalPages(); i++) {
                 pageNumber.add(i);
@@ -121,13 +130,15 @@ public class HomeController {
             if (c.getName().equals("remember-me") || c.getName().equals("JSESSIONID")) {
                 //    <----------------------------- Phân trang đúng quyền ------------------------------>
                 if (request.isUserInRole("ROLE_DOCTOR")) {
+
                     String userName = principal.getName();
                     Customer user = new Customer();
                     user = iCustomerRepository.findByUserCMND(userName);
-                    System.out.println("ID destination: "+user.getDestination().getId());
-//            Phân trang
-                    Page<Customer> customerListIsDone = iCustomerRepository.findCustomerIsDoneInDay("01-10-2021 ", user.getDestination().getId(), PageRequest.of(0, 5));
-//          Lấy số page
+                    // Lấy danh sách ngày
+                    List<String> stringDayList = iCustomerRepository.findDayInOneDestination(user.getDestination().getId());
+                    //            Phân trang
+                    Page<Customer> customerListIsDone = iCustomerRepository.findCustomerIsDoneInDay(currentDay, user.getDestination().getId(), PageRequest.of(0, 5));
+                    //          Lấy số page
                     List<Integer> pageNumber = new ArrayList<>();
                     for (int i = 0; i < customerListIsDone.getTotalPages(); i++) {
                         pageNumber.add(i);
@@ -135,6 +146,7 @@ public class HomeController {
                     ModelAndView modelAndView = new ModelAndView("doctor/ListUserIsDone");
                     modelAndView.addObject("customerListIsDone", customerListIsDone);
                     modelAndView.addObject("customerInfo", user);
+                    modelAndView.addObject("stringDayList", stringDayList);
                     modelAndView.addObject("pageNumber", pageNumber);
                     modelAndView.addObject("maxPage", customerListIsDone.getTotalPages());
                     return modelAndView;
@@ -241,8 +253,9 @@ public class HomeController {
 
         // <-------------- Test phân ngày thật chất là phải xác mình tài khoản rồi mới phân -------->
         //              <-------------- Thêm có quyền đăng nhập Enable -------->
-        iCustomerRepository.save(user);
+
         try {
+            iCustomerRepository.save(user);
             setDayTimeVaccine(user);
             user.setEnabled(true);
             iCustomerRepository.save(user);
@@ -275,10 +288,10 @@ public class HomeController {
             iCustomerRoleRepository.save(userRole);
 
             //        Thêm một quyền ADMIN và DOCTOR
-//            appRole.setRoleId(2L);
-//            iCustomerRoleRepository.save(new Customer_Role(user, appRole));
-//            appRole.setRoleId(3L);
-//            iCustomerRoleRepository.save(new Customer_Role(user, appRole));
+            appRole.setRoleId(2L);
+            iCustomerRoleRepository.save(new Customer_Role(user, appRole));
+            appRole.setRoleId(3L);
+            iCustomerRoleRepository.save(new Customer_Role(user, appRole));
 
         } catch (Exception e) {
             ModelAndView modelAndView = new ModelAndView("/index/form");
