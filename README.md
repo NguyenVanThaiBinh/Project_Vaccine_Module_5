@@ -1,7 +1,7 @@
 
 
 # Đăng ký tiêm chủng vaccine 
-
+  
    ## Mục đích:
         - Tạo ra một hệ thống phân luồng đăng ký tiêm chủng vaccine từ xa nhằm đảm bảo an toàn tiêm chủng.
         - Số hoá dữ liệu tiêm chủng, cơ sở để cho Hộ Chiếu Vaccine sau này.
@@ -10,36 +10,23 @@
 
 # Demo-Preview
 
-![Alt Text](https://media.giphy.com/media/l6nhEF8DwCbFkJni9T/giphy.gif)
+![Alt Text](demo.gif)
 
-<!-- Add a demo for your project -->
 
-<!-- After you have written about your project, it is a good idea to have a demo/preview(**video/gif/screenshots** are good options) of your project so that people can know what to expect in your project. You could also add the demo in the previous section with the product description.
 
-Here is a random GIF as a placeholder.
+# Nội dung
 
-![Random GIF](https://media.giphy.com/media/ZVik7pBtu9dNS/giphy.gif) -->
 
-# Table of contents
-
-<!-- After you have introduced your project, it is a good idea to add a **Table of contents** or **TOC** as **cool** people say it. This would make it easier for people to navigate through your README and find exactly what they are looking for.
-
-Here is a sample TOC(*wow! such cool!*) that is actually the TOC for this README. -->
-
-- [Project Title](#project-title)
-- [Demo-Preview](#demo-preview)
-- [Table of contents](#table-of-contents)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Development](#development)
-- [Contribute](#contribute)
-    - [Sponsor](#sponsor)
-    - [Adding new features or fixing bugs](#adding-new-features-or-fixing-bugs)
-- [License](#license)
+- [Tên Project](https://github.com/NguyenVanThaiBinh/Project_Vaccine_Module_5/edit/master/README.md#L3)
+- [Demo-Preview](https://github.com/NguyenVanThaiBinh/Project_Vaccine_Module_5/edit/master/README.md#L13)
+- [Nội dung](https://github.com/NguyenVanThaiBinh/Project_Vaccine_Module_5/edit/master/README.md#L22)
+- [Cài đặt ](https://github.com/NguyenVanThaiBinh/Project_Vaccine_Module_5/edit/master/README.md#L3)
+- [Công cụ sử dụng](https://github.com/NguyenVanThaiBinh/Project_Vaccine_Module_5/edit/master/README.md#L3)
+- [Bản quyền](https://github.com/NguyenVanThaiBinh/Project_Vaccine_Module_5/edit/master/README.md#L3)
 - [Footer](#footer)
 
 # Installation
-[(Back to top)](#table-of-contents)
+[(Back to top)](https://github.com/NguyenVanThaiBinh/Project_Vaccine_Module_5/edit/master/README.md#L3)
 
 <!-- *You might have noticed the **Back to top** button(if not, please notice, it's right there!). This is a good idea because it makes your README **easy to navigate.*** 
 
