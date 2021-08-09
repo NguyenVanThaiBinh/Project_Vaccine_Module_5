@@ -56,7 +56,7 @@ public class HomeController {
 
     @ModelAttribute("destinations")
     public List<Destination> destinationList() {
-        return iDestinationRepository.findAll();
+        return iDestinationRepository.findAllOpen();
     }
 
     @ModelAttribute("vaccineList")
@@ -157,12 +157,12 @@ public class HomeController {
 
 
 //                Gửi mail xác minh tài khoản
-//        Thread thread1 = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                customerServiceVerifyAccount.sendEmailVerifyAccount("boyte.vaccine.covid@gmail.com", user,getSiteURL(request));
-//            }
-//        });
+        Thread thread1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                customerServiceVerifyAccount.sendEmailVerifyAccount("boyte.vaccine.covid@gmail.com", user,getSiteURL(request));
+            }
+        });
 
         // Kiểm tra đã có điểm tiêm đã có bắt đầu chưa?
         try {
@@ -222,9 +222,9 @@ public class HomeController {
 
         ModelAndView modelAndView = new ModelAndView("/index/form");
         modelAndView.addObject("user", new Customer());
-//        if (user.getEmail() != null) {
-//            thread1.start();
-//        }
+        if (user.getEmail() != null) {
+            thread1.start();
+        }
         modelAndView.addObject("fail", "Vui lòng kiểm tra email để xác minh tài khoản!");
 //        thread1.currentThread().interrupt();
         return modelAndView;

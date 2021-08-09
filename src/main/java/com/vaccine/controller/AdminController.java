@@ -161,6 +161,18 @@ public class AdminController {
         return new ResponseEntity<>(customerRepository.findByDestination(id),HttpStatus.OK);
     }
 
+    @PostMapping("/destination/create")
+    public ResponseEntity<Destination> createDestination(@RequestBody Destination adminDestination) {
+        return new ResponseEntity<>(destinationRepository.save(adminDestination), HttpStatus.CREATED);
+    }
+    @DeleteMapping("/destination/{id}")
+    public ResponseEntity<Destination> destinationResponseEntity(@PathVariable long id) {
+        Destination Destination = destinationRepository.findById(id).get();
+        Destination.setIsDelete(1);
+        destinationRepository.save(Destination);
+        return new ResponseEntity<>(Destination, HttpStatus.NO_CONTENT);
+    }
+
     private String getSiteURL(HttpServletRequest request) {
         String siteURL = request.getRequestURL().toString();
         return siteURL.replace(request.getServletPath(), "");
@@ -182,7 +194,7 @@ public class AdminController {
                         if(date_vaccine.compareTo(date_end)>0){
                             // Set date_vaccine , time = null
                             list.get(i).setDate_vaccine(list.get(i).getDate_vaccine()+"cancel");
-                            list.get(i).setTime_vaccine(list.get(i).getDate_vaccine()+"cancel");
+                            list.get(i).setTime_vaccine(list.get(i).getTime_vaccine()+"cancel");
                             customerRepository.save(list.get(i));
                             // Hàm gửi email
                             countCustomer++;
@@ -211,7 +223,7 @@ public class AdminController {
                         String date_vaccine = arr[2]+"-"+arr[1]+"-"+arr[0];
                         if(date_vaccine.compareTo(date_end)<0){
                             list.get(i).setDate_vaccine(list.get(i).getDate_vaccine()+"cancel");
-                            list.get(i).setTime_vaccine(list.get(i).getDate_vaccine()+"cancel");
+                            list.get(i).setTime_vaccine(list.get(i).getTime_vaccine()+"cancel");
                             customerRepository.save(list.get(i));
                             // Hàm gửi email
                             // Set date_vaccine , time = null
@@ -232,42 +244,57 @@ public class AdminController {
 //        return new ResponseEntity<>(destinationRepository.save(destination),HttpStatus.NO_CONTENT);
 //    }
 
+    @GetMapping("/destination/setOff/{id}")
+    public void setOff(@PathVariable Long id){
+        Destination destination = destinationRepository.findById(id).get();
+        destination.setIsOpen(1);
+        destinationRepository.save(destination);
+//
+    }
+
     @GetMapping("/destination/sendEmailOff/{id}")
     public void sendMailOff(@PathVariable Long id){
-        Destination destination = destinationRepository.findById(id).get();
-        destination.setIsOpen(0);
-        destinationRepository.save(destination);
-        System.out.println(destination.toString());
         String dateNow = LocalDate.now().toString();
         List<Customer> list = customerRepository.findByDestination(id);
+        int count =0;
         for(int i=0;i<list.size();i++){
-            if(list.get(i).getIsInjection()==0 && list.get(i).getHealthy_status()!=3){
+            if(list.get(i).getIsInjection()==0 && list.get(i).getHealthy_status()!=3 && list.get(i).getDate_vaccine()!=null){
                 String[] arr = list.get(i).getDate_vaccine().trim().split("-");
                 String date = arr[2]+"-"+arr[1]+"-"+arr[0];
                 if(date.compareTo(dateNow)>0){
                     //Gui mail
-                    System.out.println(1);
+                    //Set data +cancel
+                    count++;
                 }
             }
         }
+        System.out.println(count);
+    }
+
+
+    @GetMapping("/destination/setOn/{id}")
+    public void setOn(@PathVariable Long id){
+        Destination destination = destinationRepository.findById(id).get();
+        destination.setIsOpen(0);
+        destinationRepository.save(destination);
     }
 
     @GetMapping("/destination")
     public ModelAndView listDestination(Pageable pageable) throws ParseException {
         Page<Destination> destinations = destinationRepository.findAllBySttDelete(0,pageable);
         ModelAndView modelAndView = new ModelAndView("/admin/injectionPoint");
-        for(Destination d:destinations){
-            String[] arr_S = d.getDate_start().trim().split("-");
-            String[] arr_E = d.getDate_end().trim().split("-");
-            String dateS = arr_S[2]+"-"+arr_S[1]+"-"+arr_S[0];
-            String dateE = arr_E[2]+"-"+arr_E[1]+"-"+arr_E[0];
-            String dateNow = LocalDate.now().toString();
-            if(dateS.compareTo(dateNow)<0 && dateE.compareTo(dateNow)>0 && d.getAmountOff()==0){
-                d.setIsOpen(1);
-                d.setAmountOff(1);
-                destinationRepository.save(d);
-            }
-        }
+//        for(Destination d:destinations){
+//            String[] arr_S = d.getDate_start().trim().split("-");
+//            String[] arr_E = d.getDate_end().trim().split("-");
+//            String dateS = arr_S[2]+"-"+arr_S[1]+"-"+arr_S[0];
+//            String dateE = arr_E[2]+"-"+arr_E[1]+"-"+arr_E[0];
+//            String dateNow = LocalDate.now().toString();
+//            if(dateS.compareTo(dateNow)<0 && dateE.compareTo(dateNow)>0 && d.getAmountOff()==0){
+//                d.setIsOpen(1);
+////                d.setAmountOff(1);
+//                destinationRepository.save(d);
+//            }
+//        }
 //        System.out.println(new SimpleDateFormat("yyy-mm-dd").format(new SimpleDateFormat("dd-mm-yyyy").parse(destinationRepository.findById(1L).get().getDate_end().trim())));
         modelAndView.addObject("destination", destinations);
         modelAndView.addObject("dateNow",LocalDate.now().toString());
@@ -371,17 +398,7 @@ public class AdminController {
 //        warehouseVaccineService.remove(id);
 //        return new ResponseEntity<>(customerOptional.get(), HttpStatus.NO_CONTENT);
 //    }
-    @PostMapping("/destination/create")
-    public ResponseEntity<Destination> createDestination(@RequestBody Destination adminDestination) {
-        return new ResponseEntity<>(destinationRepository.save(adminDestination), HttpStatus.CREATED);
-    }
-    @DeleteMapping("/destination/{id}")
-    public ResponseEntity<Destination> destinationResponseEntity(@PathVariable long id) {
-        Destination Destination = destinationRepository.findById(id).get();
-        Destination.setIsDelete(1);
-        destinationRepository.save(Destination);
-        return new ResponseEntity<>(Destination, HttpStatus.NO_CONTENT);
-    }
+
 
 
 //    //    ---------------------------------Bác sĩ------------------------------------------>

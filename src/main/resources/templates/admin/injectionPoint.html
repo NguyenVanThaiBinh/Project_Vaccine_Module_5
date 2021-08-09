@@ -94,12 +94,16 @@
                                 <td th:text="${u.warehouseVaccine.getWarehouseName()}"></td>
                                 <td style="float:left;">
                                     <button class="btn btn-primary" data-toggle="modal" href="#myModal" th:onclick="'javascript:setEdit('+${u.id}+')'"><i class="fas fa-edit"></i></button>
-                                    <th:block th:if="${u.date_end.trim().split('-')[2]+'-'+u.date_end.split('-')[1]+'-'+u.date_end.split('-')[0]}<${dateNow} or
-                                            ${u.date_start.trim().split('-')[2]+'-'+u.date_start.split('-')[1]+'-'+u.date_start.split('-')[0]}>${dateNow} or ${u.isOpen}==0">
-                                                <button class="btn btn-danger" th:onclick="'javascript:getDelete('+${u.id}+')'"><i class="far fa-trash-alt"></i></button>
+<!--                                    <th:block th:if="${u.date_end.trim().split('-')[2]+'-'+u.date_end.split('-')[1]+'-'+u.date_end.split('-')[0]}<${dateNow} or-->
+<!--                                            ${u.date_start.trim().split('-')[2]+'-'+u.date_start.split('-')[1]+'-'+u.date_start.split('-')[0]}>${dateNow} or ${u.isOpen}==0">-->
+<!--                                                <button class="btn btn-danger" th:onclick="'javascript:getDelete('+${u.id}+')'"><i class="far fa-trash-alt"></i></button>-->
+<!--                                    </th:block>-->
+                                    <th:block th:if="${u.isOpen==0}">
+                                        <button class="btn btn-warning" th:onclick="'javascript:off('+${u.id}+')'">Off</button>
                                     </th:block>
                                     <th:block th:if="${u.isOpen==1}">
-                                        <button class="btn btn-warning" th:onclick="'javascript:off('+${u.id}+')'">Off</button>
+                                        <button class="btn btn-success" th:onclick="'javascript:on('+${u.id}+')'">On</button>
+                                        <button class="btn btn-danger" th:onclick="'javascript:getDelete('+${u.id}+')'"><i class="far fa-trash-alt"></i></button>
                                     </th:block>
                                 </td>
                             </tr>

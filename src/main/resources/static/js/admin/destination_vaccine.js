@@ -43,7 +43,13 @@ function create(){
         type: "POST",
         data: JSON.stringify(destination),
         url: "/admin/destination/create",
-        success: successHandler
+        success: successHandler,
+    })
+    Swal.fire({
+        icon: 'success',
+        title: 'Tạo mới thành công',
+        showConfirmButton: false,
+        timer: 1500
     })
 }
 
@@ -72,6 +78,11 @@ function successHandler(){
 }
 
 function getDestination(destination){
+    let dateNow = new Date().toISOString().slice(0, 10);
+    let arr1 = destination.date_start.trim().split("-");
+    let arr2 = destination.date_end.trim().split("-");
+    let dateS = arr1[2]+"-"+arr1[1]+"-"+arr1[0];
+    let dateE = arr2[2]+"-"+arr2[1]+"-"+arr2[0];
     return `
             <tr id="${destination.id+'-row'}">
                 <td>${destination.id}</td>
@@ -80,9 +91,10 @@ function getDestination(destination){
                 <td>${destination.date_end}</td>
                 <td>${destination.people_perHour}</td>
                 <td>${destination.warehouseVaccine.warehouseName}</td>
-                <td>
-                    <button class="btn btn-primary">Edit</button>
-                    <button class="btn btn-danger" disabled onclick="getDelete(${destination.id})">Delete</button>
+                <td style="float:left;">
+                    <button class="btn btn-primary" data-toggle="modal" href="#myModal" onclick="setEdit(${destination.id})"><i class="fas fa-edit"></i></button>
+                    ${destination.isOpen==0?`<button class="btn btn-warning" onclick="off(${destination.id})">Off</button>`:`\`<button class="btn btn-success" onclick="on(${destination.id})">ON</button>`}    
+                    ${destination.isOpen==1?`<button  class="btn btn-danger" onclick="getDelete(${destination.id})"><i class="far fa-trash-alt"></i></button>`:''}          
                 </td>
             </tr>
             `
@@ -276,11 +288,111 @@ function edit(){
     })
 }
 function off(id){
+    let count =0;
     $.ajax({
         type:'GET',
-        url:`/admin/destination/sendEmailOff/${id}`,
-        success:successHandler
+        url:`/admin/destination/allCusByDes/${id}`,
+        success:function (data){
+            let dateNow = new Date().toISOString().slice(0, 10);
+            for(let i=0;i<data.length;i++){
+                if(data[i].date_vaccine !=null && data[i].date_vaccine.trim().split(" ").length ==1 && data[i].isInjection==0){
+                    count++;
+                }
+            }
+            let text;
+            if(count==0){
+                text="Tắt điểm tiêm chủng này ?";
+            }
+            else{
+                text = "Tắt điểm tiêm chủng này, có "+count+" người đăng ký bị ảnh hưởng, gửi mail thông báo hủy bỏ ? ";
+            }
+            Swal.fire({
+                title: 'Bạn có chắc ?',
+                showDenyButton: true,
+                text: text,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Tắt!',
+                denyButtonText: `Tắt + Gửi Mail `,
+                cancelButtonText:'Hủy bỏ'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire(
+                        'Tắt điểm tiêm chủng!',
+                        'Đã tắt điểm tiêm chủng',
+                        'success'
+                    )
+                    $.ajax({
+                        type: 'GET',
+                        url: `/admin/destination/setOff/${id}`,
+                        success: successHandler
+                    })
+                } else if (result.isDenied) {
+                    $.ajax({
+                        type:'GET',
+                        url:`/admin/destination/sendEmailOff/${id}`,
+                        success:function (){
+                            $.ajax({
+                                type: 'GET',
+                                url: `/admin/destination/setOff/${id}`,
+                                success:successHandler
+                            })
+                        }
+                    })
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Tắt điểm tiêm + gửi mail thành công',
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                }
+            })
+        }
     })
 }
+
+function on(id){
+    let text="Mở điểm tiêm chủng này ?";
+    Swal.fire({
+        title: 'Bạn có chắc ?',
+        text: text,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Mở!',
+        cancelButtonText:'Hủy bỏ'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire(
+                'Mở điểm tiêm chủng!',
+                'Đã mở điểm tiêm chủng',
+                'success'
+            )
+            $.ajax({
+                type: 'GET',
+                url: `/admin/destination/setOn/${id}`,
+                success: successHandler
+            })
+        }
+    })
+}
+
+// let count=0;
+// let dateNow = new Date().toISOString().slice(0, 10);
+// for(let i=0;i<data.length;i++){
+//     if(data[i].date_vaccine !=null && data[i].date_vaccine.trim().split(" ").length ==1 && data[i].isInjection==0){
+//         count++;
+//     }
+// }
+// let text;
+// if(count==0){
+//     text="Tắt điểm tiêm chủng này ?";
+// }
+// else{
+//     text="Tắt điểm tiêm chủng này sẽ hủy lịch tiêm chủng của "+count+" người, Gửi mail thông báo ?";
+// }
 
 
