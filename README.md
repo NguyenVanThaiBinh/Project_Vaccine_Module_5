@@ -1,11 +1,12 @@
 
 
 # Đăng ký tiêm chủng vaccine 
-![Alt Text](https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif)
 
-<!-- Add buttons here -->
+    ##Mục đích:
+        - Tạo ra một hệ thống phân luồng đăng ký tiêm chủng vaccine từ xa nhằm đảm bảo an toàn tiêm chủng.
+        - Số hoá dữ liệu tiêm chủng, cơ sở để cho Hộ Chiếu Vaccine sau này.
+        - Củng cố và phát huy những kiến thức đã học được ở CodeGym.
 
-<!-- Describe your project in brief -->
 
 <!-- The project title should be self explanotory and try not to make it a mouthful. (Although exceptions exist- **awesome-readme-writing-guide-for-open-source-projects** - would have been a cool name)
 
@@ -41,6 +42,8 @@ I use [**Shields IO**](https://shields.io/) for making badges. It is a simple an
 ![Tweet](https://img.shields.io/twitter/url?style=flat-square&logo=twitter&url=https%3A%2F%2Fnavendu.me%2Fnsfw-filter%2Findex.html): This is not essential but it is a cool way to let others know about your project! Clicking this button automatically opens twitter and writes a tweet about your project and link to it. All the user has to do is to click tweet. Isn't that neat? -->
 
 # Demo-Preview
+
+![Alt Text](https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif)
 
 <!-- Add a demo for your project -->
 
