@@ -101,7 +101,7 @@ I personally add the name of the license and provide a link to it like below. --
 [GNU General Public License version 3](https://opensource.org/licenses/GPL-3.0)
 
 # Footer
-[(Đi đến mục lục)](https://github.com/NguyenVanThaiBinh/Project_Vaccine_Module_5/blob/master/README.md#n%E1%BB%99i-dung)
+[(Đi đến mục lục)](https://github.com/NguyenVanThaiBinh/Project_Vaccine_Module_5#n%E1%BB%99i-dung---m%E1%BB%A5c-l%E1%BB%A5c)
 
 <!-- Let's also add a footer because I love footers and also you **can** use this to convey important info.
 
