@@ -14,7 +14,7 @@
 
 
 
-# Nội dung
+# Nội dung - Mục lục
 
 
 - [Tên Project](https://github.com/NguyenVanThaiBinh/Project_Vaccine_Module_5/blob/master/README.md#L3)
@@ -47,12 +47,12 @@ To use this project, first clone the repo on your device using the command below
 ```git clone https://github.com/navendu-pottekkat/nsfw-filter.git``` -->
 
 # Usage
-[(Back to top)](#table-of-contents)
+[(Đi đến mục lục)](https://github.com/NguyenVanThaiBinh/Project_Vaccine_Module_5/blob/master/README.md#n%E1%BB%99i-dung)
 
 <!-- This is optional and it is used to give the user info on how to use the project after installation. This could be added in the Installation section also. -->
 
 # Development
-[(Back to top)](#table-of-contents)
+[(Đi đến mục lục)](https://github.com/NguyenVanThaiBinh/Project_Vaccine_Module_5/blob/master/README.md#n%E1%BB%99i-dung)
 
 <!-- This is the place where you give instructions to developers on how to modify the code.
 
@@ -63,14 +63,14 @@ You could also give specific instructions to how they can setup their developmen
 Ideally, you should keep the README simple. If you need to add more complex explanations, use a wiki. Check out [this wiki](https://github.com/navendu-pottekkat/nsfw-filter/wiki) for inspiration. -->
 
 # Contribute
-[(Back to top)](#table-of-contents)
+[(Đi đến mục lục)](https://github.com/NguyenVanThaiBinh/Project_Vaccine_Module_5/blob/master/README.md#n%E1%BB%99i-dung)
 
 <!-- This is where you can let people know how they can **contribute** to your project. Some of the ways are given below.
 
 Also this shows how you can add subsections within a section. -->
 
 ### Sponsor
-[(Back to top)](#table-of-contents)
+[(Đi đến mục lục)](https://github.com/NguyenVanThaiBinh/Project_Vaccine_Module_5/blob/master/README.md#n%E1%BB%99i-dung)
 
 <!-- Your project is gaining traction and it is being used by thousands of people(***with this README there will be even more***). Now it would be a good time to look for people or organisations to sponsor your project. This could be because you are not generating any revenue from your project and you require money for keeping the project alive.
 
@@ -79,7 +79,7 @@ You could add how people can sponsor your project in this section. Add your patr
 A good idea is to also display the sponsors with their organisation logos or badges to show them your love!(*Someday I will get a sponsor and I can show my love*) -->
 
 ### Adding new features or fixing bugs
-[(Back to top)](#table-of-contents)
+[(Đi đến mục lục)](https://github.com/NguyenVanThaiBinh/Project_Vaccine_Module_5/blob/master/README.md#n%E1%BB%99i-dung)
 
 <!-- This is to give people an idea how they can raise issues or feature requests in your projects. 
 
@@ -90,7 +90,7 @@ Personally and by standard, you should use a [issue template](https://github.com
 You could also add contact details for people to get in touch with you regarding your project. -->
 
 # License
-[(Back to top)](#table-of-contents)
+[(Đi đến mục lục)](https://github.com/NguyenVanThaiBinh/Project_Vaccine_Module_5/blob/master/README.md#n%E1%BB%99i-dung)
 
 <!-- Adding the license to README is a good practice so that people can easily refer to it.
 
@@ -101,7 +101,7 @@ I personally add the name of the license and provide a link to it like below. --
 [GNU General Public License version 3](https://opensource.org/licenses/GPL-3.0)
 
 # Footer
-[(Back to top)](https://github.com/NguyenVanThaiBinh/Project_Vaccine_Module_5/blob/master/README.md#n%E1%BB%99i-dung)
+[(Đi đến mục lục)](https://github.com/NguyenVanThaiBinh/Project_Vaccine_Module_5/blob/master/README.md#n%E1%BB%99i-dung)
 
 <!-- Let's also add a footer because I love footers and also you **can** use this to convey important info.
 
