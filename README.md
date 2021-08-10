@@ -3,7 +3,7 @@
 # Đăng ký tiêm chủng vaccine 
   
    ## Mục đích:
-        - Tạo ra một hệ thống phân luồng đăng ký tiêm chủng vaccine từ xa nhằm đảm bảo an toàn tiêm chủng.
+        - Tạo ra một hệ thống đăng ký tiêm chủng vaccine từ xa nhằm đảm bảo an.
         - Số hoá dữ liệu tiêm chủng, cơ sở để cho Hộ Chiếu Vaccine sau này.
         - Củng cố và phát huy những kiến thức đã học được ở CodeGym.
 
