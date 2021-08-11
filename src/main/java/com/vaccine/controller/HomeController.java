@@ -180,10 +180,14 @@ public class HomeController {
     @GetMapping("/form")
     public ModelAndView showForm() {
         //redirect if amount vaccine ==0
-        int sumVaccine = iVaccineRepository.sumVaccine();
-        if(sumVaccine<=0){
-            return new ModelAndView("/security/regisFound");
+        // Kiểm tra có giá trị hay k
+        if (iVaccineRepository.findAll().spliterator().getExactSizeIfKnown()>0){
+            int sumVaccine = iVaccineRepository.sumVaccine();
+            if(sumVaccine<=0){
+                return new ModelAndView("/security/regisFound");
+            }
         }
+
 
         ModelAndView modelAndView = new ModelAndView("/index/form");
         modelAndView.addObject("user", new Customer());
