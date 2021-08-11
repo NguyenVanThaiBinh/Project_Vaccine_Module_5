@@ -72,6 +72,9 @@ public class AdminController {
 //
 //    int countSort=0;
 //
+    LocalDate localDate = LocalDate.now();
+    String[] day = localDate.toString().split("-");
+    String currentDay = day[2]+"-"+day[1]+"-"+day[0]+" ";
     @ModelAttribute("warehouses")
     public Iterable<WarehouseVaccine> warehouseVaccineResponseEntity() {
         return iWarehouseRepository.findAll();
@@ -360,7 +363,7 @@ public class AdminController {
     @GetMapping("/destinationAccount")
     public ModelAndView showHosp() {
         List<Customer> allDestinationAccount = customerRepository.getAllDestinationAccount();
-        List<Destination> destinationList = destinationRepository.findAll();
+        List<Destination> destinationList = destinationRepository.findAllOpen();
         ModelAndView modelAndView = new ModelAndView("admin/destination_account");
         modelAndView.addObject("allDestinationAccount", allDestinationAccount);
         modelAndView.addObject("destinationList", destinationList);
