@@ -24,6 +24,8 @@ public class Vaccine {
 
     int vaccine_amount;
 
+    int register_amount;
+
     @ManyToOne
     @JoinColumn(name = "id_warehouse")
     private WarehouseVaccine warehouseVaccine;

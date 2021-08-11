@@ -78,10 +78,6 @@
                 </option>
             </select>
         </div>
-
-        <lable class="col-sm"></lable>
-        <lable class="col-sm"></lable>
-
     </div>
     <br>
     <table id="orderItems" class="table table-hover" border="1" style="text-align: center">
@@ -94,7 +90,6 @@
             <th>Ngày tiêm</th>
             <th>Trạng thái</th>
         </tr>
-
         <th:block th:each="employee : ${customerListIsDone}">
             <tr>
                 <th scope="row" th:text="${employee.id}"></th>
@@ -109,11 +104,11 @@
                 <td th:if="${employee.isInjection == 1}">
                     <button class="row_button btn btn-success">Đã tiêm</button>
                 </td>
+                <input type="hidden" th:value="${employee.id}" id="id">
             </tr>
         </th:block>
-
-
     </table>
+    <input type="hidden" id="idDes" th:value="${idDes}">
     <div class="row" id="last_row">
         <input type="hidden" id="maxPage" th:value="${maxPage}">
         <div class="col-sm-8" style="text-align: center;">
@@ -121,7 +116,6 @@
 <!--            <button class="btn btn-warning">Gửi email</button>-->
         </div>
         <div class="col-sm-4">
-
             <ul class="pagination">
                 <li class="page-item"><a id="prev" onclick="changePage(this.value)" class="page-link">Previous</a></li>
                 <li th:each="number : ${pageNumber}" class="page-item">
@@ -133,10 +127,7 @@
 
         </div>
     </div>
-
-
-    </label>
-
+</div>
     <script th:src="@{/js/admin/destination_page_doctor.js}"></script>
 </body>
 </html>

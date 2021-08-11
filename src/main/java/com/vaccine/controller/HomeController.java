@@ -71,7 +71,7 @@ public class HomeController {
 
     @ModelAttribute("vaccineList")
     public List<Vaccine> vaccineList() {
-        return iVaccineRepository.findAll();
+        return iVaccineRepository.findAllByRegister();
     }
 
     //        Xử lý lấy ngày hiện tại
@@ -97,6 +97,7 @@ public class HomeController {
                 pageNumber.add(i);
             }
             ModelAndView modelAndView = new ModelAndView("doctor/ListUserIsDone");
+            modelAndView.addObject("idDes",user.getDestination().getId());
             modelAndView.addObject("customerListIsDone", customerListIsDone);
             modelAndView.addObject("customerInfo", user);
             modelAndView.addObject("pageNumber", pageNumber);
@@ -181,6 +182,12 @@ public class HomeController {
 
     @GetMapping("/form")
     public ModelAndView showForm() {
+        //redirect if amount vaccine ==0
+        int sumVaccine = iVaccineRepository.sumVaccine();
+        if(sumVaccine<=0){
+            return new ModelAndView("/security/regisFound");
+        }
+
         ModelAndView modelAndView = new ModelAndView("/index/form");
         modelAndView.addObject("user", new Customer());
         return modelAndView;
@@ -212,6 +219,7 @@ public class HomeController {
 
     @PostMapping("/create")
     public ModelAndView createUser(Customer user, HttpServletRequest request) throws InterruptedException, ExecutionException {
+
         //        Recaptcha
 //        , @RequestParam(name = "g-recaptcha-response") String captchaResponse
 //        String url = "https://www.google.com/recaptcha/api/siteverify";
@@ -307,7 +315,9 @@ public class HomeController {
 //        if (user.getEmail() != null) {
 //            thread1.start();
 //        }
-
+        Vaccine vaccine = iVaccineRepository.findById(user.getVaccine().getId()).get();
+        vaccine.setRegister_amount(vaccine.getRegister_amount()-1);
+        iVaccineRepository.save(vaccine);
         modelAndView.addObject("fail", "Vui lòng kiểm tra email để xác minh tài khoản!");
 //            Đóng luồng
         //        thread1.currentThread().interrupt();
