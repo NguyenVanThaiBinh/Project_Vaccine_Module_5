@@ -291,6 +291,7 @@ public class AdminController {
         warehouseVaccine.setId(1L);
 
         vaccine.setWarehouseVaccine(warehouseVaccine);
+        vaccine.setRegister_amount(vaccine.getVaccine_amount());
         return new ResponseEntity<>(vaccineRepository.save(vaccine), HttpStatus.CREATED);
     }
 
