@@ -7,28 +7,43 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import com.vaccine.model.Customer;
+import com.vaccine.model.Customer_Role;
 import com.vaccine.model.security.UserPrinciple;
+import com.vaccine.repository.ICustomerRepository;
+import com.vaccine.repository.ICustomerRoleRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SignatureException;
 import net.minidev.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
-import java.util.Date;
+import java.util.*;
 
 @Component
 public class JwtUtil {
+    @Autowired
+    private ICustomerRepository appUserRepository;
+
+    @Autowired
+    private ICustomerRoleRepository userRoleRepository;
 
 
     private static Logger logger = LoggerFactory.getLogger(JwtUtil.class);
-    private static final String USER = "user";
+    private static final String USER = "Customer Info";
     public static final long JWT_TOKEN_VALIDITY = 1000L;
-    private static final String SECRET_KEY = "binhhu_haha";
+    private static final String SECRET_KEY = "cogaibensongngoimotminhbuonquahuhutoiquahuhu";
 
     public String generateToken(UserPrincipal user) {
         String token = null;
@@ -53,13 +68,13 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject((userPrincipal.getUsername()))
                 .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + JWT_TOKEN_VALIDITY * 60 * 60 ))
+                .setExpiration(new Date((new Date()).getTime() + JWT_TOKEN_VALIDITY * 60  ))
                 .signWith(SignatureAlgorithm.HS512, SECRET_KEY)
                 .compact();
     }
 
     public Date generateExpirationDate() {
-        return new Date(System.currentTimeMillis() + 864000000);
+        return new Date(System.currentTimeMillis() + (1000*60));
     }
 
     public JWTClaimsSet getClaimsFromToken(String token) {
@@ -119,5 +134,27 @@ public class JwtUtil {
 
         return false;
     }
+
+    public UserPrincipal findByUsername(String CMND) {
+        Customer customer = appUserRepository.findByUserCMND(CMND);
+        UserPrincipal userPrincipal = new UserPrincipal();
+        List<Customer_Role> userRoleList = this.userRoleRepository.findByAppUser(customer);
+
+        Set<String> authorities = new HashSet<>();
+        if (userRoleList != null) {
+            for (Customer_Role userRole : userRoleList) {
+                // ROLE_USER, ROLE_ADMIN,..
+                authorities.add(userRole.getAppRole().getRoleName());
+            }
+        }
+
+        userPrincipal.setUserId(customer.getId());
+        userPrincipal.setUsername(customer.getCMND());
+        userPrincipal.setPassword(customer.getPassword());
+        userPrincipal.setAuthorities(authorities);
+
+        return userPrincipal;
+    }
+
 
 }

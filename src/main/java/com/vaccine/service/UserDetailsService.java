@@ -1,8 +1,7 @@
 package com.vaccine.service;
 
 
-
-
+import com.vaccine.config.UserPrincipal;
 import com.vaccine.model.Customer;
 import com.vaccine.model.Customer_Role;
 import com.vaccine.repository.ICustomerRepository;
@@ -18,7 +17,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 class UserDetailsServiceImpl implements UserDetailsService {
@@ -33,7 +34,7 @@ class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException, DisabledException {
         Customer appUser = this.appUserRepository.findByUserCMND(userName);
 
-        if (appUser == null ) {
+        if (appUser == null) {
             System.err.println("User not found !!! " + userName);
             throw new UsernameNotFoundException("User " + userName + " was not found !!! ");
         }
@@ -57,5 +58,7 @@ class UserDetailsServiceImpl implements UserDetailsService {
 
         return userDetails;
     }
+
+
 
 }

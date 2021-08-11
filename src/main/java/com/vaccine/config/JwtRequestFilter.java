@@ -38,45 +38,57 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+
         final String authorizationHeader = request.getHeader("Authorization");
-
-//        Cookie authorizationCookie = WebUtils.getCookie(request, "JWT");
-        final String authorizationCookie = getCookieValue(request, "JWT");
-
         UserPrincipal user = null;
-//        Token token = new Token();
         String token = null;
+
+        try{
+            final String authorizationCookie = getCookieValue(request, "JWT");
+            if (authorizationCookie != null) {
+                assert false;
+                token = authorizationCookie;
+                user = jwtUtil.getUserFromToken(authorizationCookie);
+            }
+        }catch (Exception e){
+            System.err.println("JWT is null!!!");
+            filterChain.doFilter(request, response);
+            return;
+
+        }
+
         if (StringUtils.hasText(authorizationHeader) && authorizationHeader.startsWith("Bearer ")) {
             String jwt = authorizationHeader.substring(7);
             user = jwtUtil.getUserFromToken(jwt);
-//            token = verificationTokenService.findByToken(jwt);
             token = jwt;
-            System.out.println("jwt");
-            System.out.println(jwt);
-//            assert false;
-//            token.setToken(jwt);
-        }
-        else {
-            if (authorizationCookie != null) {
-//                token = authorizationCookie.getValue();
-//                user = jwtUtil.getUserFromToken(token);
-                System.out.println("authorizationCookie");
-                System.out.println(authorizationCookie);
-                assert false;
-                token = authorizationCookie;
-//                token.setToken(authorizationCookie);
-                user = jwtUtil.getUserFromToken(authorizationCookie);
-            }
+
+
         }
 
         if (null != user && token != null) {
             JWTClaimsSet claims = jwtUtil.getClaimsFromToken(token);
+            // Claims là in ra cái HSD của token
+//            System.out.println("Claims is: "+claims.getExpirationTime());
             if (jwtUtil.isTokenExpired(claims)) {
+                System.out.println("JWT is ok??? ");
+                // Còn hạn thì cho qua Spring Security
                 Set<GrantedAuthority> authorities = new HashSet<>();
+
                 user.getAuthorities().forEach(p -> authorities.add(new SimpleGrantedAuthority((String) p)));
+
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
+
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                filterChain.doFilter(request, response);
+                return;
+            }else{
+                System.out.println("JWT is Expired??? ");
+                response.sendRedirect("/login?error=jwt");
+                filterChain.doFilter(request, response);
+                return;
             }
         }
 

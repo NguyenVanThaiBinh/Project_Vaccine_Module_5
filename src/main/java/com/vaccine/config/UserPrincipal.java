@@ -11,6 +11,7 @@ import java.util.Collection;
 public class UserPrincipal implements UserDetails {
     private Long userId;
     private String username;
+    private String customer_name;
     private String password;
     private Collection authorities;
 

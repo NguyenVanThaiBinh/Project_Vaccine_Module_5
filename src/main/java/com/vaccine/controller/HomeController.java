@@ -1,19 +1,28 @@
 package com.vaccine.controller;
 
 
+import com.vaccine.config.JwtUtil;
+import com.vaccine.config.UserPrincipal;
 import com.vaccine.model.*;
 import com.vaccine.repository.ICustomerRepository;
 import com.vaccine.repository.ICustomerRoleRepository;
 import com.vaccine.repository.IDestinationRepository;
 import com.vaccine.repository.IVaccineRepository;
 import com.vaccine.service.CustomerServiceVerifyAccount;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.repository.query.Param;
+import org.springframework.http.ResponseCookie;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -21,14 +30,14 @@ import springfox.documentation.RequestHandler;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.*;
 
 @RestController
@@ -53,6 +62,12 @@ public class HomeController {
     @Autowired
     CustomerServiceVerifyAccount customerServiceVerifyAccount;
 
+    @Autowired
+    JwtUtil jwtUtil;
+
+    @Autowired
+    private UserDetailsService userDetailsService;
+
 
     @ModelAttribute("destinations")
     public List<Destination> destinationList() {
@@ -66,8 +81,14 @@ public class HomeController {
 
 
     @GetMapping
-    public ModelAndView home(HttpServletRequest request, Principal principal) {
+    public ModelAndView home(HttpServletResponse response,HttpServletRequest request, Principal principal) {
+
+
+
+
         if (request.isUserInRole("ROLE_DOCTOR")) {
+            //   Cứ mỗi lần vào trang thì nó sẽ tạo Token mới, với giá trị mới
+            setTokenForAccount(response,principal);
             String userName = principal.getName();
             Customer user = new Customer();
             user = iCustomerRepository.findByUserCMND(userName);
@@ -87,21 +108,29 @@ public class HomeController {
             return modelAndView;
         }
         if (request.isUserInRole("ROLE_USER")) {
-            ModelAndView modelAndView = new ModelAndView("index/home");
+            //   Cứ mỗi lần vào trang thì nó sẽ tạo Token mới, với giá trị mới
+            setTokenForAccount(response,principal);
+            ModelAndView modelAndView = new ModelAndView("user/userPage");
             String userName = principal.getName();
             Customer user = iCustomerRepository.findByUserCMND(userName);
             modelAndView.addObject("userInfo", user.getCustomer_name());
         }
         if (request.isUserInRole("ROLE_ADMIN")) {
+//   Cứ mỗi lần vào trang thì nó sẽ tạo Token mới, với giá trị mới
+            setTokenForAccount(response,principal);
             ModelAndView modelAndView = new ModelAndView("admin/dashBoar");
             String userName = principal.getName();
             Customer user = iCustomerRepository.findByUserCMND(userName);
             modelAndView.addObject("userInfo", user.getCustomer_name());
+            return  modelAndView;
         }
         ModelAndView modelAndView = new ModelAndView("index/home");
         modelAndView.addObject("user", new Customer());
         return modelAndView;
     }
+
+
+
 
     @GetMapping("/form")
     public ModelAndView showForm() {
@@ -109,6 +138,57 @@ public class HomeController {
         modelAndView.addObject("user", new Customer());
         return modelAndView;
 
+    }
+
+
+    public  void setTokenForAccount(HttpServletResponse response, Principal principal){
+        // Đến đây là đã đăng nhập thành công rồi chỉ cần tạo cho nó một cái JWT là ok thôi
+//        <------------------------------- JWT ------------------------------->
+        String userNameJWT = principal.getName();
+
+        // Lấy thông tin từ Username
+        UserDetails userDetails = userDetailsService.loadUserByUsername(userNameJWT);
+
+        UserPrincipal userPrincipal = findByUsername(userNameJWT);
+
+//        System.out.println(userDetails);
+//        System.out.println("Token Info: "+userPrincipal);
+
+        // Liên quan gì đến token gì đấy???
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                userDetails,
+                userDetails.getUsername(),
+                userDetails.getAuthorities());
+        // Set cái auth ni để làm cái gì đây?
+        auth.setDetails(userDetails);
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        securityContext.setAuthentication(auth);
+        // Cài đặt mã Token này
+        String jwt = jwtUtil.generateToken(userPrincipal);
+
+        // Gắn mã Token đó thành một cái Cookie
+        Cookie cookie = new Cookie("JWT", jwt);
+        cookie.setMaxAge(60 * 60 * 60 * 1000);
+        response.addCookie(cookie);
+    }
+    public UserPrincipal findByUsername(String CMND) {
+        Customer customer = iCustomerRepository.findByUserCMND(CMND);
+        UserPrincipal userPrincipal = new UserPrincipal();
+        List<Customer_Role> userRoleList = this.iCustomerRoleRepository.findByAppUser(customer);
+
+        Set<String> authorities = new HashSet<>();
+        if (userRoleList != null) {
+            for (Customer_Role userRole : userRoleList) {
+                // ROLE_USER, ROLE_ADMIN,..
+                authorities.add(userRole.getAppRole().getRoleName());
+            }
+        }
+        userPrincipal.setUserId(customer.getId());
+        userPrincipal.setUsername(customer.getCMND());
+        userPrincipal.setPassword(customer.getPassword());
+        userPrincipal.setCustomer_name(customer.getCustomer_name());
+        userPrincipal.setAuthorities(authorities);
+        return userPrincipal;
     }
 
     @GetMapping(value = {"/login"})
@@ -177,8 +257,10 @@ public class HomeController {
         }
 
         //Test phân ngày
-        iCustomerRepository.save(user);
+
         try {
+            user.setEnabled(true);
+            iCustomerRepository.save(user);
             setDayTimeVaccine(user);
         } catch (Exception e) {
             ModelAndView modelAndView = new ModelAndView("/index/form");

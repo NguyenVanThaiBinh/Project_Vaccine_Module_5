@@ -79,6 +79,7 @@ public class DoctorController {
     public Page<Customer> changePage(@RequestBody String[]  pageNumber,Principal principal){
 //        Lấy lại quyền để lấy ID
         String userName = principal.getName();
+
         Customer customer1 = icustomerRepository.findByUserCMND(userName);
 //        Lấy danh sách
         Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay("01-10-2021 ",customer1.getDestination().getId(), PageRequest.of(Integer.parseInt(pageNumber[0]), 5));

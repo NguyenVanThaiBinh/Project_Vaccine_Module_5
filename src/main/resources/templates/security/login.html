@@ -52,6 +52,10 @@
      style="color:red;margin:10px 0px;text-align: center;font-size: 27px;">
    Sai tài khoản hoặc mật khẩu!<br />
 </div>
+<div th:if="${#request.getParameter('error') == 'jwt'}"
+     style="color:red;margin:10px 0px;text-align: center;font-size: 27px;">
+    Token của bạn đã hết hạn!<br />
+</div>
 <div class="limiter">
     <div class="container-login100">
         <div class="wrap-login100">

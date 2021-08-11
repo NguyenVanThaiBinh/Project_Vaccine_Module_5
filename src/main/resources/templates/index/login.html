@@ -64,7 +64,7 @@
         <br><br>
 
         <div class="wrap-input100 validate-input" >
-          <input class="input100" type="number" name="CMND">
+          <input class="input100" type="number" name="CMND" id="username">
           <span class="focus-input100" data-placeholder="Số chứng minh nhân dân"></span>
         </div>
 
@@ -72,7 +72,7 @@
 						<span class="btn-show-pass">
 							<i class="zmdi zmdi-eye"></i>
 						</span>
-          <input class="input100" type="password" name="password">
+          <input class="input100" type="password" name="password" id="password">
           <span class="focus-input100" data-placeholder="Mật khẩu"></span>
         </div>
         <div>
@@ -84,7 +84,7 @@
         <div class="container-login100-form-btn">
           <div class="wrap-login100-form-btn">
             <div class="login100-form-bgbtn"></div>
-            <button class="login100-form-btn">
+            <button id="btnLogin" class="login100-form-btn">
               Đăng nhập
             </button>
           </div>
@@ -113,6 +113,36 @@
 <script src="/template/vendor/countdowntime/countdowntime.js"></script>
 
 <script src="/template/js/main.js"></script>
+<script>
+  $("#btnLogin").on("click",loginHandle);
+
+  function loginHandle() {
+    let customer = {
+      cmnd: $("#username").val(),
+      password: $("#password").val()
+    };
+
+    $.ajax({
+      type: "POST",
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      url: "/setToken",
+      data: JSON.stringify(customer)
+    }).done((user) => {
+      // App.showSuccessAlert("Đăng nhập thành công!");
+      // console.log(user);
+      // if  (user.roles[0].authority === "ADMIN"){
+      //   window.location.href = "/admin";
+      // } else if (user.roles[0].authority === "PROJECTION"){
+      //   window.location.href = "/projection";
+      // }
+    }).fail(() => {
+      // App.showErrorAlert("Đã xảy ra lỗi. Vui lòng thử lại sau!");
+    });
+  }
+</script>
 
 
 </body>
