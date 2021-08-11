@@ -66,7 +66,7 @@ public class HomeController {
 
     @ModelAttribute("destinations")
     public List<Destination> destinationList() {
-        return iDestinationRepository.findAllIsOpenDestination();
+        return iDestinationRepository.findAllOpen();
     }
 
     @ModelAttribute("vaccineList")
@@ -82,8 +82,6 @@ public class HomeController {
 
     @GetMapping
     public ModelAndView home(HttpServletRequest request, Principal principal) {
-
-
         if (request.isUserInRole("ROLE_DOCTOR")) {
             String userName = principal.getName();
             Customer user = new Customer();
@@ -177,7 +175,6 @@ public class HomeController {
         ModelAndView modelAndView = new ModelAndView("index/home");
         modelAndView.addObject("user", new Customer());
         return modelAndView;
-
     }
 
     @GetMapping("/form")
@@ -259,8 +256,7 @@ public class HomeController {
             return modelAndView;
         }
 
-        // <-------------- Test phân ngày thật chất là phải xác mình tài khoản rồi mới phân -------->
-        //              <-------------- Thêm có quyền đăng nhập Enable -------->
+        //Test phân ngày
 
         try {
             iCustomerRepository.save(user);
@@ -494,7 +490,6 @@ public class HomeController {
         }
 
         LocalDateTime currentDateTime = LocalDateTime.parse(str, formatter);
-
 
         //      Divide date to time
 //        CHÚ Ý CÓ DẤU " " CUỐI NGÀY
