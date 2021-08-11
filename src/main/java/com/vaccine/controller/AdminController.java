@@ -140,7 +140,7 @@ public class AdminController {
     @PutMapping("/destination/edit/{id}")
     public ResponseEntity<Destination> editDestination(@RequestBody Destination destination,@PathVariable Long id){
         destination.setId(id);
-        return new ResponseEntity<>(destinationRepository.save(destination),HttpStatus.OK);
+        return new ResponseEntity<>(destinationRepository.save(destination),HttpStatus.NO_CONTENT);
     }
 
     @GetMapping("/destination/api-full-0")
@@ -236,13 +236,6 @@ public class AdminController {
         });
         thread2.start();
     }
-//
-//    @PutMapping("/destination/setOff/{id}")
-//    public ResponseEntity<Destination> setOff(Long id){
-//        Destination destination = destinationRepository.findById(id).get();
-//        destination.setIsOpen(0);
-//        return new ResponseEntity<>(destinationRepository.save(destination),HttpStatus.NO_CONTENT);
-//    }
 
     @GetMapping("/destination/setOff/{id}")
     public void setOff(@PathVariable Long id){
@@ -268,7 +261,6 @@ public class AdminController {
                 }
             }
         }
-        System.out.println(count);
     }
 
 
@@ -407,7 +399,7 @@ public class AdminController {
     @GetMapping("/destinationAccount")
     public ModelAndView showHosp() {
         List<Customer> allDestinationAccount = customerRepository.getAllDestinationAccount();
-        List<Destination> destinationList = destinationRepository.findAll();
+        List<Destination> destinationList = destinationRepository.findAllOpen();
         ModelAndView modelAndView = new ModelAndView("admin/destination_account");
         modelAndView.addObject("allDestinationAccount", allDestinationAccount);
         modelAndView.addObject("destinationList", destinationList);

@@ -24,6 +24,7 @@ import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -50,6 +51,9 @@ public class HomeController {
     @Autowired
     IVaccineRepository iVaccineRepository;
 
+    String[] arr = LocalDate.now().toString().split("-");
+    String currentDay = arr[2]+"-"+arr[1]+"-"+arr[0]+" ";
+
     @Autowired
     CustomerServiceVerifyAccount customerServiceVerifyAccount;
 
@@ -72,7 +76,7 @@ public class HomeController {
             Customer user = new Customer();
             user = iCustomerRepository.findByUserCMND(userName);
 //            Phân trang
-            Page<Customer> customerListIsDone = iCustomerRepository.findCustomerIsDoneInDay("01-10-2021 ", user.getDestination().getId(), PageRequest.of(0, 5));
+            Page<Customer> customerListIsDone = iCustomerRepository.findCustomerIsDoneInDay(currentDay, user.getDestination().getId(), PageRequest.of(0, 5));
 //          Lấy số page
             List<Integer> pageNumber = new ArrayList<>();
             for (int i = 0; i < customerListIsDone.getTotalPages(); i++) {

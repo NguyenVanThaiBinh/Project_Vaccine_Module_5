@@ -18,6 +18,7 @@ import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.security.Principal;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -29,6 +30,9 @@ public class DoctorController {
 
     @Autowired
     JavaMailSender mailSender;
+
+    String[] arr = LocalDate.now().toString().split("-");
+    String currentDay = arr[2]+"-"+arr[1]+"-"+arr[0]+" ";
 
     @GetMapping
     public ModelAndView showFormListDone(HttpServletRequest request, Principal principal) {
