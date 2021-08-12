@@ -151,7 +151,6 @@ public class DoctorController {
                     count++;
                 }
             }
-            System.out.println(count);
             vaccine.setRegister_amount(vaccine.getVaccine_amount()-Integer.parseInt(String.valueOf(count)));
             iVaccineRepository.save(vaccine);
         }

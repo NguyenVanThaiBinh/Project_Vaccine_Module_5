@@ -26,7 +26,7 @@ foo();
 setInterval(foo, 7000);
 //    <---------------------------- Chart -------------------------------------------->
 
- var listDay = new Array();
+ let listDay = new Array();
 
 
     // Get Data
@@ -42,51 +42,54 @@ $.ajax({
         for (const listDayCustomerElement of ListDayCustomer) {
 
             if(listDayCustomerElement != null){
-                listDay.push(listDayCustomerElement.slice(0,5));
+                let str = listDayCustomerElement.slice(0,5);
+                listDay.push(str);
+
             }
         }
+        var ctx = document.getElementById('myChart').getContext('2d');
+
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels:listDay,
+                datasets: [{
+                    label: 'Lượt đăng ký',
+                    data: [12, 15, 3, 5, 2, 3],
+                    borderColor: '#ffb1c1',
+                    backgroundColor: '#ffb1c1',
+                    borderWidth: 1
+                },
+                    {
+                        label: 'Lượt đã tiêm',
+                        data: [1, 13, 3, 5, 9, 3],
+                        backgroundColor: '#9ad0f5',
+                        borderColor: '#9ad0f5',
+                        borderWidth: 1
+                    }]
+            },
+            options: {
+                elements:{
+                    line: {
+                        tension:0
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+
 
     }
 });
 
 
-console.log( listDay);
 
 
-var ctx = document.getElementById('myChart').getContext('2d');
 
-var myChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-        //"07-08,08-08,10-08,17-08,11-08,12-08" ['07-08','08-08','10-08','17-08','11-08','12-08']
-        labels:listDay,
-        datasets: [{
-            label: 'Lượt đăng ký',
-            data: [12, 15, 3, 5, 2, 3],
-            backgroundColor: 'transparent',
-            borderColor: 'red',
-            borderWidth: 4
-        },
-            {
-                label: 'Lượt đã tiêm',
-                data: [1, 13, 3, 5, 9, 3],
-                backgroundColor: 'transparent',
-                borderColor: 'blue',
-                borderWidth: 4
-            }]
-    },
-    options: {
-        elements:{
-            line: {
-                tension:0
-            }
-        },
-        scales: {
-            y: {
-                beginAtZero: true
-            }
-        }
-    }
-});
 
 
