@@ -48,6 +48,10 @@ public class Customer {
 
     String time_vaccine;
 
+    String date_vaccine2;
+
+    String time_vaccine2;
+
     int healthy_status;
 
 //    phân biệt tài khoản mỗi điểm tiêm
@@ -69,6 +73,7 @@ public class Customer {
     public String getEncrytedPassword() {
         return password;
     }
+
     public Customer(String userName, String CMND, String password){
         this.customer_name = userName;
         this.CMND = CMND;
@@ -80,5 +85,13 @@ public class Customer {
 
     @Column( nullable = false)
     private boolean enabled = false;
+
+    // 0 : chưa tiêm , 1 : đang chờ , 2 : đã tiêm
+    @Column(columnDefinition = "integer default '0' ")
+    int isInjection2;
+
+    @ManyToOne
+    @JoinColumn(name = "id_destination2")
+    private Destination destination2;
 
 }
