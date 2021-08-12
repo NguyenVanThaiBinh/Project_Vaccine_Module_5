@@ -128,9 +128,17 @@ public class DoctorController {
             iVaccineRepository.save(vaccine);
         });
         for(Vaccine vaccine:listVaccine){
-            Long max = icustomerRepository.maxIdOneDayVaccine(currentDay,vaccine.getId());
-//            System.out.println("max: "+max);
-            Long count = icustomerRepository.countRegister(max,vaccine.getId());
+            int count = 0 ;
+            String dateNow = LocalDate.now().toString();
+            List<Customer> list = icustomerRepository.ListCustomerByVaccine(vaccine.getId());
+            for(Customer c:list){
+                String[] arr = c.getDate_vaccine().trim().split("-");
+                String date = arr[2]+"-"+arr[1]+"-"+arr[0];
+                if(date.compareTo(dateNow)>0){
+                    count++;
+                }
+            }
+            System.out.println(count);
             vaccine.setRegister_amount(vaccine.getVaccine_amount()-Integer.parseInt(String.valueOf(count)));
             iVaccineRepository.save(vaccine);
         }
