@@ -105,6 +105,13 @@
 		</dependency>
 
 <!--			WEB JAR-->
+		<!-- https://mvnrepository.com/artifact/org.webjars/chartjs -->
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>chartjs</artifactId>
+			<version>2.9.4</version>
+		</dependency>
+
 		<dependency>
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-swagger-ui</artifactId>

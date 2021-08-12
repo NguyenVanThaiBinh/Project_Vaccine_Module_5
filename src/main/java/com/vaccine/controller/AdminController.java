@@ -86,6 +86,10 @@ public class AdminController {
         ModelAndView modelAndView = new ModelAndView("/admin/dashBoar");
         return modelAndView;
     }
+    @GetMapping("/db_api_dateList")
+    public List<String> getDateOfAllCustomer(){
+        return customerRepository.ListDayOfAllCustomer();
+    }
 
     ////  ajax user
     @GetMapping("/api-full")
@@ -363,7 +367,7 @@ public class AdminController {
     @GetMapping("/destinationAccount")
     public ModelAndView showHosp() {
         List<Customer> allDestinationAccount = customerRepository.getAllDestinationAccount();
-        List<Destination> destinationList = destinationRepository.findAllOpen();
+        List<Destination> destinationList = destinationRepository.findAll();
         ModelAndView modelAndView = new ModelAndView("admin/destination_account");
         modelAndView.addObject("allDestinationAccount", allDestinationAccount);
         modelAndView.addObject("destinationList", destinationList);

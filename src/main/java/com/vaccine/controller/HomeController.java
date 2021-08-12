@@ -86,19 +86,21 @@ public class HomeController {
             String userName = principal.getName();
             Customer user = new Customer();
             user = iCustomerRepository.findByUserCMND(userName);
-//            Phân trang
+            // Lấy danh sách ngày
+            List<String> stringDayList = iCustomerRepository.findDayInOneDestination(user.getDestination().getId());
+            //            Phân trang
             Page<Customer> customerListIsDone = iCustomerRepository.findCustomerIsDoneInDay(currentDay, user.getDestination().getId(), PageRequest.of(0, 5));
-
             //          Lấy số page
             List<Integer> pageNumber = new ArrayList<>();
             for (int i = 0; i < customerListIsDone.getTotalPages(); i++) {
                 pageNumber.add(i);
             }
             ModelAndView modelAndView = new ModelAndView("doctor/ListUserIsDone");
-            modelAndView.addObject("idDes",user.getDestination().getId());
             modelAndView.addObject("customerListIsDone", customerListIsDone);
             modelAndView.addObject("customerInfo", user);
+            modelAndView.addObject("stringDayList", stringDayList);
             modelAndView.addObject("pageNumber", pageNumber);
+            modelAndView.addObject("idDes",user.getDestination().getId());
             modelAndView.addObject("maxPage", customerListIsDone.getTotalPages());
             return modelAndView;
         }
@@ -132,19 +134,21 @@ public class HomeController {
                     String userName = principal.getName();
                     Customer user = new Customer();
                     user = iCustomerRepository.findByUserCMND(userName);
-//            Phân trang
+                    // Lấy danh sách ngày
+                    List<String> stringDayList = iCustomerRepository.findDayInOneDestination(user.getDestination().getId());
+                    //            Phân trang
                     Page<Customer> customerListIsDone = iCustomerRepository.findCustomerIsDoneInDay(currentDay, user.getDestination().getId(), PageRequest.of(0, 5));
-
                     //          Lấy số page
                     List<Integer> pageNumber = new ArrayList<>();
                     for (int i = 0; i < customerListIsDone.getTotalPages(); i++) {
                         pageNumber.add(i);
                     }
                     ModelAndView modelAndView = new ModelAndView("doctor/ListUserIsDone");
-                    modelAndView.addObject("idDes",user.getDestination().getId());
                     modelAndView.addObject("customerListIsDone", customerListIsDone);
                     modelAndView.addObject("customerInfo", user);
+                    modelAndView.addObject("stringDayList", stringDayList);
                     modelAndView.addObject("pageNumber", pageNumber);
+                    modelAndView.addObject("idDes",user.getDestination().getId());
                     modelAndView.addObject("maxPage", customerListIsDone.getTotalPages());
                     return modelAndView;
                 }

@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.security.Principal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,10 +61,22 @@ public class DoctorController {
             String userName = principal.getName();
             Customer user = new Customer();
             user = icustomerRepository.findByUserCMND(userName);
+            // Lấy danh sách ngày
+            List<String> stringDayList = icustomerRepository.findDayInOneDestination(user.getDestination().getId());
+
+            //            Phân trang
             Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay(currentDay, user.getDestination().getId(), PageRequest.of(0, 5));
+            //          Lấy số page
+            List<Integer> pageNumber = new ArrayList<>();
+            for (int i = 0; i < customerListIsDone.getTotalPages(); i++) {
+                pageNumber.add(i);
+            }
             ModelAndView modelAndView = new ModelAndView("doctor/ListUserIsDone");
             modelAndView.addObject("customerListIsDone", customerListIsDone);
             modelAndView.addObject("customerInfo", user);
+            modelAndView.addObject("stringDayList", stringDayList);
+            modelAndView.addObject("pageNumber", pageNumber);
+            modelAndView.addObject("maxPage", customerListIsDone.getTotalPages());
             return modelAndView;
         } else {
             ModelAndView modelAndView = new ModelAndView("index/home");
@@ -181,7 +194,7 @@ public class DoctorController {
             return customerListIsDone;
         }
 //        Lấy danh sách
-        Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay(day+" ", customer1.getDestination().getId(), PageRequest.of(0, Integer.MAX_VALUE));
+        Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay(day+" ", customer1.getDestination().getId(), PageRequest.of(0, 5));
 //        Page<Customer> searchResultCustomer = icustomerRepository.searchCustomerByCMND(currentDay,customer1.getDestination().getId(), key,PageRequest.of(0, Integer.MAX_VALUE));
 //        if(key.equals("binhhu")){
 //            Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay(currentDay,customer1.getDestination().getId(), PageRequest.of(Integer.parseInt(pageNumber[0]), 5));
