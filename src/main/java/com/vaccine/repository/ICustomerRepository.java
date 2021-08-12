@@ -70,8 +70,8 @@ public interface ICustomerRepository extends JpaRepository<Customer, Long> {
     List<String> ListDayOfAllCustomer();
 
     @Query("SELECT  count (e) from Customer e where e.date_vaccine = ?1")
-    int getRegisterNumber(Long id_destination);
+    int getRegisterNumberInOneDay(String day);
 
     @Query("SELECT  count (e) from Customer e where e.date_vaccine = ?1 and e.isInjection = 1")
-    int getIsInjectionNumber(Long id_destination) ;
+    int getIsInjectionNumberInOneDay(String day) ;
 }

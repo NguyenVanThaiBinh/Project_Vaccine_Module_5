@@ -26,52 +26,53 @@ foo();
 setInterval(foo, 7000);
 //    <---------------------------- Chart -------------------------------------------->
 
- let listDay = new Array();
+let listDay = new Array();
+let listRegisterNumber = new Array();
+let listInjectionNumber = new Array();
 
 
-    // Get Data
+// Get Data
 $.ajax({
     type: "GET",
     headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
     },
-    url: "admin/db_api_dateList",
+    url: "admin/dashboard_api",
 
-    success: function (ListDayCustomer) {
-        for (const listDayCustomerElement of ListDayCustomer) {
-
-            if(listDayCustomerElement != null){
-                let str = listDayCustomerElement.slice(0,5);
-                listDay.push(str);
-
-            }
+    success: function (chartDataList) {
+        console.log(chartDataList);
+        for (const listDayCustomerElement of chartDataList) {
+            let str = listDayCustomerElement.dateVaccine.slice(0, 5);
+            listDay.push(str);
+            listRegisterNumber.push(listDayCustomerElement.registerNumber);
+            listInjectionNumber.push(listDayCustomerElement.injecterNumber);
         }
         var ctx = document.getElementById('myChart').getContext('2d');
 
         var myChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels:listDay,
+                labels: listDay,
                 datasets: [{
                     label: 'Lượt đăng ký',
-                    data: [12, 15, 3, 5, 2, 3],
+                    data: listRegisterNumber,
                     borderColor: '#ffb1c1',
                     backgroundColor: '#ffb1c1',
                     borderWidth: 1
                 },
                     {
                         label: 'Lượt đã tiêm',
-                        data: [1, 13, 3, 5, 9, 3],
+                        data: listInjectionNumber,
                         backgroundColor: '#9ad0f5',
                         borderColor: '#9ad0f5',
                         borderWidth: 1
                     }]
             },
             options: {
-                elements:{
+                elements: {
                     line: {
-                        tension:0
+                        tension: 0
                     }
                 },
                 scales: {
@@ -81,7 +82,6 @@ $.ajax({
                 }
             }
         });
-
 
 
     }
