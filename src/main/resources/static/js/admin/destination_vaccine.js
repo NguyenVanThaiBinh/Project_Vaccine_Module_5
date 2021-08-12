@@ -2,7 +2,7 @@
 // setday
 $( function() {
     let dateToday = new Date();
-    dateToday.setDate(dateToday.getDate()+3);
+    dateToday.setDate(dateToday.getDate());
     let dates = $("#date-start,#date-end").datepicker({
         defaultDate: "+0w",
         // changeMonth: true,
