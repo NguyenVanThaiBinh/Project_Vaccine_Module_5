@@ -7,6 +7,7 @@ let IsInjectionListDone = [];
 let currentPageNumber =0;
 function click() {
     let id = $(this).parent().parent().find('#id').val();
+
     if ($(this).hasClass('btn-success')) {
         let count = 0 ;
         for(let i = 0 ; i<notIsInjectionList.length;i++){
@@ -142,6 +143,7 @@ $(document).ready(function () {
             }
         }
     })
+    console.log(notIsInjectionList);
 });
 
 

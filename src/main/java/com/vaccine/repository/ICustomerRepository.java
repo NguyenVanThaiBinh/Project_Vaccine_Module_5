@@ -68,4 +68,8 @@ public interface ICustomerRepository extends JpaRepository<Customer, Long> {
 //    Long maxIdOneDayVaccine(String date,Long idVac);
     @Query("SELECT c from  Customer  c WHERE c.vaccine.id=?1")
     List<Customer> ListCustomerByVaccine(Long id);
+
+    // Dashboard
+    @Query("SELECT DISTINCT  e.date_vaccine from Customer e")
+    List<String> ListDayOfAllCustomer();
 }
