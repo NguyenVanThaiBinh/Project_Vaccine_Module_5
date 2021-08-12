@@ -107,6 +107,7 @@ public class DoctorController {
     @ResponseBody
     @RequestMapping(path = "/setInjectToDone", method = RequestMethod.POST)
     public void setInjectToDone(@RequestBody Long[] itemIDs, Principal principal, Pageable pageable) {
+        Iterable<Vaccine> listVaccine = iVaccineRepository.findAll();
         for (Long id_customer : itemIDs) {
             Customer customer = icustomerRepository.findById(id_customer).get();
 
@@ -124,13 +125,15 @@ public class DoctorController {
         mapCountDone.forEach((k,v) -> {
             Vaccine vaccine = iVaccineRepository.findById(k).get();
             vaccine.setVaccine_amount(vaccine.getVaccine_amount()-v);
-
-            Long max = icustomerRepository.maxIdOneDayVaccine(idDes,currentDay,k);
-            System.out.println(max);
-            Long count = icustomerRepository.countRegister(idDes,max,k);
-            vaccine.setRegister_amount(vaccine.getVaccine_amount()-Integer.parseInt(String.valueOf(count)));
             iVaccineRepository.save(vaccine);
         });
+        for(Vaccine vaccine:listVaccine){
+            Long max = icustomerRepository.maxIdOneDayVaccine(currentDay,vaccine.getId());
+//            System.out.println("max: "+max);
+            Long count = icustomerRepository.countRegister(max,vaccine.getId());
+            vaccine.setRegister_amount(vaccine.getVaccine_amount()-Integer.parseInt(String.valueOf(count)));
+            iVaccineRepository.save(vaccine);
+        }
         mapCountDone.clear();
 //        return "Done";
     }

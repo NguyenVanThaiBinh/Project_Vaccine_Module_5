@@ -315,9 +315,11 @@ public class HomeController {
 //        if (user.getEmail() != null) {
 //            thread1.start();
 //        }
-        Vaccine vaccine = iVaccineRepository.findById(user.getVaccine().getId()).get();
-        vaccine.setRegister_amount(vaccine.getRegister_amount()-1);
-        iVaccineRepository.save(vaccine);
+        if(user.getDate_vaccine()!=null){
+            Vaccine vaccine = iVaccineRepository.findById(user.getVaccine().getId()).get();
+            vaccine.setRegister_amount(vaccine.getRegister_amount()-1);
+            iVaccineRepository.save(vaccine);
+        }
         modelAndView.addObject("fail", "Vui lòng kiểm tra email để xác minh tài khoản!");
 //            Đóng luồng
         //        thread1.currentThread().interrupt();
