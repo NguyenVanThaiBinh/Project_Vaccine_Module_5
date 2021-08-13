@@ -82,7 +82,6 @@ public class HomeController {
 
     @GetMapping
     public ModelAndView home(HttpServletRequest request, Principal principal) {
-        System.out.println(iCustomerRepository.getMaxDayFromData(1L));
         setOffDestination();
         if (request.isUserInRole("ROLE_DOCTOR")) {
             sendEmail2(principal);
