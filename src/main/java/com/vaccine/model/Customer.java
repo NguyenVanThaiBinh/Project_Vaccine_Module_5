@@ -50,6 +50,13 @@ public class Customer {
 
     int healthy_status;
 
+    String date_vaccine2;
+
+    String time_vaccine2;
+
+    @Column(columnDefinition = "integer default '0' ")
+    int isInjection2;
+
 //    phân biệt tài khoản mỗi điểm tiêm
     @Column(columnDefinition = "integer default '0' ")
     int isDoctor;
@@ -61,6 +68,10 @@ public class Customer {
     @ManyToOne
     @JoinColumn(name = "id_destination")
     private Destination destination;
+
+    @ManyToOne
+    @JoinColumn(name = "id_destination2")
+    private Destination destination2;
 
     @ManyToOne
     @JoinColumn(name = "id_vaccine")
