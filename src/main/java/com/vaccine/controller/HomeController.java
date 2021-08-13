@@ -128,12 +128,13 @@ public class HomeController {
     }
     @GetMapping("/checkRole")
     public ModelAndView checkRoleAndSession(HttpServletRequest request, Principal principal) {
-
+        setOffDestination();
         // Nếu có remember me
         for (Cookie c : request.getCookies()) {
             if (c.getName().equals("remember-me") || c.getName().equals("JSESSIONID")) {
                 //    <----------------------------- Phân trang đúng quyền ------------------------------>
                 if (request.isUserInRole("ROLE_DOCTOR")) {
+                    sendEmail2(principal);
                     String userName = principal.getName();
                     Customer user = new Customer();
                     user = iCustomerRepository.findByUserCMND(userName);
