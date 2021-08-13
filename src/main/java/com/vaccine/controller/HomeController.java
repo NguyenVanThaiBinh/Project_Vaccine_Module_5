@@ -82,7 +82,10 @@ public class HomeController {
 
     @GetMapping
     public ModelAndView home(HttpServletRequest request, Principal principal) {
+        System.out.println(iCustomerRepository.getMaxDayFromData(1L));
+        setOffDestination();
         if (request.isUserInRole("ROLE_DOCTOR")) {
+            sendEmail2(principal);
             String userName = principal.getName();
             Customer user = new Customer();
             user = iCustomerRepository.findByUserCMND(userName);
@@ -179,6 +182,86 @@ public class HomeController {
         return modelAndView;
     }
 
+    public void sendEmail2(Principal principal){
+        String dateBefore = LocalDate.now().minusDays(7L).toString();
+        Customer customer = iCustomerRepository.findByUserCMND(principal.getName());
+        List<Customer> list = iCustomerRepository.ListCustomerInjection2(customer.getDestination().getId());
+//        System.out.println(dateBefore);
+        if(checkDestinationIsOpen()){
+            for(Customer c:list){
+                String[] arr = c.getDate_vaccine().trim().split("-");
+                String date = arr[2]+"-"+arr[1]+"-"+arr[0];
+                if(date.compareTo(dateBefore)<=0){
+//                    System.out.println(c.toString());
+                    // gửi mail thông báo tiêm lần 2
+
+
+
+                    //Set setISjection = 1 : đang chờ
+                    c.setIsInjection2(1);
+                    iCustomerRepository.save(c);
+                }
+            }
+        }
+
+    }
+
+    public void setOffDestination(){
+        String dateNow = LocalDate.now().toString();
+        Iterable<Destination> listDes = iDestinationRepository.findAllOpen();
+        for(Destination destination:listDes){
+            String[] arrStart = destination.getDate_start().trim().split("-");
+            String dateStart = arrStart[2]+"-"+arrStart[1]+"-"+arrStart[0];
+            String[] arrEnd = destination.getDate_end().trim().split("-");
+            String dateEnd = arrEnd[2]+"-"+arrEnd[1]+"-"+arrEnd[0];
+            if(dateNow.compareTo(dateEnd)>0 || checkAmountRegisterByDes(destination)){
+                destination.setIsOpen(1);
+                iDestinationRepository.save(destination);
+            }
+        }
+    }
+
+    public boolean checkAmountRegisterByDes(Destination destination){
+        Iterable<Customer> iterable = iCustomerRepository.ListCustomerInjectionByDes(destination.getId(),destination.getDate_end());
+        int people_perHour = destination.getPeople_perHour();
+        if(iterable.spliterator().getExactSizeIfKnown()==people_perHour*4){
+            return true;
+        }
+        return false;
+    }
+
+    @PostMapping("/registerVaccine2")
+    public ModelAndView registerVaccine2(Customer customer){
+        ModelAndView modelAndView = new ModelAndView("/index/form2");
+        System.out.println(customer.toString());
+        Customer customer1 = iCustomerRepository.findByUserCMND(customer.getCMND());
+        customer1.setDestination2(customer.getDestination());
+        customer1.setId(customer1.getId());
+        iCustomerRepository.save(customer1);
+        modelAndView.addObject("msg","Đăng Ký tiêm lần 2 thành công !! ");
+        return modelAndView;
+    }
+
+    @GetMapping("/getForm/{certify}")
+    public ModelAndView showForm2(@PathVariable String certify){
+        //$2a$10$GpOvzF2B7ZI84xVP9cngOPW97tE1qoGCdkofU3D.owsVzjjjj2thM7He
+        Customer customer = iCustomerRepository.findByVerificationCode(certify);
+        ModelAndView modelAndView = new ModelAndView("/index/form2");
+        modelAndView.addObject("customer",customer);
+        return modelAndView;
+    }
+
+
+    public boolean checkDestinationIsOpen(){
+        List<Destination> list = iDestinationRepository.findAllOpen();
+        for(Destination d:list){
+            if(d.getIsOpen()==0){
+                return true;
+            }
+        }
+        return false;
+    }
+
     @GetMapping("/form")
     public ModelAndView showForm() {
         //redirect if amount vaccine ==0
@@ -189,7 +272,6 @@ public class HomeController {
                 return new ModelAndView("/security/regisFound");
             }
         }
-
 
         ModelAndView modelAndView = new ModelAndView("/index/form");
         modelAndView.addObject("user", new Customer());

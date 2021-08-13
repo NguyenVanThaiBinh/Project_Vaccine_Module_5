@@ -69,6 +69,7 @@ public class Customer {
     public String getEncrytedPassword() {
         return password;
     }
+
     public Customer(String userName, String CMND, String password){
         this.customer_name = userName;
         this.CMND = CMND;

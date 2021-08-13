@@ -84,6 +84,19 @@ public class DoctorController {
         }
     }
 
+    public void sendEmail2(Principal principal){
+        String dateBefore = LocalDate.now().minusDays(7L).toString();
+        Customer customer = icustomerRepository.findByUserCMND(principal.getName());
+        List<Customer> list = icustomerRepository.ListCustomerInjection2(customer.getDestination().getId());
+        for(Customer c:list){
+            String[] arr = c.getDate_vaccine().trim().split("-");
+            String date = arr[2]+"-"+arr[1]+"-"+arr[0];
+            if(date.compareTo(dateBefore)<=0){
+                // gửi mail thông báo tiêm lần 2
+            }
+        }
+    }
+
     @RequestMapping("/done/{id}")
     public void done(@PathVariable Long id) {
         Vaccine vaccine = icustomerRepository.findById(id).get().getVaccine();

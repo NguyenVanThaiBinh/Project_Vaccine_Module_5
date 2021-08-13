@@ -74,4 +74,13 @@ public interface ICustomerRepository extends JpaRepository<Customer, Long> {
 
     @Query("SELECT  count (e) from Customer e where e.date_vaccine = ?1 and e.isInjection = 1")
     int getIsInjectionNumberInOneDay(String day) ;
+    @Query("SELECT max(c.id) from Customer c WHERE c.destination.id=?1 and c.date_vaccine=?2 and c.vaccine.id=?3")
+    Long maxIdOneDayVaccine(Long idDes,String date,Long idVac);
+
+    @Query("SELECT c from Customer c where c.destination.id=?1 and c.isInjection=1 and c.isInjection2 = 0")
+    List<Customer> ListCustomerInjection2(Long id);
+
+    @Query("SELECT c from Customer c where c.destination.id=?1 and c.date_vaccine=?2")
+    Iterable<Customer> ListCustomerInjectionByDes(Long id,String date);
+
 }
