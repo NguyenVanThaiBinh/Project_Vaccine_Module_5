@@ -82,6 +82,8 @@ public class HomeController {
 
     @GetMapping
     public ModelAndView home(HttpServletRequest request, Principal principal) {
+        System.out.println(iCustomerRepository.getMaxDayFromData(1L));
+        setOffDestination();
         if (request.isUserInRole("ROLE_DOCTOR")) {
             sendEmail2(principal);
             String userName = principal.getName();
@@ -124,7 +126,7 @@ public class HomeController {
     }
     @GetMapping("/checkRole")
     public ModelAndView checkRoleAndSession(HttpServletRequest request, Principal principal) {
-
+        setOffDestination();
         // Nếu có remember me
         for (Cookie c : request.getCookies()) {
             if (c.getName().equals("remember-me") || c.getName().equals("JSESSIONID")) {
@@ -200,6 +202,30 @@ public class HomeController {
             }
         }
 
+    }
+
+    public void setOffDestination(){
+        String dateNow = LocalDate.now().toString();
+        Iterable<Destination> listDes = iDestinationRepository.findAllOpen();
+        for(Destination destination:listDes){
+            String[] arrStart = destination.getDate_start().trim().split("-");
+            String dateStart = arrStart[2]+"-"+arrStart[1]+"-"+arrStart[0];
+            String[] arrEnd = destination.getDate_end().trim().split("-");
+            String dateEnd = arrEnd[2]+"-"+arrEnd[1]+"-"+arrEnd[0];
+            if(dateNow.compareTo(dateEnd)>0 || checkAmountRegisterByDes(destination)){
+                destination.setIsOpen(1);
+                iDestinationRepository.save(destination);
+            }
+        }
+    }
+
+    public boolean checkAmountRegisterByDes(Destination destination){
+        Iterable<Customer> iterable = iCustomerRepository.ListCustomerInjectionByDes(destination.getId(),destination.getDate_end());
+        int people_perHour = destination.getPeople_perHour();
+        if(iterable.spliterator().getExactSizeIfKnown()==people_perHour*4){
+            return true;
+        }
+        return false;
     }
 
     @PostMapping("/registerVaccine2")
