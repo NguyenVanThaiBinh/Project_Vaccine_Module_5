@@ -41,7 +41,7 @@ $.ajax({
     url: "admin/dashboard_api",
 
     success: function (chartDataList) {
-        console.log(chartDataList);
+
         for (const listDayCustomerElement of chartDataList) {
             let str = listDayCustomerElement.dateVaccine.slice(0, 5);
             listDay.push(str);
@@ -86,6 +86,7 @@ $.ajax({
 
     }
 });
+
 
 
 

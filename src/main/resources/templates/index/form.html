@@ -179,7 +179,7 @@
                     </div>
                     <div class="form-group col-md-6 col-sm-4 col-xs-12">
                         <label class="label">Loại Vaccine</label>
-                        <select class="form-control form-select" id="vaccine" th:field="*{vaccine}">
+                        <select class="form-control form-select" id="vaccine" name="vaccine" th:field="*{vaccine}">
                             <option value="-1">-- Chọn loại vaccine --</option>
                             <option th:each="vac:${vaccineList}"
                                     th:value="${vac.id}"
