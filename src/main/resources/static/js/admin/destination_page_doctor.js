@@ -1,40 +1,70 @@
+
+
 //          <------------------------------------ Pageable------------------------------------->
 //chang status
-
+let notIsInjectionList = [];
+let IsInjectionListDone = [];
 let currentPageNumber =0;
 function click() {
+    let id = $(this).parent().parent().find('#id').val();
+
     if ($(this).hasClass('btn-success')) {
+        let count = 0 ;
+        for(let i = 0 ; i<notIsInjectionList.length;i++){
+            if(notIsInjectionList[i] == id){
+                count++;
+                break;
+            }
+        }
+        if(count==0){
+            notIsInjectionList.push(id);
+        }
+        for(let i = 0 ; i<IsInjectionListDone.length;i++){
+            if(IsInjectionListDone[i] == id){
+                IsInjectionListDone.splice(i,1);
+            }
+        }
         $(this).text('Chưa tiêm');
         $(this).removeClass('btn btn-success');
         $(this).toggleClass('btn btn-danger');
-    } else {
+        $.ajax({
+            type:'GET',
+            url : `/doctor/undone/${id}`
+        })
+    }
+    else {
+        let count = 0 ;
+        for(let i = 0 ; i<IsInjectionListDone.length;i++){
+            if(IsInjectionListDone[i] == id){
+                count++;
+                break;
+            }
+        }
+        if(count==0){
+            IsInjectionListDone.push(id);
+        }
+        for(let i = 0 ; i<notIsInjectionList.length;i++){
+            if(notIsInjectionList[i] == id){
+                notIsInjectionList.splice(i,1);
+            }
+        }
         $(this).text('Đã tiêm');
         $(this).removeClass('btn btn-danger');
         $(this).toggleClass('btn btn-success');
+        $.ajax({
+            type:'GET',
+            url : `/doctor/done/${id}`
+        })
     }
 }
 
 // API gọi thay đổi trạng thái
 function setInjectionStatus() {
-    let notIsInjectionList = [];
-    let IsInjectionListDone = [];
+    console.log("not : "+notIsInjectionList);
+    console.log("done : "+IsInjectionListDone);
 
-    let table = document.getElementById("orderItems");
-    let cells = (table.rows[2].cells.length - 1);
     // Quét hết cái bảng hiện tại
-    for (let i = 1; i < table.rows.length; i++) {
-        for (let j = 0; j <= cells; j++) {
-            // console.log(table.rows[i].cells[j].innerHTML);
-            if (table.rows[i].cells[j].innerHTML.includes("Chưa tiêm")) {
-                // console.log(table.rows[i].cells[j].innerHTML);
-                notIsInjectionList.push(table.rows[i].cells[2].innerHTML);
-            }
-            if (table.rows[i].cells[j].innerHTML.includes("Đã tiêm")) {
-                console.log(table.rows[i].cells[j].innerHTML);
-                IsInjectionListDone.push(table.rows[i].cells[2].innerHTML);
-            }
-        }
-    }
+
     Swal.fire({
         title: 'Bạn đã kiểm tra kỹ càng?',
         text: "Những sai lầm sẽ rất khó khắc phục!",
@@ -46,6 +76,21 @@ function setInjectionStatus() {
         cancelButtonText: 'Chưa, để tôi xem lại'
     }).then((result) => {
         if (result.isConfirmed) {
+            // let table = document.getElementById("orderItems");
+            // let cells = (table.rows[2].cells.length - 1);
+            // for (let i = 1; i < table.rows.length; i++) {
+            //     for (let j = 0; j <= cells; j++) {
+            //         // console.log(table.rows[i].cells[j].innerHTML);
+            //         if (table.rows[i].cells[j].innerHTML.includes("Chưa tiêm")) {
+            //             // console.log(table.rows[i].cells[j].innerHTML);
+            //             notIsInjectionList.push(table.rows[i].cells[0].innerHTML);
+            //         }
+            //         if (table.rows[i].cells[j].innerHTML.includes("Đã tiêm")) {
+            //             console.log(table.rows[i].cells[j].innerHTML);
+            //             IsInjectionListDone.push(table.rows[i].cells[0].innerHTML);
+            //         }
+            //     }
+            // }
             $.ajax({
                 type: "POST",
                 headers: {
@@ -75,17 +120,30 @@ function setInjectionStatus() {
                 data: JSON.stringify(IsInjectionListDone),
                 contentType: "application/json; charset=utf-8",
                 dataType: 'text',
-                success: function (data) {
-
-                }
             });
         }
     })
 }
 
-//voi vao active so 1
+// Mới vào cái là lick để active trang số 1
 $(document).ready(function () {
-    $("#0_button").click();
+    // $("#0_button").click();
+    let id = $('#idDes').val();
+    $.ajax({
+        type:'GET',
+        url : `/doctor/full-api/${id}`,
+        success:function (data){
+            for(let i =0;i<data.length;i++){
+                if(data[i].isInjection==0){
+                    notIsInjectionList.push(data[i].id);
+                }
+                else{
+                    IsInjectionListDone.push(data[i].id);
+                }
+            }
+        }
+    })
+    console.log(notIsInjectionList);
 });
 
 
@@ -118,7 +176,8 @@ function changePage(value) {
         $(`#${value}_button`).addClass("active");
         $(`#${value - 1}_button`).removeClass("active");
         $("#next").val(value + 1);
-    } else {
+    }
+    else {
         if (value == (maxPage - 1)) {
             $(`#${value}_button`).addClass("active");
             $(`#${value - 1}_button`).removeClass("active");
@@ -156,7 +215,8 @@ function changePage(value) {
 }
 
 function get(customer) {
-    return `
+    if(check(customer)==0){
+        return `
         <tr>
                 <th>${customer.id}</th>
                 <td>${customer.customer_name}</td>
@@ -164,10 +224,46 @@ function get(customer) {
                 <td>${customer.email}</td>
                 <td>${customer.time_vaccine}</td>
                 <td>${customer.date_vaccine}</td>
-                <td><button class="${customer.isInjection == 0 ? "row_button btn btn-danger" : "row_button btn btn-success"}">${customer.isInjection == 0 ? "Chưa Tiêm" : "Đã Tiêm"}</button></td>
+                <td><button class="row_button btn btn-danger">Chưa Tiêm</button></td>
+                <input type="hidden" value="${customer.id}" id="id">
             </tr>
-           
         `
+    }
+    else{
+        return `
+        <tr>
+                <th>${customer.id}</th>
+                <td>${customer.customer_name}</td>
+                <td>${customer.cmnd}</td>
+                <td>${customer.email}</td>
+                <td>${customer.time_vaccine}</td>
+                <td>${customer.date_vaccine}</td>
+                <td><button class="row_button btn btn-success">Đã Tiêm</button></td>
+                <input type="hidden" value="${customer.id}" id="id">
+            </tr>
+        `
+    }
+    // return `
+    //     <tr>
+    //             <th>${customer.id}</th>
+    //             <td>${customer.customer_name}</td>
+    //             <td>${customer.cmnd}</td>
+    //             <td>${customer.email}</td>
+    //             <td>${customer.time_vaccine}</td>
+    //             <td>${customer.date_vaccine}</td>
+    //             <td><button class="${customer.isInjection == 0 ? "row_button btn btn-danger" : "row_button btn btn-success"}">${customer.isInjection == 0 ? "Chưa Tiêm" : "Đã Tiêm"}</button></td>
+    //             <input type="hidden" value="${customer.id}" id="id">
+    //         </tr>
+    //     `
+}
+
+function check(customer){
+    for(let i = 0 ; i <notIsInjectionList.length;i++){
+        if(customer.id==notIsInjectionList[i]){
+            return 0;
+        }
+    }
+    return 1;
 }
 
 //Hàm đổi trạng thái
@@ -229,3 +325,55 @@ $('input[name="search"]').keyup(function () {
         }
     })
 });
+                // Lấy theo danh sách ngày
+function getCustomerByDay(value){
+    $.ajax({
+        type: 'POST',
+        url: '/doctor/getCustomerByDay/' + value,
+        contentType: "application/json; charset=utf-8",
+        success: function (data) {
+            var today = new Date();
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+            var yyyy = today.getFullYear();
+
+            today = dd + '-' + mm + '-' + yyyy+" ";
+            console.log(today);
+
+            let day = data.content[0].date_vaccine;
+            console.log("Day is: "+day);
+
+            $('#last_row ').show();
+
+            if (day !=  today){
+                console.log("AAA")
+                $('#last_row ').hide();
+            }
+            $('#orderItems ').empty();
+            $.each(data.content, function (index, item) {
+                $('#orderItems ').append(`
+                     <tr>
+                <th scope="row" >${item.id}</th>
+                <td >${item.customer_name}</td>
+                <td >${item.cmnd}</td>
+                <td>${item.email}</td>
+                <td >${item.time_vaccine}</td>
+                <td >${item.date_vaccine}</td>
+                   <td ><button class="row_button btn ${item.isInjection == 0? 'btn-danger':'btn-success'}" >${item.isInjection == 0? 'Chưa tiêm':'Đã tiêm'}</button></td>
+               </tr>
+                    `);
+            });
+            $('#orderItems').prepend('<tr>\n' +
+                '            <th>#</th>\n' +
+                '            <th>Tên</th>\n' +
+                '            <th>Số CMND</th>\n' +
+                '            <th>Email</th>\n' +
+                '            <th>Giờ tiêm</th>\n' +
+                '            <th>Ngày tiêm</th>\n' +
+                '            <th>Trạng thái</th>\n' +
+                '        </tr>\n');
+
+        }
+    });
+
+}

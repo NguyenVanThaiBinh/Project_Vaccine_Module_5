@@ -50,6 +50,13 @@ public class Customer {
 
     int healthy_status;
 
+    String date_vaccine2;
+
+    String time_vaccine2;
+
+    @Column(columnDefinition = "integer default '0' ")
+    int isInjection2;
+
 //    phân biệt tài khoản mỗi điểm tiêm
     @Column(columnDefinition = "integer default '0' ")
     int isDoctor;
@@ -63,12 +70,17 @@ public class Customer {
     private Destination destination;
 
     @ManyToOne
+    @JoinColumn(name = "id_destination2")
+    private Destination destination2;
+
+    @ManyToOne
     @JoinColumn(name = "id_vaccine")
     private Vaccine vaccine;
 
     public String getEncrytedPassword() {
         return password;
     }
+
     public Customer(String userName, String CMND, String password){
         this.customer_name = userName;
         this.CMND = CMND;

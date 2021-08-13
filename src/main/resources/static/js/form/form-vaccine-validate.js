@@ -9,11 +9,19 @@
 //         errorElement: 'div',
 //         onclick: false,
 //         rules: {
-//             userName: {
+//             customer_name: {
 //                 required: true,
 //                 minlength: 5,
 //                 maxlength: 50,
 //                 validateName: true,
+//             },
+//             destination:{
+//                 required: true,
+//                 min: 1
+//             },
+//             vaccine:{
+//                 required: true,
+//                 min: 1
 //             },
 //             CMND: {
 //                 required: true,
@@ -31,7 +39,7 @@
 //                 equalTo: "#password",
 //                 minlength: 5
 //             },
-//             phoneNumber: {
+//             phone_number: {
 //                 required: true,
 //                 validatePhone: true,
 //                 number: true,
@@ -53,10 +61,16 @@
 //             },
 //         },
 //         messages: {
-//             userName: {
+//             customer_name: {
 //                 required: "Bắt buộc nhập tên đầy đủ",
 //                 minlength: "Hãy nhập tối thiểu 5 ký tự",
 //                 maxlength: "Hãy nhập tối đa 50 ký tự"
+//             },
+//             destination: {
+//                 min: "Vui lòng chọn điểm tiêm!"
+//             },
+//             vaccine: {
+//                 min: "Vui lòng chọn vaccine!"
 //             },
 //             CMND: {
 //                 required: "Bắt buộc nhập CMND",
@@ -73,7 +87,7 @@
 //                 equalTo: "Hai mật khẩu phải giống nhau",
 //                 minlength: "Hãy nhập ít nhất 5 ký tự"
 //             },
-//             phoneNumber: {
+//             phone_number: {
 //                 required: "Bắt buộc nhập số điện thoại",
 //                 minlength: "Số điện thoại là 10 số",
 //                 maxlength: "Số điện thoại là 10 số",

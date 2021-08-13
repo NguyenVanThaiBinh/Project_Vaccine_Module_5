@@ -65,14 +65,19 @@
         th:text="'Khách hàng đã đến tiêm tại '+ ${customerInfo.destination.destination_name}+ ' hôm nay'"></h1>
     <br><br>
     <div class="row">
-        <label class="col-sm">
+        <div class="col">
             <input id="search" type="search" size="20" name="search" placeholder="Tìm kiếm theo CMND"
                    class="form-control"/>
-        </label>
-
-        <lable class="col-sm"></lable>
-        <lable class="col-sm"></lable>
-
+        </div>
+        <div class="col-sm">
+            <select class="form-control " name="dayVaccineByDay" id="dayVaccineByDay" onclick="getCustomerByDay(this.value)" style="width: 61%" >
+                <option value="-1">-- Chọn ngày  --</option>
+                <option th:each="vac:${stringDayList}"
+                        th:value="${vac}"
+                        th:text="'        &ensp;&ensp;'+${vac}">
+                </option>
+            </select>
+        </div>
     </div>
     <br>
     <table id="orderItems" class="table table-hover" border="1" style="text-align: center">
@@ -85,7 +90,6 @@
             <th>Ngày tiêm</th>
             <th>Trạng thái</th>
         </tr>
-
         <th:block th:each="employee : ${customerListIsDone}">
             <tr>
                 <th scope="row" th:text="${employee.id}"></th>
@@ -100,19 +104,18 @@
                 <td th:if="${employee.isInjection == 1}">
                     <button class="row_button btn btn-success">Đã tiêm</button>
                 </td>
+                <input type="hidden" th:value="${employee.id}" id="id">
             </tr>
         </th:block>
-
-
     </table>
-    <div class="row">
+    <input type="hidden" id="idDes" th:value="${idDes}">
+    <div class="row" id="last_row">
         <input type="hidden" id="maxPage" th:value="${maxPage}">
         <div class="col-sm-8" style="text-align: center;">
             <button class="btn btn-secondary" onclick="setInjectionStatus()">Ấn định</button>
 <!--            <button class="btn btn-warning">Gửi email</button>-->
         </div>
         <div class="col-sm-4">
-
             <ul class="pagination">
                 <li class="page-item"><a id="prev" onclick="changePage(this.value)" class="page-link">Previous</a></li>
                 <li th:each="number : ${pageNumber}" class="page-item">
@@ -124,10 +127,7 @@
 
         </div>
     </div>
-
-
-    </label>
-
+</div>
     <script th:src="@{/js/admin/destination_page_doctor.js}"></script>
 </body>
 </html>

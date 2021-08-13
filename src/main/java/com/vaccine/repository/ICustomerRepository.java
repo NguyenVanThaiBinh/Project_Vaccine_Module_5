@@ -53,6 +53,34 @@ public interface ICustomerRepository extends JpaRepository<Customer, Long> {
     Page<Customer> findCustomerIsDoneInDay(String date_vaccine, Long id_destination,Pageable pageable);
 
     @Query("SELECT e from Customer  e WHERE e.date_vaccine = ?1 AND e.destination.id = ?2 AND e.CMND like %?3% ")
-    Page<Customer> searchCustomerByCMND(String date_vaccine, Long id_destination,Pageable pageable,String cmnd);
+    Page<Customer> searchCustomerByCMND(String date_vaccine, Long id_destination,String cmnd,Pageable pageable);
+
+    @Query("SELECT DISTINCT  e.date_vaccine from Customer  e WHERE  e.destination.id = ?1 and e.isDoctor = 0")
+    List<String> findDayInOneDestination(Long id_destination);
+
+    @Query("SELECT c from Customer  c WHERE c.date_vaccine=?1 and c.destination.id=?2")
+    List<Customer> ListCustomerIsOneInDay(String date_vaccine , Long id_destination);
+
+
+    @Query("SELECT c from  Customer  c WHERE c.vaccine.id=?1")
+    List<Customer> ListCustomerByVaccine(Long id);
+
+    // Dashboard
+    @Query("SELECT DISTINCT  e.date_vaccine from Customer e")
+    List<String> ListDayOfAllCustomer();
+
+    @Query("SELECT  count (e) from Customer e where e.date_vaccine = ?1")
+    int getRegisterNumberInOneDay(String day);
+
+    @Query("SELECT  count (e) from Customer e where e.date_vaccine = ?1 and e.isInjection = 1")
+    int getIsInjectionNumberInOneDay(String day) ;
+    @Query("SELECT max(c.id) from Customer c WHERE c.destination.id=?1 and c.date_vaccine=?2 and c.vaccine.id=?3")
+    Long maxIdOneDayVaccine(Long idDes,String date,Long idVac);
+
+    @Query("SELECT c from Customer c where c.destination.id=?1 and c.isInjection=1 and c.isInjection2 = 0")
+    List<Customer> ListCustomerInjection2(Long id);
+
+    @Query("SELECT c from Customer c where c.destination.id=?1 and c.date_vaccine=?2")
+    Iterable<Customer> ListCustomerInjectionByDes(Long id,String date);
 
 }

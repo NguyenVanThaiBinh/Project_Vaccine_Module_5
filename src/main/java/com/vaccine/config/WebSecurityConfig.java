@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
 @EnableWebSecurity
@@ -66,14 +67,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 // Submit URL của trang login
                 .loginProcessingUrl("/j_spring_security_check") // Submit URL
                 .loginPage("/")//
-                .defaultSuccessUrl("/")
+                .defaultSuccessUrl("/checkRole")
                 .failureUrl("/login?error=huhu")//
                 .usernameParameter("CMND")//
                 .passwordParameter("password")
                 // Cấu hình cho Logout Page.
-                .and().logout().logoutUrl("/logout").logoutSuccessUrl("/")
+                .and().logout().logoutUrl("/logout").logoutSuccessUrl("/");
 //                 Session het' han~
-                .and().sessionManagement().invalidSessionUrl("/");
+//                .and().sessionManagement().invalidSessionUrl("/login");
 
         // Cấu hình Remember Me.
         http.authorizeRequests().and() //
@@ -91,6 +92,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public SessionRegistry sessionRegistry(){
         SessionRegistry sessionRegistry = new SessionRegistryImpl();
         return sessionRegistry;
+    }
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 
 }

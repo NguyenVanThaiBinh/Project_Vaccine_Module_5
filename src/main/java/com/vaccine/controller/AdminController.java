@@ -1,7 +1,6 @@
 package com.vaccine.controller;
 
 
-
 import com.vaccine.model.*;
 
 import com.vaccine.model.Customer;
@@ -33,6 +32,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -54,7 +54,7 @@ public class AdminController {
     @Autowired
     ICustomerRoleRepository customerRoleRepository;
 
-//    @Autowired
+    //    @Autowired
 //    IWarehouseVaccineService warehouseVaccineService;
 //
     @Autowired
@@ -62,7 +62,7 @@ public class AdminController {
 
     @Autowired
     CustomerServiceVerifyAccount customerServiceVerifyAccount;
-//
+    //
     //
 //    @Autowired
 //    IAdminDestinationService adminDestinationService;
@@ -72,6 +72,10 @@ public class AdminController {
 //
 //    int countSort=0;
 //
+    LocalDate localDate = LocalDate.now();
+    String[] day = localDate.toString().split("-");
+    String currentDay = day[2] + "-" + day[1] + "-" + day[0] + " ";
+
     @ModelAttribute("warehouses")
     public Iterable<WarehouseVaccine> warehouseVaccineResponseEntity() {
         return iWarehouseRepository.findAll();
@@ -82,6 +86,22 @@ public class AdminController {
     public ModelAndView showdb() {
         ModelAndView modelAndView = new ModelAndView("/admin/dashBoar");
         return modelAndView;
+    }
+
+    @GetMapping("/dashboard_api")
+    public List<ChartData> getDateOfAllCustomer() {
+        List<ChartData> chartDataList = new ArrayList<>();
+        List<String> listAllDay = customerRepository.ListDayOfAllCustomer();
+        for (String day : listAllDay) {
+            // Muốn so sánh chuyển về Object mới so sánh được vì chứa giá trị null
+            if (!Objects.equals(day, null)) {
+                int registerNumber = customerRepository.getRegisterNumberInOneDay(day);
+                int injectionNumber = customerRepository.getIsInjectionNumberInOneDay(day);
+                ChartData chartData = new ChartData(day, registerNumber, injectionNumber);
+                chartDataList.add(chartData);
+            }
+        }
+        return chartDataList;
     }
 
     ////  ajax user
@@ -138,28 +158,31 @@ public class AdminController {
 //        return new ResponseEntity<>(Destination, HttpStatus.NO_CONTENT);
 //    }
     @PutMapping("/destination/edit/{id}")
-    public ResponseEntity<Destination> editDestination(@RequestBody Destination destination,@PathVariable Long id){
+    public ResponseEntity<Destination> editDestination(@RequestBody Destination destination, @PathVariable Long id) {
         destination.setId(id);
-        return new ResponseEntity<>(destinationRepository.save(destination),HttpStatus.OK);
+        return new ResponseEntity<>(destinationRepository.save(destination), HttpStatus.OK);
     }
 
     @GetMapping("/destination/api-full-0")
-    public ResponseEntity<Page<Destination>> fullApi0(Pageable pageable){
-        return new ResponseEntity<>(destinationRepository.findAllBySttDelete(0,pageable),HttpStatus.OK);
+    public ResponseEntity<Page<Destination>> fullApi0(Pageable pageable) {
+        return new ResponseEntity<>(destinationRepository.findAllBySttDelete(0, pageable), HttpStatus.OK);
     }
+
     @GetMapping("/destination/api-full-1")
-    public ResponseEntity<Page<Destination>> fullApi1(Pageable pageable){
-        return new ResponseEntity<>(destinationRepository.findAllBySttDelete(1,pageable),HttpStatus.OK);
+    public ResponseEntity<Page<Destination>> fullApi1(Pageable pageable) {
+        return new ResponseEntity<>(destinationRepository.findAllBySttDelete(1, pageable), HttpStatus.OK);
     }
+
     @GetMapping("/destination/apiId/{id}")
-    public ResponseEntity<Destination> getApiId(@PathVariable Long id){
-        return new ResponseEntity<>(destinationRepository.findById(id).get(),HttpStatus.OK);
+    public ResponseEntity<Destination> getApiId(@PathVariable Long id) {
+        return new ResponseEntity<>(destinationRepository.findById(id).get(), HttpStatus.OK);
     }
 
     @GetMapping("/destination/allCusByDes/{id}")
-    public ResponseEntity<List<Customer>> getFullCustomerByDestination(@PathVariable Long id){
-        return new ResponseEntity<>(customerRepository.findByDestination(id),HttpStatus.OK);
+    public ResponseEntity<List<Customer>> getFullCustomerByDestination(@PathVariable Long id) {
+        return new ResponseEntity<>(customerRepository.findByDestination(id), HttpStatus.OK);
     }
+
 
     private String getSiteURL(HttpServletRequest request) {
         String siteURL = request.getRequestURL().toString();
@@ -167,22 +190,22 @@ public class AdminController {
     }
 
     @GetMapping("/destination/sendEmailEnd/{id}/{date}")
-    public void sendEmailDateEnd(@PathVariable("id") Long id, @PathVariable("date") String date, HttpServletRequest request){
+    public void sendEmailDateEnd(@PathVariable("id") Long id, @PathVariable("date") String date, HttpServletRequest request) {
         Thread thread1 = new Thread(new Runnable() {
             @Override
             public void run() {
-                int countCustomer=0;
+                int countCustomer = 0;
                 String[] arr2 = date.trim().split("-");
-                String date_end = arr2[2]+"-"+arr2[1]+"-"+arr2[0];
+                String date_end = arr2[2] + "-" + arr2[1] + "-" + arr2[0];
                 List<Customer> list = customerRepository.findByDestination(id);
-                for(int i=0;i<list.size();i++){
-                    if(list.get(i).getDate_vaccine()!=null){
+                for (int i = 0; i < list.size(); i++) {
+                    if (list.get(i).getDate_vaccine() != null) {
                         String[] arr = list.get(i).getDate_vaccine().trim().split("-");
-                        String date_vaccine = arr[2]+"-"+arr[1]+"-"+arr[0];
-                        if(date_vaccine.compareTo(date_end)>0){
+                        String date_vaccine = arr[2] + "-" + arr[1] + "-" + arr[0];
+                        if (date_vaccine.compareTo(date_end) > 0) {
                             // Set date_vaccine , time = null
-                            list.get(i).setDate_vaccine(list.get(i).getDate_vaccine()+"cancel");
-                            list.get(i).setTime_vaccine(list.get(i).getDate_vaccine()+"cancel");
+                            list.get(i).setDate_vaccine(list.get(i).getDate_vaccine() + "cancel");
+                            list.get(i).setTime_vaccine(list.get(i).getDate_vaccine() + "cancel");
                             customerRepository.save(list.get(i));
                             // Hàm gửi email
                             countCustomer++;
@@ -190,28 +213,28 @@ public class AdminController {
                         }
                     }
                 }
-                System.out.println("end:"+countCustomer);
+                System.out.println("end:" + countCustomer);
             }
         });
         thread1.start();
     }
 
     @GetMapping("/destination/sendEmailStart/{id}/{date}")
-    public void sendEmailDateStart(@PathVariable("id") Long id, @PathVariable("date") String date){
+    public void sendEmailDateStart(@PathVariable("id") Long id, @PathVariable("date") String date) {
         Thread thread2 = new Thread(new Runnable() {
             @Override
             public void run() {
-                int countCustomer=0;
+                int countCustomer = 0;
                 String[] arr2 = date.trim().split("-");
-                String date_end = arr2[2]+"-"+arr2[1]+"-"+arr2[0];
+                String date_end = arr2[2] + "-" + arr2[1] + "-" + arr2[0];
                 List<Customer> list = customerRepository.findByDestination(id);
-                for(int i=0;i<list.size();i++){
-                    if(list.get(i).getDate_vaccine()!=null){
+                for (int i = 0; i < list.size(); i++) {
+                    if (list.get(i).getDate_vaccine() != null) {
                         String[] arr = list.get(i).getDate_vaccine().trim().split("-");
-                        String date_vaccine = arr[2]+"-"+arr[1]+"-"+arr[0];
-                        if(date_vaccine.compareTo(date_end)<0){
-                            list.get(i).setDate_vaccine(list.get(i).getDate_vaccine()+"cancel");
-                            list.get(i).setTime_vaccine(list.get(i).getDate_vaccine()+"cancel");
+                        String date_vaccine = arr[2] + "-" + arr[1] + "-" + arr[0];
+                        if (date_vaccine.compareTo(date_end) < 0) {
+                            list.get(i).setDate_vaccine(list.get(i).getDate_vaccine() + "cancel");
+                            list.get(i).setTime_vaccine(list.get(i).getTime_vaccine() + "cancel");
                             customerRepository.save(list.get(i));
                             // Hàm gửi email
                             // Set date_vaccine , time = null
@@ -219,7 +242,7 @@ public class AdminController {
                         }
                     }
                 }
-                System.out.println("start"+countCustomer);
+                System.out.println("start" + countCustomer);
             }
         });
         thread2.start();
@@ -232,45 +255,60 @@ public class AdminController {
 //        return new ResponseEntity<>(destinationRepository.save(destination),HttpStatus.NO_CONTENT);
 //    }
 
-    @GetMapping("/destination/sendEmailOff/{id}")
-    public void sendMailOff(@PathVariable Long id){
+    @GetMapping("/destination/setOff/{id}")
+    public void setOff(@PathVariable Long id) {
         Destination destination = destinationRepository.findById(id).get();
-        destination.setIsOpen(0);
+        destination.setIsOpen(1);
         destinationRepository.save(destination);
-        System.out.println(destination.toString());
+//
+    }
+
+    @GetMapping("/destination/sendEmailOff/{id}")
+    public void sendMailOff(@PathVariable Long id) {
         String dateNow = LocalDate.now().toString();
         List<Customer> list = customerRepository.findByDestination(id);
-        for(int i=0;i<list.size();i++){
-            if(list.get(i).getIsInjection()==0 && list.get(i).getHealthy_status()!=3){
+        int count = 0;
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getIsInjection() == 0 && list.get(i).getHealthy_status() != 3 && list.get(i).getDate_vaccine() != null) {
                 String[] arr = list.get(i).getDate_vaccine().trim().split("-");
-                String date = arr[2]+"-"+arr[1]+"-"+arr[0];
-                if(date.compareTo(dateNow)>0){
+                String date = arr[2] + "-" + arr[1] + "-" + arr[0];
+                if (date.compareTo(dateNow) > 0) {
                     //Gui mail
-                    System.out.println(1);
+                    //Set data +cancel
+                    count++;
                 }
             }
         }
+        System.out.println(count);
+    }
+
+
+    @GetMapping("/destination/setOn/{id}")
+    public void setOn(@PathVariable Long id) {
+        Destination destination = destinationRepository.findById(id).get();
+        destination.setIsOpen(0);
+        destinationRepository.save(destination);
     }
 
     @GetMapping("/destination")
     public ModelAndView listDestination(Pageable pageable) throws ParseException {
-        Page<Destination> destinations = destinationRepository.findAllBySttDelete(0,pageable);
+        Page<Destination> destinations = destinationRepository.findAllBySttDelete(0, pageable);
         ModelAndView modelAndView = new ModelAndView("/admin/injectionPoint");
-        for(Destination d:destinations){
-            String[] arr_S = d.getDate_start().trim().split("-");
-            String[] arr_E = d.getDate_end().trim().split("-");
-            String dateS = arr_S[2]+"-"+arr_S[1]+"-"+arr_S[0];
-            String dateE = arr_E[2]+"-"+arr_E[1]+"-"+arr_E[0];
-            String dateNow = LocalDate.now().toString();
-            if(dateS.compareTo(dateNow)<0 && dateE.compareTo(dateNow)>0 && d.getAmountOff()==0){
-                d.setIsOpen(1);
-                d.setAmountOff(1);
-                destinationRepository.save(d);
-            }
-        }
+//        for(Destination d:destinations){
+//            String[] arr_S = d.getDate_start().trim().split("-");
+//            String[] arr_E = d.getDate_end().trim().split("-");
+//            String dateS = arr_S[2]+"-"+arr_S[1]+"-"+arr_S[0];
+//            String dateE = arr_E[2]+"-"+arr_E[1]+"-"+arr_E[0];
+//            String dateNow = LocalDate.now().toString();
+//            if(dateS.compareTo(dateNow)<0 && dateE.compareTo(dateNow)>0 && d.getAmountOff()==0){
+//                d.setIsOpen(1);
+//                d.setAmountOff(1);
+//                destinationRepository.save(d);
+//            }
+//        }
 //        System.out.println(new SimpleDateFormat("yyy-mm-dd").format(new SimpleDateFormat("dd-mm-yyyy").parse(destinationRepository.findById(1L).get().getDate_end().trim())));
         modelAndView.addObject("destination", destinations);
-        modelAndView.addObject("dateNow",LocalDate.now().toString());
+        modelAndView.addObject("dateNow", LocalDate.now().toString());
         return modelAndView;
     }
 
@@ -291,16 +329,18 @@ public class AdminController {
         warehouseVaccine.setId(1L);
 
         vaccine.setWarehouseVaccine(warehouseVaccine);
+
+        vaccine.setRegister_amount(vaccine.getVaccine_amount());
         return new ResponseEntity<>(vaccineRepository.save(vaccine), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/delete-vaccine/{id}")
     public Vaccine deleteWarehouse(@PathVariable long id) {
-      Vaccine vaccine = vaccineRepository.findById(id).get();
+        Vaccine vaccine = vaccineRepository.findById(id).get();
 
-        try{
+        try {
             vaccineRepository.deleteById(id);
-        }catch (Exception e){
+        } catch (Exception e) {
             vaccine.setVaccine_amount(-1);
             return vaccine;
         }
@@ -322,59 +362,12 @@ public class AdminController {
         return new ResponseEntity<>(vaccineRepository.findById(id).get(), HttpStatus.OK);
     }
 
-    //    //    ---------------------------------Tài khoản điểm tiêm------------------------------------------>
-////    @GetMapping("/apiDs/{id}")
-////    public ResponseEntity<AdminDestination> adminDestinationResponseEntity(@PathVariable Long id) {
-////        return new ResponseEntity<>(adminDestinationService.findById(id).get(), HttpStatus.OK);
-////    }
-////    @PutMapping("/editDs/{id}")
-////    public ResponseEntity<AdminDestination> editEntityDS(@RequestBody AdminDestination adminDestination, @PathVariable Long id) {
-////        adminDestination.setId(id);
-////        return new ResponseEntity<>(adminDestinationService.save(adminDestination), HttpStatus.OK);
-////    }
-//
-//
-//    //    ---------------------------------Nhà kho------------------------------------------>
-//
-//    @GetMapping("/all-W")
-//    public ResponseEntity<Iterable<WarehouseVaccine>> allwareHouse(){
-//    return new ResponseEntity<>(iWarehouseRepository.findAll(),HttpStatus.OK);
-//}
-//    @GetMapping("/warehouse")
-//    public ModelAndView listWareH(){
-//        List<WarehouseVaccine> warehouseVaccineList = iWarehouseRepository.findAll();
-//        ModelAndView modelAndView = new ModelAndView("/admin/warehousevaccine");
-//        modelAndView.addObject("warehousevaccine",warehouseVaccineList);
-//        return modelAndView;
-//    }
-//    @PostMapping("/create-W")
-//    public ResponseEntity<WarehouseVaccine> createCustomer(@RequestBody WarehouseVaccine warehouseVaccine) {
-//        warehouseVaccine.setAmountRegister(warehouseVaccine.getAmountVaccine());
-//        return new ResponseEntity<>(warehouseVaccineService.save(warehouseVaccine), HttpStatus.CREATED);
-//    }
-//    @GetMapping("/apiIdW/{id}")
-//    public ResponseEntity<WarehouseVaccine> getEntityById(@PathVariable Long id){
-//        return new ResponseEntity<>(warehouseVaccineService.findById(id).get(),HttpStatus.OK);
-//    }
-//    @PutMapping("/editW/{id}")
-//    public ResponseEntity<WarehouseVaccine> editEntityW(@RequestBody WarehouseVaccine warehouseVaccine,@PathVariable Long id){
-//        WarehouseVaccine  warehouseVaccine1 = warehouseVaccineService.findById(id).get();
-//        warehouseVaccine1.setId(id);
-//        warehouseVaccine1.setWarehouseName(warehouseVaccine.getWarehouseName());
-//        warehouseVaccine1.setWarehouseAddress(warehouseVaccine.getWarehouseAddress());
-//        warehouseVaccine1.setAmountVaccine(warehouseVaccine.getAmountVaccine());
-//        return new ResponseEntity<>(warehouseVaccineService.save(warehouseVaccine1),HttpStatus.OK);
-//    }
-//    @DeleteMapping("/delete-warehouse/{id}")
-//    public ResponseEntity<WarehouseVaccine> deleteWarehouse(@PathVariable long id) {
-//        Optional<WarehouseVaccine> customerOptional = warehouseVaccineService.findById(id);
-//        warehouseVaccineService.remove(id);
-//        return new ResponseEntity<>(customerOptional.get(), HttpStatus.NO_CONTENT);
-//    }
+
     @PostMapping("/destination/create")
     public ResponseEntity<Destination> createDestination(@RequestBody Destination adminDestination) {
         return new ResponseEntity<>(destinationRepository.save(adminDestination), HttpStatus.CREATED);
     }
+
     @DeleteMapping("/destination/{id}")
     public ResponseEntity<Destination> destinationResponseEntity(@PathVariable long id) {
         Destination Destination = destinationRepository.findById(id).get();
