@@ -32,10 +32,7 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.*;
 
 @RestController
@@ -77,12 +74,13 @@ public class HomeController {
     //        Xử lý lấy ngày hiện tại
     LocalDate localDate = LocalDate.now();
     String[] day = localDate.toString().split("-");
-    String currentDay = day[2]+"-"+day[1]+"-"+day[0]+" ";
+    String currentDay = day[2] + "-" + day[1] + "-" + day[0] + " ";
 
 
     @GetMapping
     public ModelAndView home(HttpServletRequest request, Principal principal) {
-        System.out.println(iCustomerRepository.getMaxDayFromData(1L));
+
+
         setOffDestination();
         if (request.isUserInRole("ROLE_DOCTOR")) {
             sendEmail2(principal);
@@ -103,7 +101,7 @@ public class HomeController {
             modelAndView.addObject("customerInfo", user);
             modelAndView.addObject("stringDayList", stringDayList);
             modelAndView.addObject("pageNumber", pageNumber);
-            modelAndView.addObject("idDes",user.getDestination().getId());
+            modelAndView.addObject("idDes", user.getDestination().getId());
             modelAndView.addObject("maxPage", customerListIsDone.getTotalPages());
             return modelAndView;
         }
@@ -126,6 +124,7 @@ public class HomeController {
         return modelAndView;
 
     }
+
     @GetMapping("/checkRole")
     public ModelAndView checkRoleAndSession(HttpServletRequest request, Principal principal) {
         setOffDestination();
@@ -152,7 +151,7 @@ public class HomeController {
                     modelAndView.addObject("customerInfo", user);
                     modelAndView.addObject("stringDayList", stringDayList);
                     modelAndView.addObject("pageNumber", pageNumber);
-                    modelAndView.addObject("idDes",user.getDestination().getId());
+                    modelAndView.addObject("idDes", user.getDestination().getId());
                     modelAndView.addObject("maxPage", customerListIsDone.getTotalPages());
                     return modelAndView;
                 }
@@ -183,19 +182,18 @@ public class HomeController {
         return modelAndView;
     }
 
-    public void sendEmail2(Principal principal){
+    public void sendEmail2(Principal principal) {
         String dateBefore = LocalDate.now().minusDays(7L).toString();
         Customer customer = iCustomerRepository.findByUserCMND(principal.getName());
         List<Customer> list = iCustomerRepository.ListCustomerInjection2(customer.getDestination().getId());
 //        System.out.println(dateBefore);
-        if(checkDestinationIsOpen()){
-            for(Customer c:list){
+        if (checkDestinationIsOpen()) {
+            for (Customer c : list) {
                 String[] arr = c.getDate_vaccine().trim().split("-");
-                String date = arr[2]+"-"+arr[1]+"-"+arr[0];
-                if(date.compareTo(dateBefore)<=0){
+                String date = arr[2] + "-" + arr[1] + "-" + arr[0];
+                if (date.compareTo(dateBefore) <= 0) {
 //                    System.out.println(c.toString());
                     // gửi mail thông báo tiêm lần 2
-
 
 
                     //Set setISjection = 1 : đang chờ
@@ -207,56 +205,65 @@ public class HomeController {
 
     }
 
-    public void setOffDestination(){
+    public void setOffDestination() {
         String dateNow = LocalDate.now().toString();
         Iterable<Destination> listDes = iDestinationRepository.findAllOpen();
-        for(Destination destination:listDes){
+        for (Destination destination : listDes) {
             String[] arrStart = destination.getDate_start().trim().split("-");
-            String dateStart = arrStart[2]+"-"+arrStart[1]+"-"+arrStart[0];
+            String dateStart = arrStart[2] + "-" + arrStart[1] + "-" + arrStart[0];
             String[] arrEnd = destination.getDate_end().trim().split("-");
-            String dateEnd = arrEnd[2]+"-"+arrEnd[1]+"-"+arrEnd[0];
-            if(dateNow.compareTo(dateEnd)>0 || checkAmountRegisterByDes(destination)){
+            String dateEnd = arrEnd[2] + "-" + arrEnd[1] + "-" + arrEnd[0];
+            if (dateNow.compareTo(dateEnd) > 0 || checkAmountRegisterByDes(destination)) {
                 destination.setIsOpen(1);
                 iDestinationRepository.save(destination);
             }
         }
     }
 
-    public boolean checkAmountRegisterByDes(Destination destination){
-        Iterable<Customer> iterable = iCustomerRepository.ListCustomerInjectionByDes(destination.getId(),destination.getDate_end());
+    public boolean checkAmountRegisterByDes(Destination destination) {
+        Iterable<Customer> iterable = iCustomerRepository.ListCustomerInjectionByDes(destination.getId(), destination.getDate_end());
         int people_perHour = destination.getPeople_perHour();
-        if(iterable.spliterator().getExactSizeIfKnown()==people_perHour*4){
+        if (iterable.spliterator().getExactSizeIfKnown() == people_perHour * 4) {
             return true;
         }
         return false;
     }
 
+    //          <--------------------   Tiêm lần 2 --------------------------->
     @PostMapping("/registerVaccine2")
-    public ModelAndView registerVaccine2(Customer customer){
+    public ModelAndView registerVaccine2(Customer customer) {
         ModelAndView modelAndView = new ModelAndView("/index/form2");
-        System.out.println(customer.toString());
         Customer customer1 = iCustomerRepository.findByUserCMND(customer.getCMND());
+        // Lưu địa điểm mới vào liên để đếm
         customer1.setDestination2(customer.getDestination());
-        customer1.setId(customer1.getId());
+        customer1.setIsInjection2(1);
         iCustomerRepository.save(customer1);
-        modelAndView.addObject("msg","Đăng Ký tiêm lần 2 thành công !! ");
+
+        // Lấy thông tin địa điểm
+        setDayTimeStart(customer1.getDestination2().getId());
+        // Set ngày giờ cho địa điểm mới
+        setDayTimeVaccine(customer1);
+
+        customer1.setVerificationCode(null);
+        iCustomerRepository.save(customer1);
+        modelAndView.addObject("msg", "Đăng Ký tiêm lần 2 thành công !! ");
         return modelAndView;
     }
 
     @GetMapping("/getForm/{certify}")
-    public ModelAndView showForm2(@PathVariable String certify){
-        //$2a$10$GpOvzF2B7ZI84xVP9cngOPW97tE1qoGCdkofU3D.owsVzjjjj2thM7He
+    public ModelAndView showForm2(@PathVariable String certify) {
+        //              W97tE1qoGCdkofU3D.owsVzjjjj2thM7He
         Customer customer = iCustomerRepository.findByVerificationCode(certify);
         ModelAndView modelAndView = new ModelAndView("/index/form2");
-        modelAndView.addObject("customer",customer);
+        modelAndView.addObject("customer", customer);
         return modelAndView;
     }
 
 
-    public boolean checkDestinationIsOpen(){
+    public boolean checkDestinationIsOpen() {
         List<Destination> list = iDestinationRepository.findAllOpen();
-        for(Destination d:list){
-            if(d.getIsOpen()==0){
+        for (Destination d : list) {
+            if (d.getIsOpen() == 0) {
                 return true;
             }
         }
@@ -267,9 +274,9 @@ public class HomeController {
     public ModelAndView showForm() {
         //redirect if amount vaccine ==0
         // Kiểm tra có giá trị hay k
-        if (iVaccineRepository.findAll().spliterator().getExactSizeIfKnown()>0){
+        if (iVaccineRepository.findAll().spliterator().getExactSizeIfKnown() > 0) {
             int sumVaccine = iVaccineRepository.sumVaccine();
-            if(sumVaccine<=0){
+            if (sumVaccine <= 0) {
                 return new ModelAndView("/security/regisFound");
             }
         }
@@ -332,33 +339,6 @@ public class HomeController {
 //                customerServiceVerifyAccount.sendEmailVerifyAccount("boyte.vaccine.covid@gmail.com", user,getSiteURL(request));
 //            }
 //        });
-
-        // Kiểm tra đã có điểm tiêm đã có bắt đầu chưa?
-        try {
-            // Tìm không ra ID của điểm tiêm
-            setDayTimeStart(user.getDestination().getId());
-        } catch (Exception e) {
-            ModelAndView modelAndView = new ModelAndView("/index/form");
-            modelAndView.addObject("user", new Customer());
-            modelAndView.addObject("fail", "Chiến dịch chưa bắt đầu, vui lòng quay lại sau!");
-
-            return modelAndView;
-        }
-
-        //Test phân ngày
-
-        try {
-            iCustomerRepository.save(user);
-            setDayTimeVaccine(user);
-            user.setEnabled(true);
-            iCustomerRepository.save(user);
-        } catch (Exception e) {
-            ModelAndView modelAndView = new ModelAndView("/index/form");
-            modelAndView.addObject("user", new Customer());
-            modelAndView.addObject("fail", "Đã xảy ra lỗi sắp xếp ngày!!!");
-            return modelAndView;
-        }
-
         //        Set encrytedPassword
         String password = user.getEncrytedPassword();
         String encrytedPassword = encrytePassword(password);
@@ -371,27 +351,56 @@ public class HomeController {
             modelAndView.addObject("fail", "Số chứng minh nhân dân đã tồn tại!!!");
             return modelAndView;
         }
+
+        // Kiểm tra đã có điểm tiêm đã có bắt đầu chưa?
         try {
-            //        Thêm quyền USER
-            Customer_Role userRole = new Customer_Role();
-            userRole.setAppUser(user);
-            Role appRole = new Role();
-            appRole.setRoleId(1L);
-            userRole.setAppRole(appRole);
-            iCustomerRoleRepository.save(userRole);
-
-            //        Thêm một quyền ADMIN và DOCTOR
-            appRole.setRoleId(2L);
-            iCustomerRoleRepository.save(new Customer_Role(user, appRole));
-            appRole.setRoleId(3L);
-            iCustomerRoleRepository.save(new Customer_Role(user, appRole));
-
+            // Tìm không ra ID của điểm tiêm
+            setDayTimeStart(user.getDestination().getId());
+            iCustomerRepository.save(user);
         } catch (Exception e) {
             ModelAndView modelAndView = new ModelAndView("/index/form");
             modelAndView.addObject("user", new Customer());
-            modelAndView.addObject("fail", "Oh no! Có vấn đề về cơ sở dữ liệu!");
+            modelAndView.addObject("fail", "Chiến dịch chưa bắt đầu, vui lòng quay lại sau!");
+
             return modelAndView;
         }
+
+        //Test phân ngày
+
+        try {
+
+            setDayTimeVaccine(user);
+            user.setEnabled(true);
+            iCustomerRepository.save(user);
+        } catch (Exception e) {
+            ModelAndView modelAndView = new ModelAndView("/index/form");
+            modelAndView.addObject("user", new Customer());
+            modelAndView.addObject("fail", "Đã xảy ra lỗi sắp xếp ngày!!!");
+            return modelAndView;
+        }
+
+
+//        try {
+//            //        Thêm quyền USER
+//            Customer_Role userRole = new Customer_Role();
+//            userRole.setAppUser(user);
+//            Role appRole = new Role();
+//            appRole.setRoleId(1L);
+//            userRole.setAppRole(appRole);
+//            iCustomerRoleRepository.save(userRole);
+//
+//            //        Thêm một quyền ADMIN và DOCTOR
+//            appRole.setRoleId(2L);
+//            iCustomerRoleRepository.save(new Customer_Role(user, appRole));
+//            appRole.setRoleId(3L);
+//            iCustomerRoleRepository.save(new Customer_Role(user, appRole));
+//
+//        } catch (Exception e) {
+//            ModelAndView modelAndView = new ModelAndView("/index/form");
+//            modelAndView.addObject("user", new Customer());
+//            modelAndView.addObject("fail", "Oh no! Có vấn đề về cơ sở dữ liệu!");
+//            return modelAndView;
+//        }
 
         ModelAndView modelAndView = new ModelAndView("/index/form");
         modelAndView.addObject("user", new Customer());
@@ -400,9 +409,9 @@ public class HomeController {
 //        if (user.getEmail() != null) {
 //            thread1.start();
 //        }
-        if(user.getDate_vaccine()!=null){
+        if (user.getDate_vaccine() != null) {
             Vaccine vaccine = iVaccineRepository.findById(user.getVaccine().getId()).get();
-            vaccine.setRegister_amount(vaccine.getRegister_amount()-1);
+            vaccine.setRegister_amount(vaccine.getRegister_amount() - 1);
             iVaccineRepository.save(vaccine);
         }
         modelAndView.addObject("fail", "Vui lòng kiểm tra email để xác minh tài khoản!");
@@ -567,19 +576,92 @@ public class HomeController {
     }
 
     public void setDayTimeVaccine(Customer customer) {
-        Long destination_id = customer.getDestination().getId();
-        //      get maxDay, maxTime from db
-        String str = iCustomerRepository.getMaxDayFromData(destination_id) + iCustomerRepository.getMaxTimeFromData(destination_id);
-        int countMaxTime = iCustomerRepository.countMaxTimeInDay(destination_id);
-        int countMaxDay = iCustomerRepository.countMaxDayToNext(destination_id);
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
-
-//       Set day to start
-        if (str.equals("nullnull")) {
-            str = timeStart + "08:00";
+        Long destination_id;
+        if (!Objects.equals(customer.getDestination2(), null)) {
+            destination_id = customer.getDestination2().getId();
+        } else {
+            destination_id = customer.getDestination().getId();
         }
 
+
+        //      get maxDay, maxTime from db lần 1
+//        String str = iCustomerRepository.getMaxDayFromData(destination_id) + iCustomerRepository.getMaxTimeFromData(destination_id);
+        int countMaxTime = 0;
+        int countMaxDay = 0;
+        // Tổng hợp số ngày giờ 2 cột
+        int countTime1 = iCustomerRepository.countMaxTimeInDay(destination_id);
+        int countDay1 = iCustomerRepository.countMaxDayToNext(destination_id);
+        String getDayMax1 = iCustomerRepository.getMaxDayFromData(destination_id);
+        String getTimeMax1 = iCustomerRepository.getMaxTimeFromData(destination_id);
+
+        int countDay2 = iCustomerRepository.countMaxDayToNext_2(destination_id);
+        int countTime2 = iCustomerRepository.countMaxTimeInDay_2(destination_id);
+        String getDayMax2 = iCustomerRepository.getMaxDayFromData_2(destination_id);
+        String getTimeMax2 = iCustomerRepository.getMaxTimeFromData_2(destination_id);
+
+        String str = "";
+
+        if (Objects.equals(getDayMax1, null)) {
+            getDayMax1 = timeStart;
+            getTimeMax1 = "08:00";
+            str = timeStart + "08:00";
+        } else {
+            str = getDayMax1 + getTimeMax1;
+        }
+
+
+        if (Objects.equals(getDayMax2, null)) {
+            getTimeMax2 = "000000";
+            getDayMax2 = "000000";
+        }
+        String maxTime = "";
+
+        if (!Objects.equals(getDayMax2, null)) {
+            // Tổng hợp ngày giờ 2 cột
+            String maxDay = "";
+            if (getDayMax1.compareTo(getDayMax2) > 0) {
+                countMaxDay = countDay1;
+                maxDay = getDayMax1;
+                maxTime = getTimeMax1;
+
+            } else if (getDayMax1.compareTo(getDayMax2) < 0) {
+                maxDay = getDayMax2;
+                maxTime = getTimeMax2;
+                countMaxDay = countDay2;
+            } else {
+                maxDay = getDayMax2;
+                countMaxDay = countDay1 + countDay2;
+                if (getTimeMax1.compareTo(getTimeMax2) > 0){
+                    maxTime = getTimeMax1;
+                }else {
+                    maxTime = getTimeMax2;
+                }
+
+            }
+            // Đếm số giờ lớn nhất
+            if (getTimeMax1.compareTo(getTimeMax2) > 0) {
+                countMaxTime = countTime1;
+            } else if (getTimeMax1.compareTo(getTimeMax2) < 0) {
+                countMaxTime = countTime2;
+            } else {
+                countMaxTime = countTime1 + countTime2;
+            }
+
+
+
+            System.out.println("Ngày lớn trong 2 cột: " + maxDay);
+            System.out.println("Giờ lớn trong 2 cột: " + maxTime);
+            System.out.println("Tổng giờ lớn trong 2 cột: " + countMaxTime);
+            System.out.println("Tổng ngày lớn trong 2 cột: " + countMaxDay);
+            System.out.println("           ----------------------------------  ");
+
+            str = maxDay + maxTime;
+
+
+        }
+
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
         LocalDateTime currentDateTime = LocalDateTime.parse(str, formatter);
 
         //      Divide date to time
@@ -613,13 +695,20 @@ public class HomeController {
                 currentDateTime = currentDateTime.plusHours(2);
             }
             countTime = 0;
-//  Set giá trị cho từng tk
+            //  Set giá trị cho từng tk
         }
         while (countTime < setPeoplePerHour) {
             String formattedDate = currentDateTime.format(formatterDay);
             String formattedTime = currentDateTime.format(formatterTime);
-            customer.setTime_vaccine(formattedTime);
-            customer.setDate_vaccine(formattedDate);
+
+            if (Objects.equals(customer.getDate_vaccine(), null)) {
+                customer.setTime_vaccine(formattedTime);
+                customer.setDate_vaccine(formattedDate);
+            } else {
+                customer.setTime_vaccine2(formattedTime);
+                customer.setDate_vaccine2(formattedDate);
+            }
+
             iCustomerRepository.save(customer);
             countTime++;
             oneDayDone++;

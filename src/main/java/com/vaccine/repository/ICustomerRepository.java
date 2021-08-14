@@ -16,6 +16,8 @@ public interface ICustomerRepository extends JpaRepository<Customer, Long> {
     @Query("SELECT e FROM Customer e WHERE e.CMND = ?1")
     Customer findByUserCMND(String cmnd);
 
+        //  <----------------- Phân giờ vaccine lần 1 ------------------>
+
     @Query(" select count(e.time_vaccine) from Customer e where e.destination.id = ?1 and (e.healthy_status = 1 or  e.healthy_status = 2) and" +
             "  e.time_vaccine = (select max(time_vaccine) from e where e.destination.id = ?1 and e.date_vaccine =  (select max(date_vaccine) from e where e.destination.id = ?1))  " +
             "and e.date_vaccine =  (select max(date_vaccine) from e where e.destination.id = ?1)")
@@ -29,6 +31,23 @@ public interface ICustomerRepository extends JpaRepository<Customer, Long> {
 
     @Query("select max(e.time_vaccine) from Customer e where e.destination.id = ?1 and (e.healthy_status = 1 or  e.healthy_status = 2) and  e.date_vaccine = (select max(date_vaccine) from e where e.destination.id = ?1)")
     String getMaxTimeFromData(Long id_destination);
+
+    // <-------------------- Phân giờ vaccine lần 2 ------------------------>
+    @Query(" select count(e.time_vaccine2) from Customer e where e.destination.id = ?1 and (e.healthy_status = 1 or  e.healthy_status = 2) and" +
+            "  e.time_vaccine2 = (select max(time_vaccine2) from e where e.destination.id = ?1 and e.date_vaccine2 =  (select max(date_vaccine2) from e where e.destination.id = ?1))  " +
+            "and e.date_vaccine2 =  (select max(date_vaccine2) from e where e.destination.id = ?1)")
+    Integer  countMaxTimeInDay_2(Long id_destination);
+
+    @Query(" select count(e.date_vaccine2) from Customer e where e.destination.id = ?1 and (e.healthy_status = 1 or  e.healthy_status = 2) and  e.date_vaccine2 = (select max(date_vaccine2) from e where e.destination.id = ?1)")
+    int  countMaxDayToNext_2(Long id_destination);
+
+    @Query("select max(e.date_vaccine2) from Customer e where e.destination.id = ?1 and  (e.healthy_status = 1 or  e.healthy_status = 2) ")
+    String getMaxDayFromData_2(Long id_destination);
+
+    @Query("select max(e.time_vaccine2) from Customer e where e.destination.id = ?1 and (e.healthy_status = 1 or  e.healthy_status = 2) and  e.date_vaccine2 = (select max(date_vaccine2) from e where e.destination.id = ?1)")
+    String getMaxTimeFromData_2(Long id_destination);
+
+
 
     @Query("SELECT u FROM Customer u WHERE u.verificationCode = ?1")
     Customer findByVerificationCode(String code);
