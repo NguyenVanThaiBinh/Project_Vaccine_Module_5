@@ -139,7 +139,7 @@ public class DoctorController {
 
 //            Gửi mail xác nhận
 
-//            sendMailToCustomerCame(customer);
+            sendMailToCustomerCame(customer);
 
             customer.setIsInjection(1);
 
@@ -168,7 +168,7 @@ public class DoctorController {
             iVaccineRepository.save(vaccine);
         }
         mapCountDone.clear();
-//        return "Done";
+
     }
 
 
@@ -188,8 +188,7 @@ public class DoctorController {
     @ResponseBody
     @RequestMapping(path = "/search/{key}", method = RequestMethod.POST)
     public Page<Customer> searchByCMND(@PathVariable String key, Principal principal, @RequestBody String[] pageNumber) {
-//        System.out.println( "Key is: "+key);
-//        System.out.println( "Page currently: "+pageNumber[0]);
+
 //        Lấy lại quyền để lấy ID
         String userName = principal.getName();
         Customer customer1 = icustomerRepository.findByUserCMND(userName);
@@ -215,11 +214,7 @@ public class DoctorController {
         }
 //        Lấy danh sách
         Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay(day+" ", customer1.getDestination().getId(), PageRequest.of(0, 5));
-//        Page<Customer> searchResultCustomer = icustomerRepository.searchCustomerByCMND(currentDay,customer1.getDestination().getId(), key,PageRequest.of(0, Integer.MAX_VALUE));
-//        if(key.equals("binhhu")){
-//            Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay(currentDay,customer1.getDestination().getId(), PageRequest.of(Integer.parseInt(pageNumber[0]), 5));
-//            return  customerListIsDone;
-//        }
+
         return customerListIsDone;
     }
 

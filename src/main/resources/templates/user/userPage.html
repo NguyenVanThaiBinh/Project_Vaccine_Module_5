@@ -53,11 +53,18 @@
 
     </tr>
     <tr class="bg-danger">
-      <td>Kết quả đăng ký</td>
-      <td th:if="${userInfo.healthy_status == 1 || userInfo.healthy_status == 2}"
-          th:text="'Thành công'"></td>
-      <td th:if="${userInfo.healthy_status == 3}"
-          th:text="'Thất bại'"></td>
+      <div th:if="${userInfo.isInjection == 1}">
+        <td>Tình trạng tiêm chủng</td>
+        <td>Đã tiêm lần 1 thành công!</td>
+      </div>
+      <div th:if="${userInfo.isInjection == 0}">
+        <td>Kết quả đăng ký</td>
+        <td th:if="${userInfo.healthy_status == 1 || userInfo.healthy_status == 2}"
+            th:text="'Thành công'"></td>
+        <td th:if="${userInfo.healthy_status == 3}"
+            th:text="'Thất bại'"></td>
+      </div>
+
     </tr>
     <tr>
       <td>Tình trạng sức khoẻ</td>

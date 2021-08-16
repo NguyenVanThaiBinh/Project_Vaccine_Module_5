@@ -3,9 +3,10 @@ function foo() {
         type: 'GET',
         url: '/admin/api-full',
         success: function (data) {
+            console.log(data);
             let count = 0;
             for (let i = 0; i < data.content.length; i++) {
-                if (data.content[i].checkStatus == 1) {
+                if (data.content[i].isInjection == 1) {
                     count++;
                 }
             }

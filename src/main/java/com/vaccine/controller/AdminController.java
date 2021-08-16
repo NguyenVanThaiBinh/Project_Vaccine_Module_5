@@ -106,7 +106,7 @@ public class AdminController {
 
     ////  ajax user
     @GetMapping("/api-full")
-    public ResponseEntity<Page<Customer>> allUser(@PageableDefault(value = 10) Pageable pageable) {
+    public ResponseEntity<Page<Customer>> allUser(@PageableDefault(value =  Integer.MAX_VALUE) Pageable pageable) {
         return new ResponseEntity<>(customerRepository.findAllCustomerAccount(pageable), HttpStatus.OK);
     }
 
@@ -148,15 +148,9 @@ public class AdminController {
     }
 
 
-    //
-//    //    ---------------------------------Điểm tiêm chủng------------------------------------------>
-//    @DeleteMapping("/destination/{id}")
-//    public ResponseEntity<Destination> destinationResponseEntity(@PathVariable long id) {
-//        Destination Destination = destinationRepository.findById(id).get();
-//        Destination.setIsDelete(1);
-//        destinationRepository.save(Destination);
-//        return new ResponseEntity<>(Destination, HttpStatus.NO_CONTENT);
-//    }
+
+//      <---------------------------------Điểm tiêm chủng------------------------------------------>
+
     @PutMapping("/destination/edit/{id}")
     public ResponseEntity<Destination> editDestination(@RequestBody Destination destination, @PathVariable Long id) {
         destination.setId(id);
@@ -213,7 +207,7 @@ public class AdminController {
                         }
                     }
                 }
-                System.out.println("end:" + countCustomer);
+
             }
         });
         thread1.start();

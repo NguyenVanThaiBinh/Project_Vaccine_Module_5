@@ -132,6 +132,13 @@ public class HomeController {
         for (Cookie c : request.getCookies()) {
             if (c.getName().equals("remember-me") || c.getName().equals("JSESSIONID")) {
                 //    <----------------------------- Phân trang đúng quyền ------------------------------>
+                if (request.isUserInRole("ROLE_USER")) {
+                    ModelAndView modelAndView = new ModelAndView("user/userPage");
+                    String userName = principal.getName();
+                    Customer user = iCustomerRepository.findByUserCMND(userName);
+                    modelAndView.addObject("userInfo", user);
+                    return modelAndView;
+                }
                 if (request.isUserInRole("ROLE_DOCTOR")) {
                     sendEmail2(principal);
                     String userName = principal.getName();
@@ -155,13 +162,6 @@ public class HomeController {
                     modelAndView.addObject("maxPage", customerListIsDone.getTotalPages());
                     return modelAndView;
                 }
-                if (request.isUserInRole("ROLE_USER")) {
-                    ModelAndView modelAndView = new ModelAndView("user/userPage");
-                    String userName = principal.getName();
-                    Customer user = iCustomerRepository.findByUserCMND(userName);
-                    modelAndView.addObject("userInfo", user);
-                    return modelAndView;
-                }
                 if (request.isUserInRole("ROLE_ADMIN")) {
                     ModelAndView modelAndView = new ModelAndView("admin/dashBoar");
                     String userName = principal.getName();
@@ -183,10 +183,11 @@ public class HomeController {
     }
 
     public void sendEmail2(Principal principal) {
+        // Kiểm tra sau khi tiêm 7 ngày sau thì nhận mail
         String dateBefore = LocalDate.now().minusDays(7L).toString();
         Customer customer = iCustomerRepository.findByUserCMND(principal.getName());
         List<Customer> list = iCustomerRepository.ListCustomerInjection2(customer.getDestination().getId());
-//        System.out.println(dateBefore);
+
         if (checkDestinationIsOpen()) {
             for (Customer c : list) {
                 String[] arr = c.getDate_vaccine().trim().split("-");
@@ -380,27 +381,27 @@ public class HomeController {
         }
 
 
-//        try {
-//            //        Thêm quyền USER
-//            Customer_Role userRole = new Customer_Role();
-//            userRole.setAppUser(user);
-//            Role appRole = new Role();
-//            appRole.setRoleId(1L);
-//            userRole.setAppRole(appRole);
-//            iCustomerRoleRepository.save(userRole);
-//
-//            //        Thêm một quyền ADMIN và DOCTOR
+        try {
+            //        Thêm quyền USER
+            Customer_Role userRole = new Customer_Role();
+            userRole.setAppUser(user);
+            Role appRole = new Role();
+            appRole.setRoleId(1L);
+            userRole.setAppRole(appRole);
+            iCustomerRoleRepository.save(userRole);
+
+            //        Thêm một quyền ADMIN và DOCTOR
 //            appRole.setRoleId(2L);
 //            iCustomerRoleRepository.save(new Customer_Role(user, appRole));
 //            appRole.setRoleId(3L);
 //            iCustomerRoleRepository.save(new Customer_Role(user, appRole));
-//
-//        } catch (Exception e) {
-//            ModelAndView modelAndView = new ModelAndView("/index/form");
-//            modelAndView.addObject("user", new Customer());
-//            modelAndView.addObject("fail", "Oh no! Có vấn đề về cơ sở dữ liệu!");
-//            return modelAndView;
-//        }
+
+        } catch (Exception e) {
+            ModelAndView modelAndView = new ModelAndView("/index/form");
+            modelAndView.addObject("user", new Customer());
+            modelAndView.addObject("fail", "Oh no! Có vấn đề về cơ sở dữ liệu!");
+            return modelAndView;
+        }
 
         ModelAndView modelAndView = new ModelAndView("/index/form");
         modelAndView.addObject("user", new Customer());
