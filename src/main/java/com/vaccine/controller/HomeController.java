@@ -576,6 +576,7 @@ public class HomeController {
     }
 
     public void setDayTimeVaccine(Customer customer) {
+
         Long destination_id;
         if (!Objects.equals(customer.getDestination2(), null)) {
             destination_id = customer.getDestination2().getId();
