@@ -14,13 +14,7 @@ function foo() {
             $('#amount2').html(data.totalElements);
         }
     })
-    // $.ajax({
-    //     type: 'GET',
-    //     url: '/doctor/apiDateTime',
-    //     success: function (data) {
-    //         $('#amount3').html(data.people_per_hour * 4)
-    //     }
-    // })
+
 }
 
 foo();

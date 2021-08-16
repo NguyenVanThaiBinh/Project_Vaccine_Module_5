@@ -17,16 +17,21 @@ import com.vaccine.repository.IWarehouseRepository;
 
 import com.vaccine.service.CustomerServiceVerifyAccount;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -43,7 +48,8 @@ public class AdminController {
     @Autowired
     ICustomerRepository customerRepository;
 
-    //
+    @Autowired
+    JavaMailSender mailSender;
 
     @Autowired
     IDestinationRepository destinationRepository;
@@ -54,23 +60,13 @@ public class AdminController {
     @Autowired
     ICustomerRoleRepository customerRoleRepository;
 
-    //    @Autowired
-//    IWarehouseVaccineService warehouseVaccineService;
-//
+
     @Autowired
     IWarehouseRepository iWarehouseRepository;
 
     @Autowired
     CustomerServiceVerifyAccount customerServiceVerifyAccount;
-    //
-    //
-//    @Autowired
-//    IAdminDestinationService adminDestinationService;
-//
-//    @Autowired
-//    IDayTimeStart iDayTimeStart;
-//
-//    int countSort=0;
+
 //
     LocalDate localDate = LocalDate.now();
     String[] day = localDate.toString().split("-");
@@ -188,7 +184,7 @@ public class AdminController {
         Thread thread1 = new Thread(new Runnable() {
             @Override
             public void run() {
-                int countCustomer = 0;
+
                 String[] arr2 = date.trim().split("-");
                 String date_end = arr2[2] + "-" + arr2[1] + "-" + arr2[0];
                 List<Customer> list = customerRepository.findByDestination(id);
@@ -201,9 +197,10 @@ public class AdminController {
                             list.get(i).setDate_vaccine(list.get(i).getDate_vaccine() + "cancel");
                             list.get(i).setTime_vaccine(list.get(i).getDate_vaccine() + "cancel");
                             customerRepository.save(list.get(i));
-                            // Hàm gửi email
-                            countCustomer++;
-//                            customerServiceVerifyAccount.sendEmailVerifyAccount("boyte.vaccine.covid@gmail.com", list.get(i),getSiteURL(request));
+
+                            // Gửi email
+//                            sendEmailSorry(list.get(i));
+
                         }
                     }
                 }
@@ -218,7 +215,7 @@ public class AdminController {
         Thread thread2 = new Thread(new Runnable() {
             @Override
             public void run() {
-                int countCustomer = 0;
+
                 String[] arr2 = date.trim().split("-");
                 String date_end = arr2[2] + "-" + arr2[1] + "-" + arr2[0];
                 List<Customer> list = customerRepository.findByDestination(id);
@@ -230,16 +227,32 @@ public class AdminController {
                             list.get(i).setDate_vaccine(list.get(i).getDate_vaccine() + "cancel");
                             list.get(i).setTime_vaccine(list.get(i).getTime_vaccine() + "cancel");
                             customerRepository.save(list.get(i));
-                            // Hàm gửi email
-                            // Set date_vaccine , time = null
-                            countCustomer++;
+
+                            // Gửi email
+//                            sendEmailSorry(list.get(i));
                         }
                     }
                 }
-                System.out.println("start" + countCustomer);
+
             }
         });
         thread2.start();
+    }
+    //    <-------------------------------- Gửi mail chứng nhận ------------------------>
+    public void sendEmailSorry(Customer customer) {
+        MimeMessage msg = mailSender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(msg, true, "UTF-8");
+            helper.setSubject("Thông báo tiêm chủng thất bại");
+            helper.setFrom("boyte.vaccine.covid@gmail.com");
+            helper.setTo(customer.getEmail());
+            MailText mailText = new MailText();
+
+            helper.setText(mailText.getMailApologyToCustomerFail(), true);
+            mailSender.send(msg);
+        } catch (Exception e) {
+            System.err.println("Lỗi gửi mail rồi!!!");
+        }
     }
 //
 //    @PutMapping("/destination/setOff/{id}")
@@ -261,19 +274,20 @@ public class AdminController {
     public void sendMailOff(@PathVariable Long id) {
         String dateNow = LocalDate.now().toString();
         List<Customer> list = customerRepository.findByDestination(id);
-        int count = 0;
+
         for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).getIsInjection() == 0 && list.get(i).getHealthy_status() != 3 && list.get(i).getDate_vaccine() != null) {
+            if (list.get(i).getIsInjection() == 0 && list.get(i).getHealthy_status() != 3 && list.get(i).getDate_vaccine() != null && list.get(i).getDate_vaccine().trim().split(" ").length==1) {
                 String[] arr = list.get(i).getDate_vaccine().trim().split("-");
                 String date = arr[2] + "-" + arr[1] + "-" + arr[0];
-                if (date.compareTo(dateNow) > 0) {
-                    //Gui mail
-                    //Set data +cancel
-                    count++;
+                if (date.compareTo(dateNow) >= 0) {
+                    list.get(i).setDate_vaccine(list.get(i).getDate_vaccine()+"cancel");
+                    customerRepository.save(list.get(i));
+                    // Gửi email
+//                    sendEmailSorry(list.get(i));
                 }
             }
         }
-        System.out.println(count);
+
     }
 
 
