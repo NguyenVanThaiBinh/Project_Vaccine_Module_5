@@ -600,8 +600,8 @@ public class HomeController {
         int countTime2 = iCustomerRepository.countMaxTimeInDay_2(destination_id);
         String getDayMax2 = iCustomerRepository.getMaxDayFromData_2(destination_id);
         String getTimeMax2 = iCustomerRepository.getMaxTimeFromData_2(destination_id);
-
         String str = "";
+
 
         if (Objects.equals(getDayMax1, null)) {
             getDayMax1 = timeStart;
@@ -626,7 +626,8 @@ public class HomeController {
                 maxDay = getDayMax1;
                 maxTime = getTimeMax1;
 
-            } else if (getDayMax1.compareTo(getDayMax2) < 0) {
+            }
+            else if (getDayMax1.compareTo(getDayMax2) < 0) {
                 maxDay = getDayMax2;
                 maxTime = getTimeMax2;
                 countMaxDay = countDay2;
@@ -648,17 +649,13 @@ public class HomeController {
             } else {
                 countMaxTime = countTime1 + countTime2;
             }
-
-
-
             System.out.println("Ngày lớn trong 2 cột: " + maxDay);
             System.out.println("Giờ lớn trong 2 cột: " + maxTime);
-            System.out.println("Tổng giờ lớn trong 2 cột: " + countMaxTime);
-            System.out.println("Tổng ngày lớn trong 2 cột: " + countMaxDay);
-            System.out.println("           ----------------------------------  ");
+//            System.out.println("Tổng giờ lớn trong 2 cột: " + countMaxTime);
+//            System.out.println("Tổng ngày lớn trong 2 cột: " + countMaxDay);
+//            System.out.println("           ----------------------------------  ");
 
             str = maxDay + maxTime;
-
 
         }
 
@@ -679,6 +676,7 @@ public class HomeController {
 //            lấy từ db, chuyển giờ liền
             countTime = setPeoplePerHour;
         }
+
         if (countMaxDay == setToChangeDay) {
 //           lấy từ db, đếm số lần để chuyển ngày
             oneDayDone = setToChangeDay;
