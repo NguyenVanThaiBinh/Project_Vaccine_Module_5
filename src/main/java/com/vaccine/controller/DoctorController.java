@@ -145,7 +145,12 @@ public class DoctorController {
 
 //            sendMailToCustomerCame(customer);
 
-            customer.setIsInjection(1);
+            if(customer.getIsInjection2()==0){
+                customer.setIsInjection(1);
+            }
+            else{
+                customer.setIsInjection2(3);
+            }
 
             icustomerRepository.save(customer);
 
@@ -162,10 +167,19 @@ public class DoctorController {
             String dateNow = LocalDate.now().toString();
             List<Customer> list = icustomerRepository.ListCustomerByVaccine(vaccine.getId());
             for(Customer c:list){
-                String[] arr = c.getDate_vaccine().trim().split("-");
-                String date = arr[2]+"-"+arr[1]+"-"+arr[0];
-                if(date.compareTo(dateNow)>0){
-                    count++;
+                if(c.getDate_vaccine2()==null){
+                    String[] arr = c.getDate_vaccine().trim().split("-");
+                    String date = arr[2]+"-"+arr[1]+"-"+arr[0];
+                    if(date.compareTo(dateNow)>0){
+                        count++;
+                    }
+                }
+                else{
+                    String[] arr = c.getDate_vaccine2().trim().split("-");
+                    String date = arr[2]+"-"+arr[1]+"-"+arr[0];
+                    if(date.compareTo(dateNow)>0){
+                        count++;
+                    }
                 }
             }
             vaccine.setRegister_amount(vaccine.getVaccine_amount()-Integer.parseInt(String.valueOf(count)));

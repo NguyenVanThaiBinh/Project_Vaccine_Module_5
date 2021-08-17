@@ -53,9 +53,13 @@
 
     </tr>
     <tr class="bg-danger">
-      <div th:if="${userInfo.isInjection == 1}">
+      <div th:if="${userInfo.isInjection == 1 and userInfo.isInjection2!=3}">
         <td>Tình trạng tiêm chủng</td>
         <td>Đã tiêm lần 1 thành công!</td>
+      </div>
+      <div th:if="${userInfo.isInjection2 == 3}">
+        <td>Tình trạng tiêm chủng</td>
+        <td>Đã tiêm lần 2 thành công!</td>
       </div>
       <div th:if="${userInfo.isInjection == 0}">
         <td>Kết quả đăng ký</td>
@@ -70,21 +74,42 @@
       <td>Tình trạng sức khoẻ</td>
       <td th:if="${userInfo.healthy_info != null}" th:text="${userInfo.healthy_info}"></td>
     </tr>
-    <tr>
-      <td>Ngày tiêm chủng</td>
-      <td><b><span style=" font-style: italic;"
-                   th:if="${userInfo.date_vaccine != null}"
-                   th:text="${userInfo.date_vaccine}">---</span></b></td>
-    </tr>
-    <tr>
-      <td>Giờ tiêm chủng</td>
-      <td><b><span style=" font-style: italic;" th:if="${userInfo.time_vaccine != null}"
-                   th:text="${userInfo.time_vaccine}">---</span></b></td>
+    <th:block th:if="${userInfo.isInjection2==3}">
+      <tr>
+        <td>Ngày tiêm chủng</td>
+        <td><b><span style=" font-style: italic;"
+                     th:if="${userInfo.date_vaccine != null}"
+                     th:text="${userInfo.date_vaccine2}">---</span></b></td>
+      </tr>
+      <tr>
+        <td>Giờ tiêm chủng</td>
+        <td><b><span style=" font-style: italic;" th:if="${userInfo.time_vaccine != null}"
+                     th:text="${userInfo.time_vaccine2}">---</span></b></td>
 
-    </tr>
+      </tr>
+    </th:block>
+    <th:block th:if="${userInfo.isInjection2!=3 and userInfo.isInjection == 1 }">
+      <tr>
+        <td>Ngày tiêm chủng</td>
+        <td><b><span style=" font-style: italic;"
+                     th:if="${userInfo.date_vaccine != null}"
+                     th:text="${userInfo.date_vaccine}">---</span></b></td>
+      </tr>
+      <tr>
+        <td>Giờ tiêm chủng</td>
+        <td><b><span style=" font-style: italic;" th:if="${userInfo.time_vaccine != null}"
+                     th:text="${userInfo.time_vaccine}">---</span></b></td>
+
+      </tr>
+    </th:block>
     <tr>
       <td>Địa điểm tiêm chủng</td>
-      <td ><b><span style=" font-style: italic;"th:if="${userInfo.getDestination() != null}" th:text="${userInfo.getDestination().destination_name}"></span></b></td>
+      <th:block th:if="${userInfo.getDestination() != null and userInfo.isInjection2 == 0}">
+          <td ><b><span style=" font-style: italic;" th:text="${userInfo.getDestination().destination_name}"></span></b></td>
+      </th:block>
+      <th:block th:if="${userInfo.isInjection2 !=0}" >
+          <td ><b><span style=" font-style: italic;" th:text="${userInfo.getDestination2().destination_name}"></span></b></td>
+      </th:block>
     </tr>
 
 

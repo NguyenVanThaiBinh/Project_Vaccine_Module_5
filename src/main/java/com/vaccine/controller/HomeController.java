@@ -242,7 +242,7 @@ public class HomeController {
 
         //Trừ Vaccine
         Vaccine vaccine = iVaccineRepository.findById(customer1.getVaccine().getId()).get();
-        vaccine.setRegister_amount(vaccine.getVaccine_amount()-1);
+        vaccine.setRegister_amount(vaccine.getRegister_amount()-1);
         iVaccineRepository.save(vaccine);
 
 
@@ -290,7 +290,6 @@ public class HomeController {
         ModelAndView modelAndView = new ModelAndView("/index/form");
         modelAndView.addObject("user", new Customer());
         return modelAndView;
-
     }
 
     @GetMapping(value = {"/login"})
@@ -583,7 +582,12 @@ public class HomeController {
     }
 
     public void setDayTimeVaccine(Customer customer) {
-        setPeoplePerHour = iDestinationRepository.findById(customer.getDestination().getId()).get().getPeople_perHour();
+        if(customer.getDestination2()==null){
+            setPeoplePerHour = iDestinationRepository.findById(customer.getDestination().getId()).get().getPeople_perHour();
+        }
+        else{
+            setPeoplePerHour = iDestinationRepository.findById(customer.getDestination2().getId()).get().getPeople_perHour();
+        }
         setToChangeDay = setPeoplePerHour*4;
         Long destination_id;
         if (!Objects.equals(customer.getDestination2(), null)) {
@@ -724,7 +728,7 @@ public class HomeController {
                 customer.setTime_vaccine2(formattedTime);
                 customer.setDate_vaccine2(formattedDate);
             }
-
+            System.out.println(customer.toString());
             iCustomerRepository.save(customer);
             // Bug Here ..
 //            countTime++;
