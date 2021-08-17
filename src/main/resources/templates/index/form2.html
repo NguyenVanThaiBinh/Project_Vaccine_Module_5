@@ -120,9 +120,9 @@
           </div>
           <div class="form-group col-md-6 col-sm-4 col-xs-12">
             <label class="label">Loại Vaccine</label>
-            <select readonly class="form-control form-select" id="vaccine" th:field="*{vaccine}">
+            <select disabled class="form-control form-select" id="vaccine" th:field="*{vaccine}">
               <option value="-1">-- Chọn loại vaccine --</option>
-              <option th:each="vac:${vaccineList}"
+              <option  th:each="vac:${vaccineList}"
                       th:value="${vac.id}"
                       th:text="${vac.vaccine_name}">
               </option>

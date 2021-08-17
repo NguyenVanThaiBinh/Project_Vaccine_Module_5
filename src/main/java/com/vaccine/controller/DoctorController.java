@@ -120,14 +120,18 @@ public class DoctorController {
 
     @ResponseBody
     @RequestMapping(path = "/setInjectToNone", method = RequestMethod.POST)
-    public String setInjectToNone(@RequestBody Long[] itemIDs, Principal principal) {
+    public void setInjectToNone(@RequestBody Long[] itemIDs, Principal principal) {
         //          Set lại mấy thằng chưa đến tiêm
         for (Long id_customer : itemIDs) {
             Customer customer = icustomerRepository.findById(id_customer).get();
-            customer.setIsInjection(0);
+            if(customer.getIsInjection2()==0){
+                customer.setIsInjection(0);
+            }
+            else{
+                customer.setIsInjection2(2);
+            }
             icustomerRepository.save(customer);
         }
-        return "Done";
     }
 
     @ResponseBody
@@ -139,7 +143,7 @@ public class DoctorController {
 
 //            Gửi mail xác nhận
 
-            sendMailToCustomerCame(customer);
+//            sendMailToCustomerCame(customer);
 
             customer.setIsInjection(1);
 
@@ -168,7 +172,7 @@ public class DoctorController {
             iVaccineRepository.save(vaccine);
         }
         mapCountDone.clear();
-
+//        return "Done";
     }
 
 
@@ -181,21 +185,22 @@ public class DoctorController {
 
         Customer customer1 = icustomerRepository.findByUserCMND(userName);
 //        Lấy danh sách
-        Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay(currentDay, customer1.getDestination().getId(), PageRequest.of(Integer.parseInt(pageNumber[0]), 5));
+        Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay(currentDay, customer1.getDestination().getId(), PageRequest.of(0, 5));
         return customerListIsDone;
     }
 
     @ResponseBody
     @RequestMapping(path = "/search/{key}", method = RequestMethod.POST)
     public Page<Customer> searchByCMND(@PathVariable String key, Principal principal, @RequestBody String[] pageNumber) {
-
+//        System.out.println( "Key is: "+key);
+//        System.out.println( "Page currently: "+pageNumber[0]);
 //        Lấy lại quyền để lấy ID
         String userName = principal.getName();
         Customer customer1 = icustomerRepository.findByUserCMND(userName);
 //        Lấy danh sách
         Page<Customer> searchResultCustomer = icustomerRepository.searchCustomerByCMND(currentDay, customer1.getDestination().getId(), key, PageRequest.of(0, Integer.MAX_VALUE));
         if (key.equals("binhhu")) {
-            Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay(currentDay, customer1.getDestination().getId(), PageRequest.of(Integer.parseInt(pageNumber[0]), 5));
+            Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay(currentDay, customer1.getDestination().getId(), PageRequest.of(0, 5));
             return customerListIsDone;
         }
         return searchResultCustomer;
@@ -214,7 +219,11 @@ public class DoctorController {
         }
 //        Lấy danh sách
         Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay(day+" ", customer1.getDestination().getId(), PageRequest.of(0, 5));
-
+//        Page<Customer> searchResultCustomer = icustomerRepository.searchCustomerByCMND(currentDay,customer1.getDestination().getId(), key,PageRequest.of(0, Integer.MAX_VALUE));
+//        if(key.equals("binhhu")){
+//            Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay(currentDay,customer1.getDestination().getId(), PageRequest.of(Integer.parseInt(pageNumber[0]), 5));
+//            return  customerListIsDone;
+//        }
         return customerListIsDone;
     }
 
