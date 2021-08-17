@@ -96,14 +96,26 @@
                 <td th:text="${employee.customer_name}"></td>
                 <td th:text="${employee.CMND}"></td>
                 <td th:text="${employee.email}"></td>
-                <td th:text="${employee.time_vaccine}"></td>
-                <td th:text="${employee.date_vaccine}"></td>
-                <td th:if="${employee.isInjection == 0}">
-                    <button class="row_button btn btn-danger">Chưa tiêm</button>
-                </td>
-                <td th:if="${employee.isInjection == 1}">
-                    <button class="row_button btn btn-success">Đã tiêm</button>
-                </td>
+                <th:block th:if="${employee.time_vaccine2}==null">
+                    <td th:text="${employee.time_vaccine}"></td>
+                    <td th:text="${employee.date_vaccine}"></td>
+                    <td th:if="${employee.isInjection == 0}">
+                        <button class="row_button btn btn-danger">Chưa tiêm</button>
+                    </td>
+                    <td th:if="${employee.isInjection == 1}">
+                        <button class="row_button btn btn-success">Đã tiêm</button>
+                    </td>
+                </th:block>
+                <th:block th:if="${employee.time_vaccine2}!=null">
+                    <td th:text="${employee.time_vaccine2}"></td>
+                    <td th:text="${employee.date_vaccine2}"></td>
+                    <td th:if="${employee.isInjection2 != 3}">
+                        <button class="row_button btn btn-danger">Chưa tiêm</button>
+                    </td>
+                    <td th:if="${employee.isInjection2 == 3}">
+                        <button class="row_button btn btn-success">Đã tiêm</button>
+                    </td>
+                </th:block>
                 <input type="hidden" th:value="${employee.id}" id="id">
             </tr>
         </th:block>

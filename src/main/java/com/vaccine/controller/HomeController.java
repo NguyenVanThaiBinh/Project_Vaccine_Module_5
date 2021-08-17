@@ -79,8 +79,6 @@ public class HomeController {
 
     @GetMapping
     public ModelAndView home(HttpServletRequest request, Principal principal) {
-
-
         setOffDestination();
         if (request.isUserInRole("ROLE_DOCTOR")) {
             sendEmail2(principal);
@@ -195,9 +193,6 @@ public class HomeController {
 //                    System.out.println(c.toString());
                     // gửi mail thông báo tiêm lần 2
 
-
-                    //Set setISjection = 1 : đang chờ
-                    c.setIsInjection2(1);
                     iCustomerRepository.save(c);
                 }
             }
@@ -244,6 +239,12 @@ public class HomeController {
         // Set ngày giờ cho địa điểm mới
         setDayTimeVaccine(customer1);
 
+        //Trừ Vaccine
+        Vaccine vaccine = iVaccineRepository.findById(customer1.getVaccine().getId()).get();
+        vaccine.setRegister_amount(vaccine.getVaccine_amount()-1);
+        iVaccineRepository.save(vaccine);
+
+
         customer1.setVerificationCode(null);
         iCustomerRepository.save(customer1);
         modelAndView.addObject("msg", "Đăng Ký tiêm lần 2 thành công !! ");
@@ -254,6 +255,10 @@ public class HomeController {
     public ModelAndView showForm2(@PathVariable String certify) {
         //              W97tE1qoGCdkofU3D.owsVzjjjj2thM7He
         Customer customer = iCustomerRepository.findByVerificationCode(certify);
+        Vaccine vaccine = iVaccineRepository.findById(customer.getVaccine().getId()).get();
+        if(vaccine.getRegister_amount()<=0){
+            return new ModelAndView("/security/regisFound");
+        }
         ModelAndView modelAndView = new ModelAndView("/index/form2");
         modelAndView.addObject("customer", customer);
         return modelAndView;
@@ -562,8 +567,10 @@ public class HomeController {
     static int countTime = 0;
     static int oneDayDone = 0;
 
-    static int setPeoplePerHour = 1;
-    static int setToChangeDay = setPeoplePerHour * 4;
+    // BUG , FIX TOMORROW
+    static int setPeoplePerHour;
+
+    static int setToChangeDay;
 
     static String timeStart = "";
 
@@ -572,11 +579,11 @@ public class HomeController {
         setPeoplePerHour = dayTimeStart.get().getPeople_perHour();
         timeStart = dayTimeStart.get().getDate_start();
         setToChangeDay = setPeoplePerHour * 4;
-
     }
 
     public void setDayTimeVaccine(Customer customer) {
-
+        setPeoplePerHour = iDestinationRepository.findById(customer.getDestination().getId()).get().getPeople_perHour();
+        setToChangeDay = setPeoplePerHour*4;
         Long destination_id;
         if (!Objects.equals(customer.getDestination2(), null)) {
             destination_id = customer.getDestination2().getId();
@@ -599,8 +606,20 @@ public class HomeController {
         int countTime2 = iCustomerRepository.countMaxTimeInDay_2(destination_id);
         String getDayMax2 = iCustomerRepository.getMaxDayFromData_2(destination_id);
         String getTimeMax2 = iCustomerRepository.getMaxTimeFromData_2(destination_id);
+
         String str = "";
 
+        System.out.println("Destination ID : "+destination_id);
+        System.out.println("countTime1 : "+countTime1);
+        System.out.println("countDay1 : "+countDay1);
+        System.out.println("DayMax1 : "+getDayMax1);
+        System.out.println("timeMax1 : "+getTimeMax1);
+        System.out.println("======================");
+        System.out.println("countTime2 : "+countTime2);
+        System.out.println("countDay2 : "+countDay2);
+        System.out.println("DayMax2 : "+getDayMax2);
+        System.out.println("timeMax2 : "+getTimeMax2);
+        System.out.println("=================");
 
         if (Objects.equals(getDayMax1, null)) {
             getDayMax1 = timeStart;
@@ -648,11 +667,6 @@ public class HomeController {
             } else {
                 countMaxTime = countTime1 + countTime2;
             }
-            System.out.println("Ngày lớn trong 2 cột: " + maxDay);
-            System.out.println("Giờ lớn trong 2 cột: " + maxTime);
-//            System.out.println("Tổng giờ lớn trong 2 cột: " + countMaxTime);
-//            System.out.println("Tổng ngày lớn trong 2 cột: " + countMaxDay);
-//            System.out.println("           ----------------------------------  ");
 
             str = maxDay + maxTime;
 
@@ -682,6 +696,8 @@ public class HomeController {
         }
         //        Số mũi tiêm trong một ngày, cứ thế nhân lên
         if (oneDayDone == setToChangeDay) {
+            System.out.println(oneDayDone +" " + setToChangeDay);
+            System.out.println("here ...");
             currentDateTime = currentDateTime.plusDays(1);
             currentDateTime = currentDateTime.minusHours(8);
             oneDayDone = 0;
@@ -709,8 +725,9 @@ public class HomeController {
             }
 
             iCustomerRepository.save(customer);
-            countTime++;
-            oneDayDone++;
+            // Bug Here ..
+//            countTime++;
+//            oneDayDone++;
             return;
         }
     }

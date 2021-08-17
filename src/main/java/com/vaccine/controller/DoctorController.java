@@ -120,14 +120,18 @@ public class DoctorController {
 
     @ResponseBody
     @RequestMapping(path = "/setInjectToNone", method = RequestMethod.POST)
-    public String setInjectToNone(@RequestBody Long[] itemIDs, Principal principal) {
+    public void setInjectToNone(@RequestBody Long[] itemIDs, Principal principal) {
         //          Set lại mấy thằng chưa đến tiêm
         for (Long id_customer : itemIDs) {
             Customer customer = icustomerRepository.findById(id_customer).get();
-            customer.setIsInjection(0);
+            if(customer.getIsInjection2()==0){
+                customer.setIsInjection(0);
+            }
+            else{
+                customer.setIsInjection2(2);
+            }
             icustomerRepository.save(customer);
         }
-        return "Done";
     }
 
     @ResponseBody
@@ -140,11 +144,14 @@ public class DoctorController {
 //            Gửi mail xác nhận
 
 //            sendMailToCustomerCame(customer);
-
-            customer.setIsInjection(1);
+            if(customer.getIsInjection2()==0){
+                customer.setIsInjection(1);
+            }
+            else{
+                customer.setIsInjection2(3);
+            }
 
             icustomerRepository.save(customer);
-
         }
         Customer customer = icustomerRepository.findByUserCMND(principal.getName());
         Long idDes = customer.getDestination().getId();
@@ -181,7 +188,7 @@ public class DoctorController {
 
         Customer customer1 = icustomerRepository.findByUserCMND(userName);
 //        Lấy danh sách
-        Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay(currentDay, customer1.getDestination().getId(), PageRequest.of(Integer.parseInt(pageNumber[0]), 5));
+        Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay(currentDay, customer1.getDestination().getId(), PageRequest.of(0, 5));
         return customerListIsDone;
     }
 
@@ -196,7 +203,7 @@ public class DoctorController {
 //        Lấy danh sách
         Page<Customer> searchResultCustomer = icustomerRepository.searchCustomerByCMND(currentDay, customer1.getDestination().getId(), key, PageRequest.of(0, Integer.MAX_VALUE));
         if (key.equals("binhhu")) {
-            Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay(currentDay, customer1.getDestination().getId(), PageRequest.of(Integer.parseInt(pageNumber[0]), 5));
+            Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay(currentDay, customer1.getDestination().getId(), PageRequest.of(0, 5));
             return customerListIsDone;
         }
         return searchResultCustomer;
