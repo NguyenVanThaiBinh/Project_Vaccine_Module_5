@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpRequest;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -81,7 +82,7 @@ public class HomeController {
     public ModelAndView home(HttpServletRequest request, Principal principal) {
         setOffDestination();
         if (request.isUserInRole("ROLE_DOCTOR")) {
-            sendEmail2(principal);
+            sendEmail2(principal,request);
             String userName = principal.getName();
             Customer user = new Customer();
             user = iCustomerRepository.findByUserCMND(userName);
@@ -138,7 +139,17 @@ public class HomeController {
                     return modelAndView;
                 }
                 if (request.isUserInRole("ROLE_DOCTOR")) {
-                    sendEmail2(principal);
+                    Thread thread2 = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            sendEmail2(principal,request);
+
+                                    }
+                                });
+
+                    thread2.start();
+
+
                     String userName = principal.getName();
                     Customer user = new Customer();
                     user = iCustomerRepository.findByUserCMND(userName);
@@ -180,7 +191,8 @@ public class HomeController {
         return modelAndView;
     }
 
-    public void sendEmail2(Principal principal) {
+    public void sendEmail2(Principal principal,HttpServletRequest request) {
+        String url = getSiteURL(request);
         // Kiểm tra sau khi tiêm 7 ngày sau thì nhận mail
         String dateBefore = LocalDate.now().minusDays(7L).toString();
         Customer customer = iCustomerRepository.findByUserCMND(principal.getName());
@@ -190,15 +202,43 @@ public class HomeController {
             for (Customer c : list) {
                 String[] arr = c.getDate_vaccine().trim().split("-");
                 String date = arr[2] + "-" + arr[1] + "-" + arr[0];
-                if (date.compareTo(dateBefore) <= 0) {
-//                    System.out.println(c.toString());
+                if (date.compareTo(dateBefore) <= 0 && Objects.equals(c.getVerificationCode(),null) ) {
+
                     // gửi mail thông báo tiêm lần 2
 
-                    iCustomerRepository.save(c);
+                    sendMailConfirmTwice(c,url);
+
                 }
             }
         }
 
+    }
+    //    <-------------------------------- Gửi mail xác nhận tiêm lần 2 ------------------------>
+    public void sendMailConfirmTwice(Customer customer, String url) {
+        MimeMessage msg = mailSender.createMimeMessage();
+
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(msg, true, "UTF-8");
+            helper.setSubject("Thông báo xác nhận tiêm chủng lần 2");
+            helper.setFrom("boyte.vaccine.covid@gmail.com");
+            helper.setTo(customer.getEmail());
+
+            String randomCode = RandomString.make(64);
+            customer.setVerificationCode(randomCode);
+            iCustomerRepository.save(customer);
+
+            //      Tạo link email
+
+            String verifyURL =  url+"/getForm/" + customer.getVerificationCode();
+            System.out.println(verifyURL);
+            MailText mailText = new MailText(customer.getCustomer_name(),customer.getCMND(),verifyURL);
+            helper.setText(mailText.getMailRegisterTwice(), true);
+            mailSender.send(msg);
+
+        } catch (Exception e) {
+            System.err.println("Lỗi gửi mail rồi xác nhận lần 2 rồi!!!");
+        }
+        System.err.println("Đã gửi mail xác nhận lần 2!");
     }
 
     public void setOffDestination() {

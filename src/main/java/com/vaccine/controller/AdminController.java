@@ -238,7 +238,7 @@ public class AdminController {
         });
         thread2.start();
     }
-    //    <-------------------------------- Gửi mail chứng nhận ------------------------>
+    //    <-------------------------------- Gửi mail xin lỗi ------------------------>
     public void sendEmailSorry(Customer customer) {
         MimeMessage msg = mailSender.createMimeMessage();
         try {
