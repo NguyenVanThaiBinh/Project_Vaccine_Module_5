@@ -109,7 +109,7 @@
     if(count%2==0){
       $.ajax({
         type:'GET',
-        url:`/admin/apiID/${id}`,
+        url:`/user/apiID/${id}`,
         success:function (data){
           let html = `
                     <tbody>
@@ -159,7 +159,7 @@
     else{
       $.ajax({
         type:'GET',
-        url:`/admin/apiID/${id}`,
+        url:`/user/apiID/${id}`,
         success:function (data){
           let html = `
                     <tbody>
