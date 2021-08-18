@@ -116,7 +116,6 @@ public class AdminController {
         return new ResponseEntity<>(customerRepository.searchUserAdmin(search, pageable), HttpStatus.OK);
     }
 
-
     @PutMapping("/edit/{id}")
     public ResponseEntity<Customer> editEntity(@RequestBody Customer customer, @PathVariable Long id) {
         Customer customer1 = customerRepository.findById(id).get();

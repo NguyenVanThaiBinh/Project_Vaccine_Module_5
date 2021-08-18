@@ -19,7 +19,6 @@ public class CustomerController {
 
     @RequestMapping(value = "/apiID/{id}",  produces = {"application/json", "text/xml"})
     ResponseEntity<Customer> getApiById(@PathVariable Long id){
-        System.out.println(iCustomerRepository.findById(id).get().toString());
         return new ResponseEntity<>(iCustomerRepository.findById(id).get(), HttpStatus.OK);
     }
 
