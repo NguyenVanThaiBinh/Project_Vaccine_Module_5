@@ -130,14 +130,17 @@ public class DoctorController {
         for (Long id_customer : itemIDs) {
             Customer customer = icustomerRepository.findById(id_customer).get();
 
-//            Gửi mail xác nhận
 
-            sendMailToCustomerCame(customer);
 
             if(customer.getIsInjection2()==0){
+                //            Gửi mail xác nhận lan 1
+
+                sendMailToCustomerCame(customer);
                 customer.setIsInjection(1);
             }
             else{
+                sendMailToCustomerCame_2(customer);
+
                 customer.setIsInjection2(3);
             }
 
@@ -237,6 +240,24 @@ public class DoctorController {
         try {
             MimeMessageHelper helper = new MimeMessageHelper(msg, true, "UTF-8");
             helper.setSubject("Xác nhận tiêm chủng lần 1");
+            helper.setFrom("boyte.vaccine.covid@gmail.com");
+            helper.setTo(customer.getEmail());
+
+            MailText mailText = new MailText(customer.getCustomer_name(), customer.getCMND(), customer.getIsInjection());
+            String path1 = "src\\main\\resources\\static\\ChungNhanTiemChung.txt";
+            FileSystemResource file2 = new FileSystemResource(new File(path1));
+            helper.addAttachment("Giấy Chứng Nhận", file2);
+            helper.setText(mailText.getMailTextCustomerDone(), true);
+            mailSender.send(msg);
+        } catch (Exception e) {
+            System.err.println("Lỗi gửi mail rồi!!!");
+        }
+    }
+    public void sendMailToCustomerCame_2(Customer customer) {
+        MimeMessage msg = mailSender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(msg, true, "UTF-8");
+            helper.setSubject("Xác nhận tiêm chủng lần 2");
             helper.setFrom("boyte.vaccine.covid@gmail.com");
             helper.setTo(customer.getEmail());
 

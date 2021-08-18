@@ -356,34 +356,34 @@ public class HomeController {
     }
 
     @PostMapping("/create")
-    public ModelAndView createUser(Customer user, HttpServletRequest request) throws InterruptedException, ExecutionException {
+    public ModelAndView createUser(Customer user, HttpServletRequest request, @RequestParam(name = "g-recaptcha-response") String captchaResponse) throws InterruptedException, ExecutionException {
 
         //        Recaptcha
-//        , @RequestParam(name = "g-recaptcha-response") String captchaResponse
-//        String url = "https://www.google.com/recaptcha/api/siteverify";
-//        String params = "?secret=6LfXcRMbAAAAAIqUiv2NJ1GA3kjpkt3uTOnCHZrf&response=" + captchaResponse;
-//
-//        ReCaptchaResponse reCaptchaResponse = restTemplate.exchange(url + params, HttpMethod.POST, null, ReCaptchaResponse.class).getBody();
-//        if (!reCaptchaResponse.isSuccess()) {
-//            ModelAndView modelAndView = new ModelAndView("/index/form");
-//            modelAndView.addObject("user", new Customer());
-//            modelAndView.addObject("fail", "Vui lòng hoàn thành Captcha!!!");
-//            return modelAndView;
-//        }
+
+        String url = "https://www.google.com/recaptcha/api/siteverify";
+        String params = "?secret=6LfXcRMbAAAAAIqUiv2NJ1GA3kjpkt3uTOnCHZrf&response=" + captchaResponse;
+
+        ReCaptchaResponse reCaptchaResponse = restTemplate.exchange(url + params, HttpMethod.POST, null, ReCaptchaResponse.class).getBody();
+        if (!reCaptchaResponse.isSuccess()) {
+            ModelAndView modelAndView = new ModelAndView("/index/form");
+            modelAndView.addObject("user", new Customer());
+            modelAndView.addObject("fail", "Vui lòng hoàn thành Captcha!!!");
+            return modelAndView;
+        }
 
         //       set age and status
         user.setAge(java.time.LocalDate.now().getYear() - user.getAge());
-        user.setHealthy_status(2);
-//        user.setHealthy_status(setStatus(user));
+//        user.setHealthy_status(2);
+        user.setHealthy_status(setStatus(user));
 
 
 //                Gửi mail xác minh tài khoản
-//        Thread thread1 = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                customerServiceVerifyAccount.sendEmailVerifyAccount("boyte.vaccine.covid@gmail.com", user,getSiteURL(request));
-//            }
-//        });
+        Thread thread1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                customerServiceVerifyAccount.sendEmailVerifyAccount("boyte.vaccine.covid@gmail.com", user,getSiteURL(request));
+            }
+        });
         //        Set encrytedPassword
         String password = user.getEncrytedPassword();
         String encrytedPassword = encrytePassword(password);
@@ -412,17 +412,17 @@ public class HomeController {
 
         //Test phân ngày
 
-        try {
-
-            setDayTimeVaccine(user);
-            user.setEnabled(true);
-            iCustomerRepository.save(user);
-        } catch (Exception e) {
-            ModelAndView modelAndView = new ModelAndView("/index/form");
-            modelAndView.addObject("user", new Customer());
-            modelAndView.addObject("fail", "Đã xảy ra lỗi sắp xếp ngày!!!");
-            return modelAndView;
-        }
+//        try {
+//
+//            setDayTimeVaccine(user);
+//            user.setEnabled(true);
+//            iCustomerRepository.save(user);
+//        } catch (Exception e) {
+//            ModelAndView modelAndView = new ModelAndView("/index/form");
+//            modelAndView.addObject("user", new Customer());
+//            modelAndView.addObject("fail", "Đã xảy ra lỗi sắp xếp ngày!!!");
+//            return modelAndView;
+//        }
 
 
         try {
@@ -451,9 +451,9 @@ public class HomeController {
         modelAndView.addObject("user", new Customer());
 
         //  Gửi email đa luồng
-//        if (user.getEmail() != null) {
-//            thread1.start();
-//        }
+        if (user.getEmail() != null) {
+            thread1.start();
+        }
         if (user.getDate_vaccine() != null) {
             Vaccine vaccine = iVaccineRepository.findById(user.getVaccine().getId()).get();
             vaccine.setRegister_amount(vaccine.getRegister_amount() - 1);

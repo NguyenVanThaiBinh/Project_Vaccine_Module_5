@@ -199,7 +199,7 @@ public class AdminController {
                             customerRepository.save(list.get(i));
 
                             // Gửi email
-//                            sendEmailSorry(list.get(i));
+                            sendEmailSorry(list.get(i));
 
                         }
                     }
@@ -229,7 +229,7 @@ public class AdminController {
                             customerRepository.save(list.get(i));
 
                             // Gửi email
-//                            sendEmailSorry(list.get(i));
+                            sendEmailSorry(list.get(i));
                         }
                     }
                 }
