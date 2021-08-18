@@ -48,6 +48,7 @@ public class AdminController {
     @Autowired
     ICustomerRepository customerRepository;
 
+
     @Autowired
     JavaMailSender mailSender;
 
@@ -59,6 +60,7 @@ public class AdminController {
 
     @Autowired
     ICustomerRoleRepository customerRoleRepository;
+
 
 
     @Autowired
@@ -110,6 +112,7 @@ public class AdminController {
     public ResponseEntity<Customer> getEntity(@PathVariable Long id) {
         return new ResponseEntity<>(customerRepository.findById(id).get(), HttpStatus.OK);
     }
+
 
     @GetMapping("/api/{search}")
     public ResponseEntity<Page<Customer>> searchUsers(@PageableDefault(value = 10) Pageable pageable, @PathVariable String search) {

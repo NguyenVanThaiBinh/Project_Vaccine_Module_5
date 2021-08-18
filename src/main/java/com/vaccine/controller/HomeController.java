@@ -135,8 +135,8 @@ public class HomeController {
         for (Cookie c : request.getCookies()) {
             if (c.getName().equals("remember-me") || c.getName().equals("JSESSIONID")) {
                 //    <----------------------------- Phân trang đúng quyền ------------------------------>
-                if (request.isUserInRole("ROLE_USER")) {
-                    ModelAndView modelAndView = new ModelAndView("user/userPage");
+                if (request.isUserInRole("ROLE_ADMIN")) {
+                    ModelAndView modelAndView = new ModelAndView("admin/dashBoar");
                     String userName = principal.getName();
                     Customer user = iCustomerRepository.findByUserCMND(userName);
                     modelAndView.addObject("userInfo", user);
@@ -175,8 +175,9 @@ public class HomeController {
                     modelAndView.addObject("maxPage", customerListIsDone.getTotalPages());
                     return modelAndView;
                 }
-                if (request.isUserInRole("ROLE_ADMIN")) {
-                    ModelAndView modelAndView = new ModelAndView("admin/dashBoar");
+
+                if (request.isUserInRole("ROLE_USER")) {
+                    ModelAndView modelAndView = new ModelAndView("user/userPage");
                     String userName = principal.getName();
                     Customer user = iCustomerRepository.findByUserCMND(userName);
                     modelAndView.addObject("userInfo", user);
