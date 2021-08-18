@@ -236,12 +236,10 @@
                 <div class="row">
                     <div class="col">
                         <button class="btn btn-info" type="submit">ĐĂNG KÝ</button>
+                        <a href="/login" class="btn btn-danger" id="login-now" role="button">ĐĂNG NHẬP
+                            NGAY!</a>
                     </div>
-                    <div class="col "><a href="/login" class="btn btn-primary" id="login-now" role="button">ĐĂNG NHẬP
-                        NGAY!</a></div>
                 </div>
-
-
             </form>
             <br><br>
 
@@ -271,3 +269,24 @@
 
 </body>
 </html>
+<!--    <div th:if="${userInfo.isInjection2 == 3}">-->
+<!--      <td>Tình trạng tiêm chủng</td>-->
+<!--      <td>Đã tiêm lần 2 thành công!</td>-->
+<!--    </div>-->
+<!--    <th:block th:if="${userInfo.isInjection2 !=0}" >-->
+<!--      <td ><b><span style=" font-style: italic;" th:text="${userInfo.getDestination2().destination_name}"></span></b></td>-->
+<!--    </th:block>-->
+<!--    <th:block th:if="${userInfo.isInjection2==3}">-->
+<!--      <tr>-->
+<!--        <td>Ngày tiêm chủng</td>-->
+<!--        <td><b><span style=" font-style: italic;"-->
+<!--                     th:if="${userInfo.date_vaccine != null}"-->
+<!--                     th:text="${userInfo.date_vaccine2}">-&#45;&#45;</span></b></td>-->
+<!--      </tr>-->
+<!--      <tr>-->
+<!--        <td>Giờ tiêm chủng</td>-->
+<!--        <td><b><span style=" font-style: italic;" th:if="${userInfo.time_vaccine != null}"-->
+<!--                     th:text="${userInfo.time_vaccine2}">-&#45;&#45;</span></b></td>-->
+
+<!--      </tr>-->
+<!--    </th:block>-->
