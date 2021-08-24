@@ -85,6 +85,13 @@ public class HomeController {
     @GetMapping
     public ModelAndView home(HttpServletRequest request, Principal principal) {
         setOffDestination();
+        if (request.isUserInRole("ROLE_ADMIN")) {
+            ModelAndView modelAndView = new ModelAndView("admin/dashBoar");
+            String userName = principal.getName();
+            Customer user = iCustomerRepository.findByUserCMND(userName);
+            modelAndView.addObject("userInfo", user);
+            return modelAndView;
+        }
         if (request.isUserInRole("ROLE_DOCTOR")) {
             sendEmail2(principal,request);
             String userName = principal.getName();
@@ -115,17 +122,28 @@ public class HomeController {
             modelAndView.addObject("userInfo", user);
             return modelAndView;
         }
-        if (request.isUserInRole("ROLE_ADMIN")) {
-            ModelAndView modelAndView = new ModelAndView("admin/dashBoar");
-            String userName = principal.getName();
-            Customer user = iCustomerRepository.findByUserCMND(userName);
-            modelAndView.addObject("userInfo", user);
-            return modelAndView;
-        }
+
         ModelAndView modelAndView = new ModelAndView("index/home");
         modelAndView.addObject("user", new Customer());
         return modelAndView;
 
+    }
+//               <----------------------------- Admin Đăng Nhập ---------------------------------------->
+    @GetMapping("/manage")
+    public ModelAndView adminLogin(){
+        ModelAndView modelAndView = new ModelAndView("/security/admin_login");
+        return modelAndView;
+    }
+    @GetMapping("/getInfo/{certify}")
+    public ModelAndView showInfo(@PathVariable String certify){
+        Customer customer = iCustomerRepository.findByVerificationCode(certify);
+        ModelAndView modelAndView = new ModelAndView("/user/user_info");
+        modelAndView.addObject("userInfo", customer);
+        return modelAndView;
+    }
+    @RequestMapping(value = "/apiID/{id}",  produces = {"application/json", "text/xml"})
+    ResponseEntity<Customer> getApiById(@PathVariable Long id){
+        return new ResponseEntity<>(iCustomerRepository.findById(id).get(), HttpStatus.OK);
     }
 
     @GetMapping("/checkRole")
@@ -135,11 +153,12 @@ public class HomeController {
         for (Cookie c : request.getCookies()) {
             if (c.getName().equals("remember-me") || c.getName().equals("JSESSIONID")) {
                 //    <----------------------------- Phân trang đúng quyền ------------------------------>
-                if (request.isUserInRole("ROLE_USER")) {
-                    ModelAndView modelAndView = new ModelAndView("user/userPage");
+                if (request.isUserInRole("ROLE_ADMIN")) {
+                    ModelAndView modelAndView = new ModelAndView("admin/dashBoar");
                     String userName = principal.getName();
                     Customer user = iCustomerRepository.findByUserCMND(userName);
                     modelAndView.addObject("userInfo", user);
+                    HttpSession session = request.getSession(false);
                     return modelAndView;
                 }
                 if (request.isUserInRole("ROLE_DOCTOR")) {
@@ -148,12 +167,9 @@ public class HomeController {
                         public void run() {
                             sendEmail2(principal,request);
 
-                                    }
-                                });
-
+                        }
+                    });
                     thread2.start();
-
-
                     String userName = principal.getName();
                     Customer user = new Customer();
                     user = iCustomerRepository.findByUserCMND(userName);
@@ -175,20 +191,14 @@ public class HomeController {
                     modelAndView.addObject("maxPage", customerListIsDone.getTotalPages());
                     return modelAndView;
                 }
-                if (request.isUserInRole("ROLE_ADMIN")) {
-                    ModelAndView modelAndView = new ModelAndView("admin/dashBoar");
+                if (request.isUserInRole("ROLE_USER")) {
+                    ModelAndView modelAndView = new ModelAndView("user/userPage");
                     String userName = principal.getName();
                     Customer user = iCustomerRepository.findByUserCMND(userName);
                     modelAndView.addObject("userInfo", user);
                     return modelAndView;
                 }
             }
-        }
-        HttpSession session = request.getSession(false);
-        if (session == null || !request.isRequestedSessionIdValid()) {
-            ModelAndView modelAndView = new ModelAndView("/security/login");
-            modelAndView.addObject("sessionIdValid", "Phiên làm việc đã hết hạn!");
-            return modelAndView;
         }
         ModelAndView modelAndView = new ModelAndView("index/home");
         modelAndView.addObject("user", new Customer());
@@ -206,10 +216,11 @@ public class HomeController {
             for (Customer c : list) {
                 String[] arr = c.getDate_vaccine().trim().split("-");
                 String date = arr[2] + "-" + arr[1] + "-" + arr[0];
-                if (date.compareTo(dateBefore) <= 0 && Objects.equals(c.getVerificationCode(),null) ) {
-
+                if (date.compareTo(dateBefore) <= 0  ) {
+                    // && Objects.equals(c.getVerificationCode(),null)
                     // gửi mail thông báo tiêm lần 2
-
+//                    setDayTimeVaccine(c);
+//                     iCustomerRepository.save(c);
                     sendMailConfirmTwice(c,url);
 
                 }
@@ -226,11 +237,11 @@ public class HomeController {
             helper.setSubject("Thông báo xác nhận tiêm chủng lần 2");
             helper.setFrom("boyte.vaccine.covid@gmail.com");
             helper.setTo(customer.getEmail());
-
-            String randomCode = RandomString.make(64);
-            customer.setVerificationCode(randomCode);
-            iCustomerRepository.save(customer);
-
+            if(!customer.getVerificationCode().equals(null)){
+                String randomCode = RandomString.make(64);
+                customer.setVerificationCode(randomCode);
+                iCustomerRepository.save(customer);
+            }
             //      Tạo link email
 
             String verifyURL =  url+"/getForm/" + customer.getVerificationCode();
@@ -274,31 +285,29 @@ public class HomeController {
     public ModelAndView registerVaccine2(Customer customer) {
         ModelAndView modelAndView = new ModelAndView("/index/form2");
         Customer customer1 = iCustomerRepository.findByUserCMND(customer.getCMND());
-        // Lưu địa điểm mới vào liên để đếm
-        customer1.setDestination2(customer.getDestination());
-        customer1.setIsInjection2(1);
-        iCustomerRepository.save(customer1);
+        System.out.println(customer.getCMND());
 
+        // Lưu địa điểm mới vào liên để đếm
+//        customer1.setDestination2(customer.getDestination());
+        customer1.setIsInjection2(1);
         // Lấy thông tin địa điểm
-        setDayTimeStart(customer1.getDestination2().getId());
+        setDayTimeStart(customer1.getDestination().getId());
         // Set ngày giờ cho địa điểm mới
         setDayTimeVaccine(customer1);
+        customer1.setVerificationCode(null);
+        iCustomerRepository.save(customer1);
 
         //Trừ Vaccine
         Vaccine vaccine = iVaccineRepository.findById(customer1.getVaccine().getId()).get();
         vaccine.setRegister_amount(vaccine.getRegister_amount()-1);
         iVaccineRepository.save(vaccine);
-
-
-        customer1.setVerificationCode(null);
-        iCustomerRepository.save(customer1);
         modelAndView.addObject("msg", "Đăng Ký tiêm lần 2 thành công !! ");
         return modelAndView;
     }
 
     @GetMapping("/getForm/{certify}")
     public ModelAndView showForm2(@PathVariable String certify) {
-        //              W97tE1qoGCdkofU3D.owsVzjjjj2thM7He
+
         Customer customer = iCustomerRepository.findByVerificationCode(certify);
         Vaccine vaccine = iVaccineRepository.findById(customer.getVaccine().getId()).get();
         if(vaccine.getRegister_amount()<=0){
@@ -374,20 +383,6 @@ public class HomeController {
             modelAndView.addObject("fail", "Vui lòng hoàn thành Captcha!!!");
             return modelAndView;
         }
-
-        //       set age and status
-        user.setAge(java.time.LocalDate.now().getYear() - user.getAge());
-//        user.setHealthy_status(2);
-        user.setHealthy_status(setStatus(user));
-
-
-//                Gửi mail xác minh tài khoản
-        Thread thread1 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                customerServiceVerifyAccount.sendEmailVerifyAccount("boyte.vaccine.covid@gmail.com", user,getSiteURL(request));
-            }
-        });
         //        Set encrytedPassword
         String password = user.getEncrytedPassword();
         String encrytedPassword = encrytePassword(password);
@@ -400,7 +395,6 @@ public class HomeController {
             modelAndView.addObject("fail", "Số chứng minh nhân dân đã tồn tại!!!");
             return modelAndView;
         }
-
         // Kiểm tra đã có điểm tiêm đã có bắt đầu chưa?
         try {
             // Tìm không ra ID của điểm tiêm
@@ -413,6 +407,34 @@ public class HomeController {
 
             return modelAndView;
         }
+
+        //       set age and status
+        user.setAge(java.time.LocalDate.now().getYear() - user.getAge());
+//        user.setHealthy_status(2);
+        user.setHealthy_status(setStatus(user));
+        if (user.getHealthy_status() == 1 || user.getHealthy_status() == 2) {
+            try {
+                setDayTimeVaccine(user);
+                iCustomerRepository.save(user);
+            } catch (Exception e) {
+                ModelAndView modelAndView = new ModelAndView("/index/form");
+                modelAndView.addObject("user", new Customer());
+                modelAndView.addObject("fail", "Đã xảy ra lỗi hệ thống!!!");
+                return modelAndView;
+            }
+        }
+
+
+//                Gửi mail xác minh tài khoản
+        Thread thread1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                customerServiceVerifyAccount.sendEmailVerifyAccount("boyte.vaccine.covid@gmail.com", user,getSiteURL(request));
+            }
+        });
+
+
+
 
         //Test phân ngày
 
@@ -463,7 +485,7 @@ public class HomeController {
             vaccine.setRegister_amount(vaccine.getRegister_amount() - 1);
             iVaccineRepository.save(vaccine);
         }
-        modelAndView.addObject("fail", "Vui lòng kiểm tra email để xác minh tài khoản!");
+        modelAndView.addObject("fail", "Vui lòng kiểm tra email để nhận lịch tiêm!");
 //            Đóng luồng
         //        thread1.currentThread().interrupt();
         return modelAndView;
@@ -473,16 +495,7 @@ public class HomeController {
     public ModelAndView verifyUser(@Param("code") String code) {
         Customer customer = iCustomerRepository.findByVerificationCode(code);
         if (customerServiceVerifyAccount.isVerify(code)) {
-            if (customer.getHealthy_status() == 1 || customer.getHealthy_status() == 2) {
-                try {
-                    setDayTimeVaccine(customer);
-                } catch (Exception e) {
-                    ModelAndView modelAndView = new ModelAndView("/index/form");
-                    modelAndView.addObject("user", new Customer());
-                    modelAndView.addObject("fail", "Đã xảy ra lỗi sắp xếp ngày!!!");
-                    return modelAndView;
-                }
-            }
+
             ModelAndView modelAndView = new ModelAndView("/index/form");
             modelAndView.addObject("user", new Customer());
             modelAndView.addObject("createDone", "Chúc mừng bạn đã đăng ký tài khoản thành công!");
@@ -520,9 +533,11 @@ public class HomeController {
         if (user != null && user.getEmail().equals(email)) {
             modelAndView.addObject("msg", "Kiểm tra mail để lấy lại mật khẩu!");
             //      Tạo mã ngẫu nhiên
-            String randomCode = RandomString.make(64);
-            user.setVerificationCode(randomCode);
-            iCustomerRepository.save(user);
+            if(Objects.equals(user.getVerificationCode(),null)){
+                String randomCode = RandomString.make(64);
+                user.setVerificationCode(randomCode);
+                iCustomerRepository.save(user);
+            }
             //      Tạo link email
             String link = getSiteURL(request) + "/set-password/" + user.getVerificationCode();
             Thread thread1 = new Thread(new Runnable() {
@@ -576,6 +591,7 @@ public class HomeController {
             Customer user = iCustomerRepository.findByVerificationCode(randomCode);
             user.setPassword(encrytePassword(newPassword));
             user.setVerificationCode(null);
+            user.setEnabled(true);
             iCustomerRepository.save(user);
         } catch (Exception e) {
             modelAndView.addObject("msg", "Oh no! Đã có lỗi xảy ra!");

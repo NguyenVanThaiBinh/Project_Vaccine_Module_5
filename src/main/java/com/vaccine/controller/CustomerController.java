@@ -1,6 +1,7 @@
 package com.vaccine.controller;
 
 import com.vaccine.model.Customer;
+import com.vaccine.model.Vaccine;
 import com.vaccine.repository.ICustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,4 +34,6 @@ public class CustomerController {
         modelAndView.addObject("userInfo", user);
         return modelAndView;
     }
+
+
 }

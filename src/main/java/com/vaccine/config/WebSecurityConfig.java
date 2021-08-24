@@ -72,9 +72,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .usernameParameter("CMND")//
                 .passwordParameter("password")
                 // Cấu hình cho Logout Page.
-                .and().logout().logoutUrl("/logout").logoutSuccessUrl("/")
+                .and().logout().logoutUrl("/logout").logoutSuccessUrl("/login")
 //                 Session het' han~
-                .and().sessionManagement().invalidSessionUrl("/login");
+                .and().sessionManagement().invalidSessionUrl("/login?invalid-session=true");
+
+
 
         // Cấu hình Remember Me.
         http.authorizeRequests().and() //
@@ -82,6 +84,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .tokenValiditySeconds(60*9); //9 minute
 
     }
+
 
     @Bean
     public PersistentTokenRepository persistentTokenRepository() {

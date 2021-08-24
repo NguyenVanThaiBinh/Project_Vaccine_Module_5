@@ -5,6 +5,7 @@ import com.vaccine.model.MailText;
 import com.vaccine.model.Vaccine;
 import com.vaccine.repository.ICustomerRepository;
 import com.vaccine.repository.IVaccineRepository;
+import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
@@ -23,10 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.security.Principal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping(value = "/doctor")
@@ -125,7 +123,8 @@ public class DoctorController {
 
     @ResponseBody
     @RequestMapping(path = "/setInjectToDone", method = RequestMethod.POST)
-    public void setInjectToDone(@RequestBody Long[] itemIDs, Principal principal, Pageable pageable) {
+    public void setInjectToDone(@RequestBody Long[] itemIDs, Principal principal, Pageable pageable,HttpServletRequest request) {
+
         Iterable<Vaccine> listVaccine = iVaccineRepository.findAll();
         for (Long id_customer : itemIDs) {
             Customer customer = icustomerRepository.findById(id_customer).get();
@@ -135,11 +134,11 @@ public class DoctorController {
             if(customer.getIsInjection2()==0){
                 //            Gửi mail xác nhận lan 1
 
-                sendMailToCustomerCame(customer);
+//                sendMailToCustomerCame(customer);
                 customer.setIsInjection(1);
             }
             else{
-                sendMailToCustomerCame_2(customer);
+                sendMailToCustomerCame_2(customer,getSiteURL(request));
 
                 customer.setIsInjection2(3);
             }
@@ -235,36 +234,32 @@ public class DoctorController {
 
 
     //    <-------------------------------- Gửi mail chứng nhận ------------------------>
-    public void sendMailToCustomerCame(Customer customer) {
-        MimeMessage msg = mailSender.createMimeMessage();
-        try {
-            MimeMessageHelper helper = new MimeMessageHelper(msg, true, "UTF-8");
-            helper.setSubject("Xác nhận tiêm chủng lần 1");
-            helper.setFrom("boyte.vaccine.covid@gmail.com");
-            helper.setTo(customer.getEmail());
-
-            MailText mailText = new MailText(customer.getCustomer_name(), customer.getCMND(), customer.getIsInjection());
-            String path1 = "src\\main\\resources\\static\\ChungNhanTiemChung.txt";
-            FileSystemResource file2 = new FileSystemResource(new File(path1));
-            helper.addAttachment("Giấy Chứng Nhận", file2);
-            helper.setText(mailText.getMailTextCustomerDone(), true);
-            mailSender.send(msg);
-        } catch (Exception e) {
-            System.err.println("Lỗi gửi mail rồi!!!");
-        }
+    // Lấy địa chỉ URL trang hiện tại
+    private String getSiteURL(HttpServletRequest request) {
+        String siteURL = request.getRequestURL().toString();
+        return siteURL.replace(request.getServletPath(), "");
     }
-    public void sendMailToCustomerCame_2(Customer customer) {
+
+    public void sendMailToCustomerCame_2(Customer customer,String url) {
         MimeMessage msg = mailSender.createMimeMessage();
         try {
             MimeMessageHelper helper = new MimeMessageHelper(msg, true, "UTF-8");
-            helper.setSubject("Xác nhận tiêm chủng lần 2");
+            helper.setSubject("Xác nhận hoàn thành tiêm chủng");
             helper.setFrom("boyte.vaccine.covid@gmail.com");
             helper.setTo(customer.getEmail());
 
-            MailText mailText = new MailText(customer.getCustomer_name(), customer.getCMND(), customer.getIsInjection());
+            if(Objects.equals(customer.getVerificationCode(),null)){
+                String randomCode = RandomString.make(64);
+                customer.setVerificationCode(randomCode);
+                icustomerRepository.save(customer);
+            }
+            //      Tạo link email
+
+            String verifyURL = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+ url+"/getInfo/" + customer.getVerificationCode();
+            MailText mailText = new MailText(customer.getCustomer_name(), customer.getCMND(), customer.getIsInjection(),verifyURL);
             String path1 = "src\\main\\resources\\static\\ChungNhanTiemChung.txt";
             FileSystemResource file2 = new FileSystemResource(new File(path1));
-            helper.addAttachment("Giấy Chứng Nhận", file2);
+            helper.addAttachment("Giấy Chứng Nhận.txt", file2);
             helper.setText(mailText.getMailTextCustomerDone(), true);
             mailSender.send(msg);
         } catch (Exception e) {

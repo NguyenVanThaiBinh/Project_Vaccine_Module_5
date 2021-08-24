@@ -99,6 +99,22 @@ public class AdminController {
         }
         return chartDataList;
     }
+    @GetMapping("/dashboard_api_destination")
+    public List<ChartData> getChartData() {
+        List<ChartData> chartDataList = new ArrayList<>();
+        List<String> listAllDay = customerRepository.ListDestinationChart();
+        for (String destination : listAllDay) {
+            // Muốn so sánh chuyển về Object mới so sánh được vì chứa giá trị null
+            if (!Objects.equals(destination, null)) {
+
+                int registerNumber = customerRepository.getRegisterNumberInDestination(destination);
+                int injectionNumber = customerRepository.getIsInjectionNumberDestination(destination);
+                ChartData chartData = new ChartData(registerNumber, injectionNumber,destination);
+                chartDataList.add(chartData);
+            }
+        }
+        return chartDataList;
+    }
 
     ////  ajax user
     @GetMapping("/api-full")
