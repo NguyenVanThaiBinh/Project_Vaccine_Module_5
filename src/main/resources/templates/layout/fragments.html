@@ -17,8 +17,6 @@
           name="facebook-domain-verification"
           content="bm8nm3agri2yoai88dwe9wwnuw2wm6"
   />
-
-
   <link rel="stylesheet" id="rs-plugin-settings-css"
         href="https://vnvc.vn/wp-content/plugins/revslider/public/assets/css/settings.css?ver=5.1.6"
         type="text/css"
@@ -39,6 +37,7 @@
   <link rel="preload" href="https://vnvc.vn/wp-content/themes/wg/fonts/MyriadPro-SemiboldCond.woff" as="font" type="font/woff" crossorigin/>
   <link rel="preload" href="https://vnvc.vn/wp-content/themes/wg/fonts/MyriadPro-Regular.woff" as="font" type="font/woff" crossorigin/>
   <link rel="preload" href="https://vnvc.vn/wp-content/themes/wg/fonts/MyriadPro-Bold.otf" as="font" type="font/otf" crossorigin/>
+  <script src="webjars/jquery/3.5.1/jquery.min.js"></script>
   <style>
     header .top-right a {
       font-family: 'MyriadPro-Bold';
@@ -111,9 +110,9 @@
                                                     menu-item-12888
                                                 "
                 >
-                  <a th:if="${userInfo} == null" title="bg_dangkytiem" href="https://vnvc.vn/dang-ky-thong-tin-tiem-chung/">Đăng ký tiêm</a>
-                  <a  th:if="${userInfo} != null" href="/user" type="button" class="btn btn-outline-primary"
-                      style="color: #941e7c;">Thông tin tiêm chủng</a>
+<!--                  <a th:if="${userInfo} == null" title="bg_dangkytiem" href="https://vnvc.vn/dang-ky-thong-tin-tiem-chung/">Đăng ký tiêm</a>-->
+<!--                  <a  th:if="${userInfo} != null" href="/user" type="button" class="btn btn-outline-primary"-->
+<!--                      style="color: #941e7c;">Thông tin tiêm chủng</a>-->
                 </li>
                 <li
                         id="menu-item-12889"
@@ -154,10 +153,10 @@
                                                     menu-item-15480
                                                 "
                 >
-                  <a  th:if="${userInfo} == null" href="/form" type="button" class="btn btn-outline-primary"
-                      style="color: #941e7c;">Đăng ký</a>
-                  <a  th:if="${userInfo} != null" href="/logout" type="button" class="btn btn-outline-primary"
-                      style="color: #941e7c;">Đăng xuất</a>
+<!--                  <a  th:if="${userInfo} == null" href="/form" type="button" class="btn btn-outline-primary"-->
+<!--                      style="color: #941e7c;">Đăng ký</a>-->
+<!--                  <a  th:if="${userInfo} != null" href="/logout" type="button" class="btn btn-outline-primary"-->
+<!--                      style="color: #941e7c;">Đăng xuất</a>-->
 
                 </li>
 
@@ -170,12 +169,12 @@
                                                 menu-item-15480
                                             "
                 >
-                  <a  th:if="${userInfo} != null"  href="#" type="button" class="btn btn-outline-primary"
-                      style="color: #941e7c;">Xin chào <span th:text=" ${userInfo} "></span></a>
+<!--                  <a  th:if="${userInfo} != null"  href="#" type="button" class="btn btn-outline-primary"-->
+<!--                      style="color: #941e7c;">Xin chào <span th:text=" ${userInfo} "></span></a>-->
 
 
-                  <a th:if="${userInfo == null}" href="/login" type="button" class="btn btn-outline-primary"
-                     style="color: #941e7c;">Đăng Nhập</a>
+<!--                  <a th:if="${userInfo == null}" href="/login" type="button" class="btn btn-outline-primary"-->
+<!--                     style="color: #941e7c;">Đăng Nhập</a>-->
 
 
 

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
+import java.util.Objects;
 
 @Service
 public class CustomerServiceVerifyAccount {
@@ -39,10 +40,14 @@ public class CustomerServiceVerifyAccount {
 
     }
     public void sendEmailVerifyAccount(String from, Customer customer, String siteURL){
+        if (Objects.equals(customer.getDate_vaccine(),null)){
+            customer.setTime_vaccine("");
+            customer.setDate_vaccine("");
+        }
         MimeMessage msg = mailSender.createMimeMessage();
         try {
             MimeMessageHelper helper = new MimeMessageHelper(msg, true, "UTF-8");
-            helper.setSubject("Xác minh tài khoản tiêm chủng");
+            helper.setSubject("Thông tin đăng ký");
             helper.setFrom(from);
             helper.setTo(customer.getEmail());
 //            if (customer.getDate_vaccine() == null) {
@@ -56,7 +61,7 @@ public class CustomerServiceVerifyAccount {
             repo.save(customer);
             String verifyURL = siteURL  + "/verify?code=" + customer.getVerificationCode();
             MailText mailText = new MailText(customer.getCustomer_name(), customer.getCMND(),
-                    customer.getAge(),customer.getDestination().getDestination_name(), customer.getHealthy_status(),verifyURL);
+                    customer.getAge(),customer.getDestination().getDestination_name(),customer.getDate_vaccine(),customer.getTime_vaccine(), customer.getHealthy_status(),verifyURL);
 
             helper.setText(mailText.sentVerifyAccountEmail(), true);
             mailSender.send(msg);

@@ -1,12 +1,12 @@
 package com.vaccine.controller;
 
 import com.vaccine.model.Customer;
+import com.vaccine.model.Vaccine;
 import com.vaccine.repository.ICustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.security.Principal;
@@ -17,6 +17,11 @@ public class CustomerController {
 
     @Autowired
     ICustomerRepository iCustomerRepository;
+
+    @RequestMapping(value = "/apiID/{id}",  produces = {"application/json", "text/xml"})
+    ResponseEntity<Customer> getApiById(@PathVariable Long id){
+        return new ResponseEntity<>(iCustomerRepository.findById(id).get(), HttpStatus.OK);
+    }
 
     @GetMapping()
     public ModelAndView showUserPage(Principal principal) {
@@ -29,4 +34,6 @@ public class CustomerController {
         modelAndView.addObject("userInfo", user);
         return modelAndView;
     }
+
+
 }

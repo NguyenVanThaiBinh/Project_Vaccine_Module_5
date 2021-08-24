@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="/layout/fragments :: html_head"/>
+<head>
+  <title>
+    Trang Người Dùng
+  </title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" ></script>
+</head>
+<style>
+  .overwite {
+    text-align: center;
+    padding: 0px 11em;
+  }
+
+  .table-bordered {
+    border-top-right-radius: 15px;
+    border-top-left-radius: 15px;
+  }
+
+  .table-bordered {
+    border: 2px solid #5f5e5e;
+
+  }
+</style>
+<body>
+<div th:replace="/layout/fragments :: body-banner"/>
+<header th:replace="/layout/fragments :: body-header-done"/>
+<div class="container overwite">
+  <h1 style="text-align: center">Cám ơn bạn <b><span th:utext="${userInfo.customer_name}"></span></b> đã đăng ký tiêm
+    vaccine!</h1>
+  <br>
+  <button id="btn-injection" style="font-size: 20px; float: left " class="btn btn-success" th:if="${userInfo.date_vaccine2 !=null}">Lần 2</button>
+  <input type="hidden" th:value="${userInfo.id}" id="id">
+  <br>
+  <br>
+  <table class="table table-bordered infor">
+    <tr>
+      <th style="text-align: center;font-size: 23px;">Thông tin</th>
+      <th style="text-align: center;font-size: 23px;">Kết quả</th>
+    </tr>
+    <tr>
+      <td>Họ và tên</td>
+      <td th:text="${userInfo.customer_name}"></td>
+    </tr>
+    <tr>
+      <td>Số Chứng minh nhân dân</td>
+      <td th:text="${userInfo.CMND}"></td>
+    </tr>
+    <tr>
+      <td>Tuổi</td>
+      <td  style="color: red;font-style: italic; font-weight: bold;"
+           th:if="${userInfo.age < 16 || userInfo.age >65}"
+           th:text="${userInfo.age} +' tuổi'"></td>
+      <td
+              th:if="${userInfo.age >= 16 && userInfo.age <=65}"
+              th:text="${userInfo.age} +' tuổi'"></td>
+
+    </tr>
+    <tr class="bg-danger">
+      <div th:if="${userInfo.isInjection == 1}">
+        <td>Tình trạng tiêm chủng</td>
+        <td>Đã tiêm lần 1 thành công!</td>
+      </div>
+      <div th:if="${userInfo.isInjection == 0}">
+        <td>Kết quả đăng ký</td>
+        <td th:if="${userInfo.healthy_status == 1 || userInfo.healthy_status == 2}"
+            th:text="'Thành công'"></td>
+        <td th:if="${userInfo.healthy_status == 3}"
+            th:text="'Thất bại'"></td>
+      </div>
+
+    </tr>
+    <tr>
+      <td>Tình trạng sức khoẻ</td>
+      <td th:if="${userInfo.healthy_info != null}" th:text="${userInfo.healthy_info}"></td>
+    </tr>
+    <th:block th:if="${userInfo.date_vaccine != null }">
+      <tr>
+        <td>Ngày tiêm chủng</td>
+        <td><b><span style=" font-style: italic;"
+                     th:if="${userInfo.date_vaccine != null}"
+                     th:text="${userInfo.date_vaccine}">---</span></b></td>
+      </tr>
+      <tr>
+        <td>Giờ tiêm chủng</td>
+        <td><b><span style=" font-style: italic;" th:if="${userInfo.time_vaccine != null}"
+                     th:text="${userInfo.time_vaccine}">---</span></b></td>
+
+      </tr>
+    </th:block>
+    <tr>
+      <td>Địa điểm tiêm chủng</td>
+      <th:block th:if="${userInfo.getDestination() != null}">
+        <td ><b><span style=" font-style: italic;" th:text="${userInfo.getDestination().destination_name}"></span></b></td>
+      </th:block>
+    </tr>
+  </table>
+  <h3 style="text-align: center;font-style: italic; ">Mọi thông tin xin liên hệ qua
+    <span style="color: red">036 550 3545 </span> để được tư vấn cụ thể!</h3>
+  <br><br>
+</div>
+
+
+<footer th:replace="/layout/fragments :: body-footer"/>
+<script>
+  let count = 0 ;
+  function getInfor(){
+    let id = $('#id').val();
+    if(count%2==0){
+      $.ajax({
+        type:'GET',
+        url:`/apiID/${id}`,
+        success:function (data){
+          let html = `
+                    <tbody>
+                    <tr>
+                      <th style="text-align: center;font-size: 23px;">Thông tin</th>
+                      <th style="text-align: center;font-size: 23px;">Kết quả</th>
+                    </tr>
+                    <tr>
+                      <td>Họ và tên</td>
+                      <td>${data.customer_name}</td>
+                    </tr>
+                    <tr>
+                      <td>Số Chứng minh nhân dân</td>
+                      <td>${data.cmnd}</td>
+                    </tr>
+                    <tr>
+                      <td>Tuổi</td>
+                      <td >${data.age}' tuổi'</td>
+                    </tr>
+                    <tr class="bg-danger">
+                    ${data.isInjection2==3?`<td>Tình trạng tiêm chủng</td><td>Đã tiêm lần 2 thành công!</td>`:`<td>Kết quả đăng ký</td>${data.isInjection2==1?`<td>Thành công</td>`:`<td>Thất bại</td>`}`}
+                    </tr>
+                    <tr>
+                      <td>Tình trạng sức khoẻ</td>
+                      <td>${data.healthy_info!=null?`${data.healthy_info}`:''}</td>
+                    </tr>
+                    ${data.date_vaccine2!=null?`<tr>
+                        <td>Ngày tiêm chủng</td>
+                        <td><b><span style=" font-style: italic;">${data.date_vaccine2!=null?`${data.date_vaccine2}`:'----'}</span></b></td>
+                      </tr>
+                      <tr>
+                        <td>Giờ tiêm chủng</td>
+                        <td><b><span style=" font-style: italic;" >${data.time_vaccine2!=null?`${data.time_vaccine2}`:'----'}</span></b></td>
+                      </tr>`:''}
+                    <tr>
+                      <td>Địa điểm tiêm chủng</td>
+                      <td>${data.destination2.destination_name}</td>
+                    </tr>
+                    </tbody>
+                    `
+          $('.infor').html(html);
+          $('#btn-injection').html("Lần 1");
+          count++;
+        }
+      })
+    }
+    else{
+      $.ajax({
+        type:'GET',
+        url:`/apiID/${id}`,
+        success:function (data){
+          let html = `
+                    <tbody>
+                    <tr>
+                      <th style="text-align: center;font-size: 23px;">Thông tin</th>
+                      <th style="text-align: center;font-size: 23px;">Kết quả</th>
+                    </tr>
+                    <tr>
+                      <td>Họ và tên</td>
+                      <td>${data.customer_name}</td>
+                    </tr>
+                    <tr>
+                      <td>Số Chứng minh nhân dân</td>
+                      <td>${data.cmnd}</td>
+                    </tr>
+                    <tr>
+                      <td>Tuổi</td>
+                      <td >${data.age}' tuổi'</td>
+                    </tr>
+                    <tr class="bg-danger">
+                    ${data.isInjection==1?`<td>Tình trạng tiêm chủng</td><td>Đã tiêm lần 1 thành công!</td>`:`<td>Kết quả đăng ký</td>${data.healthy_status==3?`<td>Thất bại</td>`:`<td>Thành công</td>`}`}
+                    </tr>
+                    <tr>
+                      <td>Tình trạng sức khoẻ</td>
+                      <td>${data.healthy_info!=null?`${data.healthy_info}`:''}</td>
+                    </tr>
+                    ${data.date_vaccine!=null?`<tr>
+                        <td>Ngày tiêm chủng</td>
+                        <td><b><span style=" font-style: italic;">${data.date_vaccine!=null?`${data.date_vaccine}`:'----'}</span></b></td>
+                      </tr>
+                      <tr>
+                        <td>Giờ tiêm chủng</td>
+                        <td><b><span style=" font-style: italic;" >${data.time_vaccine!=null?`${data.time_vaccine}`:'----'}</span></b></td>
+                      </tr>`:''}
+                    <tr>
+                      <td>Địa điểm tiêm chủng</td>
+                      <td>${data.destination.destination_name}</td>
+                    </tr>
+                    </tbody>
+                    `
+          $('.infor').html(html);
+          $('#btn-injection').html("Lần 2");
+          count++;
+        }
+      })
+    }
+  }
+  function main(){
+    $('body').on('click','#btn-injection',getInfor);
+  }
+  main();
+</script>
+</body>
+</html>

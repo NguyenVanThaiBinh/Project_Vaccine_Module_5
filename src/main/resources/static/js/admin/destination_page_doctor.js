@@ -60,11 +60,7 @@ function click() {
 
 // API gọi thay đổi trạng thái
 function setInjectionStatus() {
-    console.log("not : "+notIsInjectionList);
-    console.log("done : "+IsInjectionListDone);
-
     // Quét hết cái bảng hiện tại
-
     Swal.fire({
         title: 'Bạn đã kiểm tra kỹ càng?',
         text: "Những sai lầm sẽ rất khó khắc phục!",
@@ -76,21 +72,6 @@ function setInjectionStatus() {
         cancelButtonText: 'Chưa, để tôi xem lại'
     }).then((result) => {
         if (result.isConfirmed) {
-            // let table = document.getElementById("orderItems");
-            // let cells = (table.rows[2].cells.length - 1);
-            // for (let i = 1; i < table.rows.length; i++) {
-            //     for (let j = 0; j <= cells; j++) {
-            //         // console.log(table.rows[i].cells[j].innerHTML);
-            //         if (table.rows[i].cells[j].innerHTML.includes("Chưa tiêm")) {
-            //             // console.log(table.rows[i].cells[j].innerHTML);
-            //             notIsInjectionList.push(table.rows[i].cells[0].innerHTML);
-            //         }
-            //         if (table.rows[i].cells[j].innerHTML.includes("Đã tiêm")) {
-            //             console.log(table.rows[i].cells[j].innerHTML);
-            //             IsInjectionListDone.push(table.rows[i].cells[0].innerHTML);
-            //         }
-            //     }
-            // }
             $.ajax({
                 type: "POST",
                 headers: {
@@ -134,16 +115,25 @@ $(document).ready(function () {
         url : `/doctor/full-api/${id}`,
         success:function (data){
             for(let i =0;i<data.length;i++){
-                if(data[i].isInjection==0){
-                    notIsInjectionList.push(data[i].id);
+                if(data[i].date_vaccine2 ==null){
+                    if(data[i].isInjection==0){
+                        notIsInjectionList.push(data[i].id);
+                    }
+                    else{
+                        IsInjectionListDone.push(data[i].id);
+                    }
                 }
                 else{
-                    IsInjectionListDone.push(data[i].id);
+                    if(data[i].isInjection2 ==3){
+                        IsInjectionListDone.push(data[i].id);
+                    }
+                    else{
+                        notIsInjectionList.push(data[i].id);
+                    }
                 }
             }
         }
     })
-    console.log(notIsInjectionList);
 });
 
 
@@ -222,8 +212,8 @@ function get(customer) {
                 <td>${customer.customer_name}</td>
                 <td>${customer.cmnd}</td>
                 <td>${customer.email}</td>
-                <td>${customer.time_vaccine}</td>
-                <td>${customer.date_vaccine}</td>
+                ${customer.time_vaccine2!=null?`<td>${customer.time_vaccine2}</td>`:`<td>${customer.time_vaccine}</td>`}
+                ${customer.date_vaccine2!=null?`<td>${customer.date_vaccine2}</td>`:`<td>${customer.date_vaccine}</td>`}
                 <td><button class="row_button btn btn-danger">Chưa Tiêm</button></td>
                 <input type="hidden" value="${customer.id}" id="id">
             </tr>
@@ -236,25 +226,13 @@ function get(customer) {
                 <td>${customer.customer_name}</td>
                 <td>${customer.cmnd}</td>
                 <td>${customer.email}</td>
-                <td>${customer.time_vaccine}</td>
-                <td>${customer.date_vaccine}</td>
+                ${customer.time_vaccine2!=null?`<td>${customer.time_vaccine2}</td>`:`<td>${customer.time_vaccine}</td>`}
+                ${customer.date_vaccine2!=null?`<td>${customer.date_vaccine2}</td>`:`<td>${customer.date_vaccine}</td>`}
                 <td><button class="row_button btn btn-success">Đã Tiêm</button></td>
                 <input type="hidden" value="${customer.id}" id="id">
             </tr>
         `
     }
-    // return `
-    //     <tr>
-    //             <th>${customer.id}</th>
-    //             <td>${customer.customer_name}</td>
-    //             <td>${customer.cmnd}</td>
-    //             <td>${customer.email}</td>
-    //             <td>${customer.time_vaccine}</td>
-    //             <td>${customer.date_vaccine}</td>
-    //             <td><button class="${customer.isInjection == 0 ? "row_button btn btn-danger" : "row_button btn btn-success"}">${customer.isInjection == 0 ? "Chưa Tiêm" : "Đã Tiêm"}</button></td>
-    //             <input type="hidden" value="${customer.id}" id="id">
-    //         </tr>
-    //     `
 }
 
 function check(customer){
@@ -305,10 +283,10 @@ $('input[name="search"]').keyup(function () {
                 <td >${item.customer_name}</td>
                 <td >${item.cmnd}</td>
                 <td>${item.email}</td>
-                <td >${item.time_vaccine}</td>
-                <td >${item.date_vaccine}</td>
+                ${item.time_vaccine2!=null?`<td>${item.time_vaccine2}</td>`:`<td>${item.time_vaccine}</td>`}
+                ${item.date_vaccine2!=null?`<td>${item.date_vaccine2}</td>`:`<td>${item.date_vaccine}</td>`}
                 <td ><button class="row_button btn ${item.isInjection == 0? 'btn-danger':'btn-success'}" >${item.isInjection == 0? 'Chưa tiêm':'Đã tiêm'}</button></td>
-               
+               <input type="hidden" value="${item.id}" id="id">
             </tr>
                     `);
             });
@@ -357,9 +335,10 @@ function getCustomerByDay(value){
                 <td >${item.customer_name}</td>
                 <td >${item.cmnd}</td>
                 <td>${item.email}</td>
-                <td >${item.time_vaccine}</td>
-                <td >${item.date_vaccine}</td>
+                ${item.time_vaccine2!=null?`<td>${item.time_vaccine2}</td>`:`<td>${item.time_vaccine}</td>`}
+                ${item.date_vaccine2!=null?`<td>${item.date_vaccine2}</td>`:`<td>${item.date_vaccine}</td>`}
                    <td ><button class="row_button btn ${item.isInjection == 0? 'btn-danger':'btn-success'}" >${item.isInjection == 0? 'Chưa tiêm':'Đã tiêm'}</button></td>
+                   <input type="hidden" value="${item.id}" id="id">
                </tr>
                     `);
             });
