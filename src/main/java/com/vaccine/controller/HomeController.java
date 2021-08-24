@@ -237,7 +237,7 @@ public class HomeController {
             helper.setSubject("Thông báo xác nhận tiêm chủng lần 2");
             helper.setFrom("boyte.vaccine.covid@gmail.com");
             helper.setTo(customer.getEmail());
-            if(!customer.getVerificationCode().equals(null)){
+            if(Objects.equals(customer.getVerificationCode(),null)){
                 String randomCode = RandomString.make(64);
                 customer.setVerificationCode(randomCode);
                 iCustomerRepository.save(customer);
@@ -245,7 +245,7 @@ public class HomeController {
             //      Tạo link email
 
             String verifyURL =  url+"/getForm/" + customer.getVerificationCode();
-            System.out.println(verifyURL);
+
             MailText mailText = new MailText(customer.getCustomer_name(),customer.getCMND(),verifyURL);
             helper.setText(mailText.getMailRegisterTwice(), true);
             mailSender.send(msg);
