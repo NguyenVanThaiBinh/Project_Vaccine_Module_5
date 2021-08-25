@@ -129,7 +129,7 @@ public class HomeController {
 
     }
 //               <----------------------------- Admin Đăng Nhập ---------------------------------------->
-    @GetMapping("/manage")
+    @GetMapping("/manager")
     public ModelAndView adminLogin(){
         ModelAndView modelAndView = new ModelAndView("/security/admin_login");
         return modelAndView;
