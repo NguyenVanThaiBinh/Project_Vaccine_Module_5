@@ -90,17 +90,18 @@ setInterval(function (){
             type: 'GET',
             url: '/admin/api-full?page='+page,
             success: function (data) {
-                let content = '<tr class="tr">\n' +
+                let content = '<thead><tr class="tr">\n' +
                     '<td>Id</td>\n' +
                     '<td>Tên </td> \n' +
                     '<td>CMND</td> \n' +
                     '<td>Email</td>\n' +
                     '<td>Ngày tiêm \t</td>\n' +
                     '<td>Giờ tiêm </td>\n' +
-                    '</tr>';
+                    '</tr></thead><tbody>';
                 for (let i = 0; i < data.content.length; i++) {
                     content += getCustomer(data.content[i]);
                 }
+                content+='</tbody>';
                 document.getElementById("customerList").innerHTML = content;
             }
         })
