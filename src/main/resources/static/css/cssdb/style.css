@@ -24516,7 +24516,7 @@ dl li {
   color: #ffffff;
 }
 
-.pagination-warning .page-item.active .page-link, .pagination-warning .jsgrid .jsgrid-pager .active.jsgrid-pager-nav-button .page-link, .jsgrid .jsgrid-pager .pagination-warning .active.jsgrid-pager-nav-button .page-link, .pagination-warning
+.pagination-warning .page-item .active .page-link, .pagination-warning .jsgrid .jsgrid-pager .active.jsgrid-pager-nav-button .page-link, .jsgrid .jsgrid-pager .pagination-warning .active.jsgrid-pager-nav-button .page-link, .pagination-warning
 .jsgrid .jsgrid-pager .active.jsgrid-pager-page .page-link,
 .jsgrid .jsgrid-pager .pagination-warning .active.jsgrid-pager-page .page-link, .pagination-warning .page-item.active .jsgrid .jsgrid-pager .jsgrid-pager-nav-button a, .jsgrid .jsgrid-pager .jsgrid-pager-nav-button .pagination-warning .page-item.active a, .pagination-warning .jsgrid .jsgrid-pager .active.jsgrid-pager-nav-button a, .jsgrid .jsgrid-pager .pagination-warning .active.jsgrid-pager-nav-button a, .pagination-warning .page-item.active
 .jsgrid .jsgrid-pager .jsgrid-pager-page a,
@@ -29604,5 +29604,4 @@ div.tagsinput span.tag a {
   bottom: 72px;
   right: 50px;
 }
-
 /*# sourceMappingURL=maps/style.css.map */

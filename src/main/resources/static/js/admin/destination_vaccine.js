@@ -88,7 +88,7 @@ function getDestination(destination){
                 <td>${destination.warehouseVaccine.warehouseName}</td>
                 <td style="float:left;">
                     <button class="btn btn-primary" data-toggle="modal" href="#myModal" onclick="setEdit(${destination.id})"><i class="fas fa-edit"></i></button>
-                    ${destination.isOpen==0?`<button class="btn btn-warning" onclick="off(${destination.id})">Off</button>`:`\`<button class="btn btn-success" onclick="on(${destination.id})">ON</button>`}    
+                    ${destination.isOpen==0?`<button class="btn btn-warning" onclick="off(${destination.id})">Off</button>`:`<button class="btn btn-success" onclick="on(${destination.id})">ON</button>`}    
                     ${destination.isOpen==1?`<button  class="btn btn-danger" onclick="getDelete(${destination.id})"><i class="far fa-trash-alt"></i></button>`:''}          
                 </td>
             </tr>
@@ -265,7 +265,7 @@ function edit(){
                                 'Kho đã được chỉnh sửa.',
                                 'success'
                             );
-                            if(dateend_before>dateEnd_compare.trim()){
+                            if(dateend_before>dateEnd_compare.trim() && dateEnd_compare.split("-").length==3){
                                 $.ajax({
                                     type:'GET',
                                     url:`/admin/destination/sendEmailEnd/${id}/${date_end.trim()}`,
@@ -302,7 +302,6 @@ function off(id){
         type:'GET',
         url:`/admin/destination/allCusByDes/${id}`,
         success:function (data){
-            let dateNow = new Date().toISOString().slice(0, 10);
             for(let i=0;i<data.length;i++){
                 if(data[i].date_vaccine !=null && data[i].date_vaccine.trim().split(" ").length ==1 && data[i].isInjection==0){
                     count++;

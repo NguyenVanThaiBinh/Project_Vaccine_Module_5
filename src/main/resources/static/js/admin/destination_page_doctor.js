@@ -56,14 +56,16 @@ function click() {
             url : `/doctor/done/${id}`
         })
     }
+
 }
 
 // API gọi thay đổi trạng thái
 function setInjectionStatus() {
+    let total = IsInjectionListDone.length+notIsInjectionList.length;
     // Quét hết cái bảng hiện tại
     Swal.fire({
         title: 'Bạn đã kiểm tra kỹ càng?',
-        text: "Những sai lầm sẽ rất khó khắc phục!",
+        text: "Đã tiêm : "+IsInjectionListDone.length+"/"+total,
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
@@ -274,7 +276,6 @@ $('input[name="search"]').keyup(function () {
         contentType: "application/json; charset=utf-8",
 
         success: function (data) {
-            console.log(data);
             $('#orderItems ').empty();
             $.each(data.content, function (index, item) {
                 $('#orderItems ').append(`
@@ -316,15 +317,12 @@ function getCustomerByDay(value){
             var yyyy = today.getFullYear();
 
             today = dd + '-' + mm + '-' + yyyy+" ";
-            console.log(today);
 
             let day = data.content[0].date_vaccine;
-            console.log("Day is: "+day);
 
             $('#last_row ').show();
 
             if (day !=  today){
-                console.log("AAA")
                 $('#last_row ').hide();
             }
             $('#orderItems ').empty();
