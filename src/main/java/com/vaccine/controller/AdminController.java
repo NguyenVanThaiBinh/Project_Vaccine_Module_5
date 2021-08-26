@@ -17,7 +17,6 @@ import com.vaccine.repository.IWarehouseRepository;
 
 import com.vaccine.service.CustomerServiceVerifyAccount;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -77,6 +76,15 @@ public class AdminController {
         return iWarehouseRepository.findAll();
     }
 //
+    @ModelAttribute("destinations")
+    public Iterable<Destination> getAllDestination(Pageable pageable){
+        return destinationRepository.findAllBySttDelete(0,pageable);
+    }
+
+    @GetMapping("/all-api-des/{id}")
+    ResponseEntity<Page<Customer>> getAllCusByDes(@PathVariable Long id, @PageableDefault(value =  10) Pageable pageable){
+        return new ResponseEntity<>(customerRepository.AllCustomerByDes(id,pageable),HttpStatus.OK);
+    }
 
     @GetMapping
     public ModelAndView showdb() {
@@ -102,7 +110,7 @@ public class AdminController {
 
     ////  ajax user
     @GetMapping("/api-full")
-    public ResponseEntity<Page<Customer>> allUser(@PageableDefault(value =  Integer.MAX_VALUE) Pageable pageable) {
+    public ResponseEntity<Page<Customer>> allUser(@PageableDefault(value =  10) Pageable pageable) {
         return new ResponseEntity<>(customerRepository.findAllCustomerAccount(pageable), HttpStatus.OK);
     }
 
@@ -188,7 +196,7 @@ public class AdminController {
                 String date_end = arr2[2] + "-" + arr2[1] + "-" + arr2[0];
                 List<Customer> list = customerRepository.findByDestination(id);
                 for (int i = 0; i < list.size(); i++) {
-                    if (list.get(i).getDate_vaccine() != null) {
+                    if (list.get(i).getDate_vaccine() != null && list.get(i).getDate_vaccine().trim().split(" ").length==1) {
                         String[] arr = list.get(i).getDate_vaccine().trim().split("-");
                         String date_vaccine = arr[2] + "-" + arr[1] + "-" + arr[0];
                         if (date_vaccine.compareTo(date_end) > 0) {
@@ -219,7 +227,7 @@ public class AdminController {
                 String date_end = arr2[2] + "-" + arr2[1] + "-" + arr2[0];
                 List<Customer> list = customerRepository.findByDestination(id);
                 for (int i = 0; i < list.size(); i++) {
-                    if (list.get(i).getDate_vaccine() != null) {
+                    if (list.get(i).getDate_vaccine() != null && list.get(i).getDate_vaccine().trim().split(" ").length==1) {
                         String[] arr = list.get(i).getDate_vaccine().trim().split("-");
                         String date_vaccine = arr[2] + "-" + arr[1] + "-" + arr[0];
                         if (date_vaccine.compareTo(date_end) < 0) {

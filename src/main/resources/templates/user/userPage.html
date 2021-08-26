@@ -21,6 +21,9 @@
     border: 2px solid #5f5e5e;
 
   }
+  .btn{
+    outline: none !important;
+  }
 </style>
 <body>
 <div th:replace="/layout/fragments :: body-banner"/>
@@ -151,7 +154,9 @@
                     </tbody>
                     `
           $('.infor').html(html);
+          $('#btn-injection').removeClass("btn btn-success").toggleClass("btn btn-danger");
           $('#btn-injection').html("Lần 1");
+          console.log("0");
           count++;
         }
       })
@@ -201,6 +206,8 @@
                     </tbody>
                     `
           $('.infor').html(html);
+          $('#btn-injection').removeClass("btn btn-danger").toggleClass("btn btn-success");
+          console.log("1");
           $('#btn-injection').html("Lần 2");
           count++;
         }

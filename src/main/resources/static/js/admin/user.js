@@ -1,4 +1,4 @@
-
+let count1 = 0 ;
 function edit(){
     let id = $(this).parent().find("#idU").val();
     $.ajax({
@@ -39,101 +39,107 @@ function editUser() {
 function successHandler() {
     let search = $('#search').val();
     let page = $('#page').val();
+    let url;
     if(search==""){
-        $.ajax({
-            type: 'GET',
-            url: '/admin/api-full?page='+page,
-            success: function (data) {
-                let content = '<tr class="tr">\n' +
-                    '<td>Id</td>\n' +
-                    '<td>Tên Khách hàng</td> \n' +
-                    '<td>CMND</td> \n' +
-                    '<td>Email</td>\n' +
-                    '<td>Ngày tiêm chủng\t</td>\n' +
-                    '<td>giờ tiêm chủng</td>\n' +
-                    '</tr>';
-                for (let i = 0; i < data.content.length; i++) {
-                    content += getCustomer(data.content[i]);
-                }
-                document.getElementById("customerList").innerHTML = content;
-                $('.close-modal').click();
-            }
-        })
+        url = '/admin/api-full?page='+page;
     }
     else{
-        $.ajax({
-            type: 'GET',
-            url: '/admin/api/'+search,
-            success: function (data) {
-                let content = '<tr class="tr">\n' +
-                    '<td>Id</td>\n' +
-                    '<td>Tên Khách hàng</td> \n' +
-                    '<td>CMND</td> \n' +
-                    '<td>Email</td>\n' +
-                    '<td>Ngày tiêm chủng\t</td>\n' +
-                    '<td>giờ tiêm chủng</td>\n' +
-                    '</tr>';
-                for (let i = 0; i < data.content.length; i++) {
-                    content += getCustomer(data.content[i]);
-                }
-                document.getElementById("customerList").innerHTML = content;
-                $('.close-modal').click();
-            }
-        })
+        url = '/admin/api/'+search;
     }
+    $.ajax({
+        type: 'GET',
+        url: url,
+        success: function (data) {
+            let content = '<tr class="tr">\n' +
+                '<td>Id</td>\n' +
+                '<td>Tên</td> \n' +
+                '<td>CMND</td> \n' +
+                '<td>Điểm tiêm</td> \n'+
+                '<td>Ngày giờ tiêm</td>\n' +
+                '<td>Vaccine</td> \n'+
+                '<td>Tình trạng</td> \n'+
+                '</tr>';
+            for (let i = 0; i < data.content.length; i++) {
+                content += getCustomer(data.content[i]);
+            }
+            $('#customerList').html(content);
+            $('.close-modal').click();
+            let html = '<ul class="pagination pagination-info mb-0">';
+            for(let i = 0 ;i <data.totalPages;i++){
+                html+=`<li class=${i==0?"page-item&#x20;active":"page-item"}><a class="page-link" href='/admin/user?page=${i}'>${i+1}</a>\n</li>`
+            }
+            html+='</ul>'
+            $('#nav').html(html);
+        }
+    });
+
 }
 setInterval(function (){
+    $.ajax({
+        type:'GET',
+        url:'/admin/api-full',
+        success:function (data){
+            let count2 = data.totalElements;
+            if(count2==count1){
+                return;
+            }
+            else{
+                count1 = count2;
+            }
+        }
+    })
+    let select = $('#select').val();
+    if(select!=0){
+        return;
+    }
     let search = $('#search').val();
     let page = $('#page').val();
+    let url;
     if(search==""){
-        $.ajax({
-            type: 'GET',
-            url: '/admin/api-full?page='+page,
-            success: function (data) {
-                let content = '<thead><tr class="tr">\n' +
-                    '<td>Id</td>\n' +
-                    '<td>Tên </td> \n' +
-                    '<td>CMND</td> \n' +
-                    '<td>Email</td>\n' +
-                    '<td>Ngày tiêm \t</td>\n' +
-                    '<td>Giờ tiêm </td>\n' +
-                    '</tr></thead><tbody>';
-                for (let i = 0; i < data.content.length; i++) {
-                    content += getCustomer(data.content[i]);
-                }
-                content+='</tbody>';
-                document.getElementById("customerList").innerHTML = content;
-            }
-        })
-        numberPage();
+        url = '/admin/api-full?page='+page;
     }
     else{
-        $.ajax({
-            type: 'GET',
-            url: '/admin/api/'+search,
-            success: function (data) {
-                let content = '<thead><tr>\n' +
-                    '<td>Id</td>\n' +
-                    '<td>Tên Khách hàng</td> \n' +
-                    '<td>CMND</td> \n' +
-                    '<td>Email</td>\n' +
-                    '<td>Ngày tiêm chủng\t</td>\n' +
-                    '<td>giờ tiêm chủng</td>\n' +
-                    '</tr></thead><tbody>';
-                for (let i = 0; i < data.content.length; i++) {
-                    content += getCustomer(data.content[i]);
-                }
-                content+='</tbody>';
-                document.getElementById("customerList").innerHTML = content;
-            }
-        })
+        url = '/admin/api/'+search;
     }
+    $.ajax({
+        type: 'GET',
+        url: url,
+        success: function (data) {
+            let content = '<thead><tr class="tr">\n' +
+                '<td>Id</td>\n' +
+                '<td>Tên </td> \n' +
+                '<td>CMND</td> \n' +
+                '<td>Điểm tiêm</td> \n'+
+                '<td>Ngày giờ tiêm</td>\n' +
+                '<td>Vaccine</td> \n'+
+                '<td>Tình trạng</td> \n'+
+            '</tr></thead><tbody>';
+            for (let i = 0; i < data.content.length; i++) {
+                content += getCustomer(data.content[i]);
+            }
+            content+='</tbody>';
+            $('#customerList').html(content);
+        }
+    })
+    numberPage();
     setInfo();
 },7000);
+
+
+function checkInterval(){
+    $.ajax({
+        type:'GET',
+        url:'/admin/api-full',
+        success:function (data){
+            count1 = data.totalElements;
+        }
+    })
+}
+
 function numberPage(){
     $.ajax({
         type:'GET',
-        url:'/admin/api-doctor',
+        url:'/admin/api-full',
         success:function (data){
             if(data.totalElements>=11){
                 $('#nav').show();
@@ -156,28 +162,29 @@ function setInfo(){
     })
 }
 function getCustomer(employee) {
-    if(employee.dateVaccine==null){
+    if(employee.date_vaccine==null){
         employee.dateVaccine="";
     }
-    if(employee.timeVaccine==null){
+    if(employee.time_vaccine==null){
         employee.timeVaccine="";
     }
     return `<tr id='row${employee.id}'>
         <td>${employee.id}</td>
         <td>${employee.customer_name}</td>
         <td>${employee.cmnd}</td>
-        <td>${employee.email}</td>
-        <td>${employee.date_vaccine}</td>
-        <td>${employee.time_vaccine}</td>
+        <td>${employee.destination.destination_name}</td>
+        <td>
+            ${employee.date_vaccine} - ${employee.time_vaccine}
+            ${employee.destination2!=null?`<br>${employee.date_vaccine2} - ${employee.time_vaccine2}`:''}
+        </td>
+        <td>${employee.vaccine.vaccine_name}</td>
+        ${employee.isInjection2==3?`<td><i class="fas fa-check-double"></i></td>`:employee.isInjection==1?`<td><i class="fas fa-check"></i></td>`:'<td></td>'}
        <td>
-       <button type="button" class="btn btn-primary edit"
+       <button type="button" class="btn btn-success edit"
                 data-toggle="modal" data-target="#exampleModal"
                 data-whatever="@mdo">Edit
         </button>
         <input type="hidden" id="idU" value="${employee.id}">
-<!--        <button class="btn btn-outline-danger delete"><i-->
-<!--                    class="fas fa-trash-alt"></i>Delete-->
-<!--            </button>-->
         </td>
     </tr>
 `;
@@ -207,9 +214,10 @@ function successHandler2(searchCMND) {
                 '<td>Id</td>\n' +
                 '<td>Tên Khách hàng</td> \n' +
                 '<td>CMND</td> \n' +
-                '<td>Email</td>\n' +
-                '<td>Ngày tiêm chủng\t</td>\n' +
-                '<td>giờ tiêm chủng</td>\n' +
+                '<td>Điểm tiêm</td> \n'+
+                '<td>Ngày giờ tiêm</td>\n' +
+                '<td>Vaccine</td> \n'+
+                '<td>Tình trạng</td> \n'+
                 '</tr>';
             for (let i = 0; i < data.content.length; i++) {
                 content += getCustomer(data.content[i]);
@@ -220,13 +228,61 @@ function successHandler2(searchCMND) {
             else{
                 $('#nav').hide();
             }
-            document.getElementById('customerList').innerHTML = content;
+            $('#customerList').html(content);
         }
     });
 }
+
+//select destination
+function select(page){
+    if(page==null){
+       page =0;
+    }
+    let id = $('#select').val();
+    if(id==0){
+        successHandler();
+    }
+    $.ajax({
+        type:'GET',
+        url:`/admin/all-api-des/${id}?page=${page}`,
+        success: function (data) {
+            let content = '<thead><tr class="tr">\n' +
+                '<td>Id</td>\n' +
+                '<td>Tên </td> \n' +
+                '<td>CMND</td> \n' +
+                '<td>Điểm tiêm</td> \n'+
+                '<td>Ngày giờ tiêm</td>\n' +
+                '<td>Vaccine</td> \n'+
+                '<td>Tình trạng</td> \n'+
+            '</tr></thead><tbody>';
+            for (let i = 0; i < data.content.length; i++) {
+                content += getCustomer(data.content[i]);
+            }
+            content+='</tbody>';
+            $('#customerList').html(content);
+            $('#nav').html(setPage(data.totalPages,page));
+        }
+    })
+}
+
+
 function test(){
     $('body').on('click','.edit',edit);
     $('body').on('input','#search',search);
+    checkInterval();
 }
 test();
 setInfo();
+
+function setPage(totalPage,pageActive){
+    let html="";
+    if(totalPage>1){
+        html += '<ul class="pagination pagination-info mb-0">';
+        for(let i = 0 ;i <totalPage;i++){
+            html+=`<li class=${pageActive==i?"page-item&#x20;active":"page-item"}><a class="page-link" onclick ="select(${i})">${i+1}</a>\n</li>`
+        }
+        html+='</ul>'
+    }
+
+    return html;
+}

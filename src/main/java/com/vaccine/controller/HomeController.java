@@ -330,7 +330,6 @@ public class HomeController {
                 return new ModelAndView("/security/regisFound");
             }
         }
-
         ModelAndView modelAndView = new ModelAndView("/index/form");
         modelAndView.addObject("user", new Customer());
         return modelAndView;

@@ -102,5 +102,6 @@ public interface ICustomerRepository extends JpaRepository<Customer, Long> {
     @Query("SELECT c from Customer c where c.destination.id=?1 and c.date_vaccine=?2")
     Iterable<Customer> ListCustomerInjectionByDes(Long id,String date);
 
-
+    @Query("SELECT c from Customer c where c.destination.id=?1 and c.isDoctor=0")
+    Page<Customer> AllCustomerByDes(Long id, Pageable pageable);
 }

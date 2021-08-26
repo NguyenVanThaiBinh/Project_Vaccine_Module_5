@@ -82,23 +82,27 @@
                             <div class="card-body">
                                 <h3 style="    font-weight: 500; color: #006699; text-transform: uppercase; padding: 0 10px" class="card-title">Danh sách khách hàng</h3>
                                 <div class="d-flex table-responsive">
+                                    <select id="select" onchange="select()" th:object="${destinations}" class="form-control d-flex" style="width: 25%">
+                                        <option value="0">Select</option>
+                                        <option th:each="d:${destinations}" th:value="${d.id}" th:text="${d.getDestination_name()}"></option>
+                                    </select>
                                     <div class="btn-group ml-auto mr-2 border-0">
                                         <input id="search" type="text" class="form-control" placeholder="Search By CMND"/>
                                     </div>
-
                                 </div>
                                 <div class="table-responsive">
                                     <input type="hidden" id="page" th:value="${pageActive}">
                                     <table class="table mt-3 border-top" id="customerList">
                                         <thead>
                                         <tr>
-                                            <th>Id</th>
-                                            <th>Tên </th>
-                                            <th>CMND</th>
-                                            <th>Email</th>
-                                            <th>Ngày tiêm </th>
-                                            <th>Giờ tiêm </th>
-                                            <th></th>
+                                            <td>Id</td>
+                                            <td>Tên </td>
+                                            <td>CMND</td>
+                                            <td>Điểm tiêm </td>
+                                            <td>Ngày Giờ tiêm </td>
+                                            <td>Vaccine</td>
+                                            <td>Tình trạng</td>
+                                            <td></td>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -107,11 +111,26 @@
                                                 <td th:text="${u.id}"></td>
                                                 <td th:text="${u.customer_name}"></td>
                                                 <td th:text="${u.CMND}"></td>
-                                                <td th:text="${u.email}"></td>
-                                                <td th:text="${u.date_vaccine}"></td>
-                                                <td th:text="${u.time_vaccine}"></td>
+                                                <td th:text="${u.destination.getDestination_name()}"></td>
+                                                <th:block th:if="${u.isInjection2==0}">
+                                                    <td th:text="${u.date_vaccine}+' -  '+${u.time_vaccine}"></td>
+                                                </th:block>
+                                                <th:block th:if="${u.isInjection2!=0}">
+                                                    <td th:text="${u.date_vaccine}+' -  '+${u.time_vaccine}+'&#10;'+${u.date_vaccine2}+' -  '+${u.time_vaccine2}"></td>
+                                                </th:block>
+                                                <td th:text="${u.vaccine.getVaccine_name()}"></td>
                                                 <td>
-                                                    <button type="button" class="btn btn-primary edit"
+                                                    <th:block th:if="${u.isInjection==1}">
+                                                        <th:block th:if="${u.isInjection2!=3}">
+                                                            <i class="fas fa-check"></i>
+                                                        </th:block>
+                                                        <th:block th:if="${u.isInjection2==3}">
+                                                            <i class="fas fa-check-double"></i>
+                                                        </th:block>
+                                                    </th:block>
+                                                </td>
+                                                <td>
+                                                    <button type="button" class="btn btn-success edit"
                                                             data-toggle="modal" data-target="#exampleModal"
                                                             data-whatever="@mdo">Edit
                                                     </button>
