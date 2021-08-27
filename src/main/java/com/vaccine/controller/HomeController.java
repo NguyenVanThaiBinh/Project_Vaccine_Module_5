@@ -355,7 +355,7 @@ public class HomeController {
             modelAndView.addObject("userInfo", user);
             return modelAndView;
         } else {
-            ModelAndView modelAndView = new ModelAndView("/security/login");
+            ModelAndView modelAndView = new ModelAndView("security/login");
 
             return modelAndView;
         }
