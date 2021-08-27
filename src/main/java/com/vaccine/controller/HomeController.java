@@ -336,10 +336,10 @@ public class HomeController {
         if (iVaccineRepository.findAll().spliterator().getExactSizeIfKnown() > 0) {
             int sumVaccine = iVaccineRepository.sumVaccine();
             if (sumVaccine <= 0) {
-                return new ModelAndView("/security/regisFound");
+                return new ModelAndView("security/regisFound");
             }
         }
-        ModelAndView modelAndView = new ModelAndView("/index/form");
+        ModelAndView modelAndView = new ModelAndView("index/form");
         modelAndView.addObject("user", new Customer());
         return modelAndView;
     }
@@ -377,7 +377,7 @@ public class HomeController {
 
         ReCaptchaResponse reCaptchaResponse = restTemplate.exchange(url + params, HttpMethod.POST, null, ReCaptchaResponse.class).getBody();
         if (!reCaptchaResponse.isSuccess()) {
-            ModelAndView modelAndView = new ModelAndView("/index/form");
+            ModelAndView modelAndView = new ModelAndView("index/form");
             modelAndView.addObject("user", new Customer());
             modelAndView.addObject("fail", "Vui lòng hoàn thành Captcha!!!");
             return modelAndView;
@@ -389,7 +389,7 @@ public class HomeController {
         try {
             iCustomerRepository.save(user);
         } catch (Exception e) {
-            ModelAndView modelAndView = new ModelAndView("/index/form");
+            ModelAndView modelAndView = new ModelAndView("index/form");
             modelAndView.addObject("user", new Customer());
             modelAndView.addObject("fail", "Số chứng minh nhân dân đã tồn tại!!!");
             return modelAndView;
@@ -400,7 +400,7 @@ public class HomeController {
             setDayTimeStart(user.getDestination().getId());
             iCustomerRepository.save(user);
         } catch (Exception e) {
-            ModelAndView modelAndView = new ModelAndView("/index/form");
+            ModelAndView modelAndView = new ModelAndView("index/form");
             modelAndView.addObject("user", new Customer());
             modelAndView.addObject("fail", "Chiến dịch chưa bắt đầu, vui lòng quay lại sau!");
 
@@ -466,13 +466,13 @@ public class HomeController {
 //            iCustomerRoleRepository.save(new Customer_Role(user, appRole));
 
         } catch (Exception e) {
-            ModelAndView modelAndView = new ModelAndView("/index/form");
+            ModelAndView modelAndView = new ModelAndView("index/form");
             modelAndView.addObject("user", new Customer());
             modelAndView.addObject("fail", "Oh no! Có vấn đề về cơ sở dữ liệu!");
             return modelAndView;
         }
 
-        ModelAndView modelAndView = new ModelAndView("/index/form");
+        ModelAndView modelAndView = new ModelAndView("index/form");
         modelAndView.addObject("user", new Customer());
 
         //  Gửi email đa luồng
@@ -495,12 +495,12 @@ public class HomeController {
         Customer customer = iCustomerRepository.findByVerificationCode(code);
         if (customerServiceVerifyAccount.isVerify(code)) {
 
-            ModelAndView modelAndView = new ModelAndView("/index/form");
+            ModelAndView modelAndView = new ModelAndView("index/form");
             modelAndView.addObject("user", new Customer());
             modelAndView.addObject("createDone", "Chúc mừng bạn đã đăng ký tài khoản thành công!");
             return modelAndView;
         } else {
-            ModelAndView modelAndView = new ModelAndView("/index/form");
+            ModelAndView modelAndView = new ModelAndView("index/form");
             modelAndView.addObject("user", new Customer());
             modelAndView.addObject("fail", "Xác minh tài khoản thất bại :((");
             return modelAndView;
@@ -510,7 +510,7 @@ public class HomeController {
 
     @GetMapping("/403")
     public ModelAndView errorPage() {
-        ModelAndView modelAndView = new ModelAndView("/security/403");
+        ModelAndView modelAndView = new ModelAndView("security/403");
         modelAndView.addObject("user", new Customer());
         return modelAndView;
     }
