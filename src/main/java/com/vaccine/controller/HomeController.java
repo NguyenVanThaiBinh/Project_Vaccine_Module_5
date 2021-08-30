@@ -274,7 +274,7 @@ public class HomeController {
     }
 
     public boolean checkAmountRegisterByDes(Destination destination) {
-        Iterable<Customer> iterable = iCustomerRepository.ListCustomerInjectionByDes(destination.getId(), destination.getDate_end());
+        Iterable<Customer> iterable = iCustomerRepository.ListCustomerInjectionByDes(destination.getId());
         int people_perHour = destination.getPeople_perHour();
         if (iterable.spliterator().getExactSizeIfKnown() == people_perHour * 4) {
             return true;
