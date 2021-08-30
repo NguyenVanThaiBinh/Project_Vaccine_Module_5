@@ -10026,7 +10026,6 @@ pre code {
 
 .table th, .jsgrid .jsgrid-table th,
 .table td, .jsgrid .jsgrid-table td {
-  padding: 0.9375rem;
   vertical-align: top;
   border-top: 1px solid #f3f3f3;
 }
@@ -29603,5 +29602,8 @@ div.tagsinput span.tag a {
   position: relative;
   bottom: 72px;
   right: 50px;
+}
+a{
+  cursor: pointer !important;
 }
 /*# sourceMappingURL=maps/style.css.map */

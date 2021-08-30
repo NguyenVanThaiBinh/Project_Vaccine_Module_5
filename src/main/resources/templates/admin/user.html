@@ -112,13 +112,14 @@
                                                 <td th:text="${u.customer_name}"></td>
                                                 <td th:text="${u.CMND}"></td>
                                                 <td th:text="${u.destination.getDestination_name()}"></td>
-                                                <th:block th:if="${u.isInjection2==0}">
+                                                <th:block th:if="${u.isInjection2<=0}">
                                                     <td th:text="${u.date_vaccine}+' -  '+${u.time_vaccine}"></td>
                                                 </th:block>
-                                                <th:block th:if="${u.isInjection2!=0}">
+                                                <th:block th:if="${u.isInjection2>0}">
                                                     <td>
-                                                        <p style="font-size: 1rem" th:text="${u.date_vaccine}+' -  '+${u.time_vaccine}"></p>
-                                                        <p style="font-size: 1rem" th:text="${u.date_vaccine2}+' -  '+${u.time_vaccine2}"></p>
+                                                        <th:block style="font-size: 1rem;" th:text="${u.date_vaccine}+' -  '+${u.time_vaccine}"></th:block>
+                                                        <br>
+                                                        <th:block style="font-size: 1rem;" th:text="${u.date_vaccine2}+' -  '+${u.time_vaccine2}"></th:block>
                                                     </td>
 <!--                                                    <td th:text="${u.date_vaccine}+' -  '+${u.time_vaccine}+'<br>'+${u.date_vaccine2}+' -  '+${u.time_vaccine2}"></td>-->
                                                 </th:block>
@@ -206,7 +207,7 @@
                                     <nav id="nav" style="padding: 0 20px;">
                                         <ul class="pagination pagination-info mb-0" th:if="${list.size()>1}">
                                             <li th:each="number: ${list}" th:class="${pageActive==numberStat.index}?'page-item active':'page-item'">
-                                                <a class="page-link" th:href="@{'/admin/user'(page=${numberStat.index})}" th:text="${numberStat.index + 1}"></a>
+                                                <a class="page-link" th:onclick="'javascript:select('+${numberStat.index}+')'" th:text="${numberStat.index + 1}"></a>
                                             </li>
                                         </ul>
                                     </nav>

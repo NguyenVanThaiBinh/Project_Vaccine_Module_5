@@ -1,4 +1,5 @@
 let count1 = 0 ;
+let pageNumber = 0 ;
 function edit(){
     let id = $(this).parent().find("#idU").val();
     $.ajax({
@@ -36,9 +37,9 @@ function editUser() {
         success:successHandler,
     })
 }
-function successHandler() {
+function successHandler(page) {
     let search = $('#search').val();
-    let page = $('#page').val();
+    let select = $('#select').val();
     let url;
     if(search==""){
         url = '/admin/api-full?page='+page;
@@ -65,8 +66,17 @@ function successHandler() {
             $('#customerList').html(content);
             $('.close-modal').click();
             let html = '<ul class="pagination pagination-info mb-0">';
-            for(let i = 0 ;i <data.totalPages;i++){
-                html+=`<li class=${i==0?"page-item&#x20;active":"page-item"}><a class="page-link" href='/admin/user?page=${i}'>${i+1}</a>\n</li>`
+            if(select==0){
+                console.log("1");
+                for(let i = 0 ;i <data.totalPages;i++){
+                    html+=`<li class=${i==page?"page-item&#x20;active":"page-item"}><a class="page-link" onclick="select(${i})">${i+1}</a>\n</li>`
+                }
+            }
+            else{
+                console.log("2");
+                for(let i = 0 ;i <data.totalPages;i++){
+                    html+=`<li class=${i==0?"page-item&#x20;active":"page-item"}><a class="page-link" onclick="select(${i})">${i+1}</a>\n</li>`
+                }
             }
             html+='</ul>'
             $('#nav').html(html);
@@ -84,47 +94,45 @@ setInterval(function (){
                 return;
             }
             else{
+                let select = $('#select').val();
+                if(select!=0){
+                    return;
+                }
+                let search = $('#search').val();
+                let url;
+                if(search==""){
+                    url = '/admin/api-full?page='+pageNumber;
+                }
+                else{
+                    url = '/admin/api/'+search;
+                }
+                $.ajax({
+                    type: 'GET',
+                    url: url,
+                    success: function (data) {
+                        let content = '<thead><tr class="tr">\n' +
+                            '<td>Id</td>\n' +
+                            '<td>Tên </td> \n' +
+                            '<td>CMND</td> \n' +
+                            '<td>Điểm tiêm</td> \n'+
+                            '<td>Ngày giờ tiêm</td>\n' +
+                            '<td>Vaccine</td> \n'+
+                            '<td>Tình trạng</td> \n'+
+                            '</tr></thead><tbody>';
+                        for (let i = 0; i < data.content.length; i++) {
+                            content += getCustomer(data.content[i]);
+                        }
+                        content+='</tbody>';
+                        $('#customerList').html(content);
+                    }
+                })
+                numberPage();
+                setInfo(0);
                 count1 = count2;
             }
         }
     })
-    let select = $('#select').val();
-    if(select!=0){
-        return;
-    }
-    let search = $('#search').val();
-    let page = $('#page').val();
-    let url;
-    if(search==""){
-        url = '/admin/api-full?page='+page;
-    }
-    else{
-        url = '/admin/api/'+search;
-    }
-    $.ajax({
-        type: 'GET',
-        url: url,
-        success: function (data) {
-            let content = '<thead><tr class="tr">\n' +
-                '<td>Id</td>\n' +
-                '<td>Tên </td> \n' +
-                '<td>CMND</td> \n' +
-                '<td>Điểm tiêm</td> \n'+
-                '<td>Ngày giờ tiêm</td>\n' +
-                '<td>Vaccine</td> \n'+
-                '<td>Tình trạng</td> \n'+
-            '</tr></thead><tbody>';
-            for (let i = 0; i < data.content.length; i++) {
-                content += getCustomer(data.content[i]);
-            }
-            content+='</tbody>';
-            $('#customerList').html(content);
-        }
-    })
-    numberPage();
-    setInfo();
 },7000);
-
 
 function checkInterval(){
     $.ajax({
@@ -147,8 +155,10 @@ function numberPage(){
         }
     })
 }
-function setInfo(){
-    let page = $('#page').val();
+function setInfo(page){
+    if(page==null){
+        page = pageNumber;
+    }
     $.ajax({
         type:'GET',
         url:'/admin/api-full?page='+page,
@@ -201,7 +211,8 @@ function search(){
 function successHandler2(searchCMND) {
     let url = "/admin/api/"+searchCMND;
     if(searchCMND==""){
-        url='/admin/api-full';
+        select(pageNumber);
+        return;
     }
     $.ajax({
         type: "GET",
@@ -238,9 +249,12 @@ function select(page){
     if(page==null){
        page =0;
     }
+    pageNumber  = page;
     let id = $('#select').val();
     if(id==0){
-        successHandler();
+        successHandler(page);
+        setInfo();
+        return;
     }
     $.ajax({
         type:'GET',
@@ -261,6 +275,7 @@ function select(page){
             content+='</tbody>';
             $('#customerList').html(content);
             $('#nav').html(setPage(data.totalPages,page));
+            setInfo(0);
         }
     })
 }

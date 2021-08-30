@@ -221,6 +221,8 @@ public class HomeController {
                     // gửi mail thông báo tiêm lần 2
 //                    setDayTimeVaccine(c);
 //                     iCustomerRepository.save(c);
+                    c.setIsInjection2(-1);
+                    iCustomerRepository.save(c);
                     sendMailConfirmTwice(c,url);
 
                 }
