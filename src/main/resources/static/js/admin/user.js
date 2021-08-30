@@ -67,13 +67,11 @@ function successHandler(page) {
             $('.close-modal').click();
             let html = '<ul class="pagination pagination-info mb-0">';
             if(select==0){
-                console.log("1");
                 for(let i = 0 ;i <data.totalPages;i++){
                     html+=`<li class=${i==page?"page-item&#x20;active":"page-item"}><a class="page-link" onclick="select(${i})">${i+1}</a>\n</li>`
                 }
             }
             else{
-                console.log("2");
                 for(let i = 0 ;i <data.totalPages;i++){
                     html+=`<li class=${i==0?"page-item&#x20;active":"page-item"}><a class="page-link" onclick="select(${i})">${i+1}</a>\n</li>`
                 }
@@ -127,7 +125,7 @@ setInterval(function (){
                     }
                 })
                 numberPage();
-                setInfo(0);
+                setInfo(pageNumber);
                 count1 = count2;
             }
         }
@@ -156,18 +154,24 @@ function numberPage(){
     })
 }
 function setInfo(page){
+    let select = $('#select').val();
     if(page==null){
         page = pageNumber;
     }
+    let url = '/admin/api-full?page='+page;
+    if(select!=0){
+        url = `/admin/all-api-des/${select}?page=${page}`;
+    }
     $.ajax({
         type:'GET',
-        url:'/admin/api-full?page='+page,
+        url:url,
         success:function (data){
             let from = data.number * data.size +1;
             let to = from + data.content.length-1;
             let total = data.totalElements;
-            // alert("Showing "+from+" to "+to+" of "+total+" users");
-            $('#infoPage').html("Showing "+from+" to "+to+" of "+total+" users");
+            if(total>0){
+                $('#infoPage').html("Showing "+from+" to "+to+" of "+total+" users");
+            }
         }
     })
 }
@@ -212,6 +216,7 @@ function successHandler2(searchCMND) {
     let url = "/admin/api/"+searchCMND;
     if(searchCMND==""){
         select(pageNumber);
+        $('#nav').show();
         return;
     }
     $.ajax({
@@ -240,6 +245,7 @@ function successHandler2(searchCMND) {
                 $('#nav').hide();
             }
             $('#customerList').html(content);
+            $('#infoPage').html("");
         }
     });
 }
@@ -275,7 +281,7 @@ function select(page){
             content+='</tbody>';
             $('#customerList').html(content);
             $('#nav').html(setPage(data.totalPages,page));
-            setInfo(0);
+            setInfo(pageNumber);
         }
     })
 }
