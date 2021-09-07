@@ -72,9 +72,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .usernameParameter("CMND")//
                 .passwordParameter("password")
                 // Cấu hình cho Logout Page.
-                .and().logout().logoutUrl("/logout").logoutSuccessUrl("/login")
+                .and().logout().logoutUrl("/logout").logoutSuccessUrl("/login");
 //                 Session het' han~
-                .and().sessionManagement().invalidSessionUrl("/login?invalid-session=true");
+//                .and().sessionManagement().invalidSessionUrl("/login?invalid-session=true");
 
 
 
