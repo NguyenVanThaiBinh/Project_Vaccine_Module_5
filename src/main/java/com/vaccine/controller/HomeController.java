@@ -131,7 +131,7 @@ public class HomeController {
 //               <----------------------------- Admin Đăng Nhập ---------------------------------------->
     @GetMapping("/manager")
     public ModelAndView adminLogin(){
-        ModelAndView modelAndView = new ModelAndView("/security/admin_login");
+        ModelAndView modelAndView = new ModelAndView("security/admin_login");
         return modelAndView;
     }
     @GetMapping("/getInfo/{certify}")
@@ -311,7 +311,7 @@ public class HomeController {
         Customer customer = iCustomerRepository.findByVerificationCode(certify);
         Vaccine vaccine = iVaccineRepository.findById(customer.getVaccine().getId()).get();
         if(vaccine.getRegister_amount()<=0){
-            return new ModelAndView("/security/regisFound");
+            return new ModelAndView("security/regisFound");
         }
         ModelAndView modelAndView = new ModelAndView("/index/form2");
         modelAndView.addObject("customer", customer);
@@ -351,7 +351,7 @@ public class HomeController {
             String userName = principal.getName();
             Customer user = new Customer();
             user = iCustomerRepository.findByUserCMND(userName);
-            ModelAndView modelAndView = new ModelAndView("/user/userPage");
+            ModelAndView modelAndView = new ModelAndView("user/userPage");
             modelAndView.addObject("userInfo", user);
             return modelAndView;
         } else {

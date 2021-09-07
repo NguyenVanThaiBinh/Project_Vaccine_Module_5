@@ -88,7 +88,7 @@ public class AdminController {
 
     @GetMapping
     public ModelAndView showdb() {
-        ModelAndView modelAndView = new ModelAndView("/admin/dashBoar");
+        ModelAndView modelAndView = new ModelAndView("admin/dashBoar");
         return modelAndView;
     }
 
@@ -154,7 +154,7 @@ public class AdminController {
     public ModelAndView listUsers(@PageableDefault(value = 10) Pageable pageable, @RequestParam("page") Optional<Integer> page) {
         int currentPage = page.orElse(0);
         Page<Customer> customers = customerRepository.findAllCustomerAccount(pageable);
-        ModelAndView modelAndView = new ModelAndView("/admin/user");
+        ModelAndView modelAndView = new ModelAndView("admin/user");
         List<Integer> list = new ArrayList<>();
 
         for (int i = 0; i < customers.getTotalPages(); i++) {
@@ -324,7 +324,7 @@ public class AdminController {
     @GetMapping("/destination")
     public ModelAndView listDestination(Pageable pageable) throws ParseException {
         Page<Destination> destinations = destinationRepository.findAllBySttDelete(0, pageable);
-        ModelAndView modelAndView = new ModelAndView("/admin/injectionPoint");
+        ModelAndView modelAndView = new ModelAndView("admin/injectionPoint");
 //        for(Destination d:destinations){
 //            String[] arr_S = d.getDate_start().trim().split("-");
 //            String[] arr_E = d.getDate_end().trim().split("-");
@@ -348,7 +348,7 @@ public class AdminController {
     @GetMapping("/vaccine")
     public ModelAndView listWareH() {
         List<Vaccine> vaccineList = vaccineRepository.findAll();
-        ModelAndView modelAndView = new ModelAndView("/admin/vaccine");
+        ModelAndView modelAndView = new ModelAndView("admin/vaccine");
         modelAndView.addObject("vaccineList", vaccineList);
         return modelAndView;
     }
