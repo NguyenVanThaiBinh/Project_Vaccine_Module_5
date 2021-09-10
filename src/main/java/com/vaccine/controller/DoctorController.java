@@ -64,6 +64,8 @@ public class DoctorController {
 
             //            Phân trang
             Page<Customer> customerListIsDone = icustomerRepository.findCustomerIsDoneInDay(currentDay, user.getDestination().getId(), PageRequest.of(0, 5));
+            System.out.println(customerListIsDone);
+            System.out.println("AAAAAAAAA");
             //          Lấy số page
             List<Integer> pageNumber = new ArrayList<>();
             for (int i = 0; i < customerListIsDone.getTotalPages(); i++) {
