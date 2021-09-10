@@ -212,7 +212,6 @@ public class HomeController {
         List<Customer> list = iCustomerRepository.ListCustomerInjection2(customer.getDestination().getId());
 
         if (checkDestinationIsOpen()) {
-            System.out.println("here");
             for (Customer c : list) {
                 String[] arr = c.getDate_vaccine().trim().split("-");
                 String date = arr[2] + "-" + arr[1] + "-" + arr[0];
@@ -224,6 +223,7 @@ public class HomeController {
                     c.setIsInjection2(-1);
                     iCustomerRepository.save(c);
                     sendMailConfirmTwice(c,url);
+
                 }
             }
         }

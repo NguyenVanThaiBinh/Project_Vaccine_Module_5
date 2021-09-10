@@ -66,7 +66,7 @@ public class AdminController {
     @Autowired
     CustomerServiceVerifyAccount customerServiceVerifyAccount;
 
-//
+    //
     LocalDate localDate = LocalDate.now();
     String[] day = localDate.toString().split("-");
     String currentDay = day[2] + "-" + day[1] + "-" + day[0] + " ";
@@ -75,15 +75,16 @@ public class AdminController {
     public Iterable<WarehouseVaccine> warehouseVaccineResponseEntity() {
         return iWarehouseRepository.findAll();
     }
-//
+
+    //
     @ModelAttribute("destinations")
-    public Iterable<Destination> getAllDestination(Pageable pageable){
-        return destinationRepository.findAllBySttDelete(0,pageable);
+    public Iterable<Destination> getAllDestination(Pageable pageable) {
+        return destinationRepository.findAllBySttDelete(0, pageable);
     }
 
     @GetMapping("/all-api-des/{id}")
-    ResponseEntity<Page<Customer>> getAllCusByDes(@PathVariable Long id, @PageableDefault(value =  10) Pageable pageable){
-        return new ResponseEntity<>(customerRepository.AllCustomerByDes(id,pageable),HttpStatus.OK);
+    ResponseEntity<Page<Customer>> getAllCusByDes(@PathVariable Long id, @PageableDefault(value = 10) Pageable pageable) {
+        return new ResponseEntity<>(customerRepository.AllCustomerByDes(id, pageable), HttpStatus.OK);
     }
 
     @GetMapping
@@ -107,6 +108,7 @@ public class AdminController {
         }
         return chartDataList;
     }
+
     @GetMapping("/dashboard_api_destination")
     public List<ChartData> getChartData() {
         List<ChartData> chartDataList = new ArrayList<>();
@@ -117,7 +119,7 @@ public class AdminController {
 
                 int registerNumber = customerRepository.getRegisterNumberInDestination(destination);
                 int injectionNumber = customerRepository.getIsInjectionNumberDestination(destination);
-                ChartData chartData = new ChartData(registerNumber, injectionNumber,destination);
+                ChartData chartData = new ChartData(registerNumber, injectionNumber, destination);
                 chartDataList.add(chartData);
             }
         }
@@ -125,8 +127,13 @@ public class AdminController {
     }
 
     ////  ajax user
+    @GetMapping("/api-full-chart")
+    public ResponseEntity<Page<Customer>> chartDataApi(@PageableDefault(value = Integer.MAX_VALUE) Pageable pageable) {
+        return new ResponseEntity<>(customerRepository.findAllCustomerAccount(pageable), HttpStatus.OK);
+    }
+
     @GetMapping("/api-full")
-    public ResponseEntity<Page<Customer>> allUser(@PageableDefault(value =  10) Pageable pageable) {
+    public ResponseEntity<Page<Customer>> allUser(@PageableDefault(value = 10) Pageable pageable) {
         return new ResponseEntity<>(customerRepository.findAllCustomerAccount(pageable), HttpStatus.OK);
     }
 
@@ -165,7 +172,6 @@ public class AdminController {
         modelAndView.addObject("pageActive", currentPage);
         return modelAndView;
     }
-
 
 
 //      <---------------------------------Điểm tiêm chủng------------------------------------------>
@@ -212,7 +218,7 @@ public class AdminController {
                 String date_end = arr2[2] + "-" + arr2[1] + "-" + arr2[0];
                 List<Customer> list = customerRepository.findByDestination(id);
                 for (int i = 0; i < list.size(); i++) {
-                    if (list.get(i).getDate_vaccine() != null && list.get(i).getDate_vaccine().trim().split(" ").length==1) {
+                    if (list.get(i).getDate_vaccine() != null && list.get(i).getDate_vaccine().trim().split(" ").length == 1) {
                         String[] arr = list.get(i).getDate_vaccine().trim().split("-");
                         String date_vaccine = arr[2] + "-" + arr[1] + "-" + arr[0];
                         if (date_vaccine.compareTo(date_end) > 0) {
@@ -243,7 +249,7 @@ public class AdminController {
                 String date_end = arr2[2] + "-" + arr2[1] + "-" + arr2[0];
                 List<Customer> list = customerRepository.findByDestination(id);
                 for (int i = 0; i < list.size(); i++) {
-                    if (list.get(i).getDate_vaccine() != null && list.get(i).getDate_vaccine().trim().split(" ").length==1) {
+                    if (list.get(i).getDate_vaccine() != null && list.get(i).getDate_vaccine().trim().split(" ").length == 1) {
                         String[] arr = list.get(i).getDate_vaccine().trim().split("-");
                         String date_vaccine = arr[2] + "-" + arr[1] + "-" + arr[0];
                         if (date_vaccine.compareTo(date_end) < 0) {
@@ -261,6 +267,7 @@ public class AdminController {
         });
         thread2.start();
     }
+
     //    <-------------------------------- Gửi mail xin lỗi ------------------------>
     public void sendEmailSorry(Customer customer) {
         MimeMessage msg = mailSender.createMimeMessage();
@@ -299,11 +306,11 @@ public class AdminController {
         List<Customer> list = customerRepository.findByDestination(id);
 
         for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).getIsInjection() == 0 && list.get(i).getHealthy_status() != 3 && list.get(i).getDate_vaccine() != null && list.get(i).getDate_vaccine().trim().split(" ").length==1) {
+            if (list.get(i).getIsInjection() == 0 && list.get(i).getHealthy_status() != 3 && list.get(i).getDate_vaccine() != null && list.get(i).getDate_vaccine().trim().split(" ").length == 1) {
                 String[] arr = list.get(i).getDate_vaccine().trim().split("-");
                 String date = arr[2] + "-" + arr[1] + "-" + arr[0];
                 if (date.compareTo(dateNow) >= 0) {
-                    list.get(i).setDate_vaccine(list.get(i).getDate_vaccine()+"cancel");
+                    list.get(i).setDate_vaccine(list.get(i).getDate_vaccine() + "cancel");
                     customerRepository.save(list.get(i));
                     // Gửi email
 //                    sendEmailSorry(list.get(i));
