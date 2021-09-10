@@ -166,7 +166,6 @@ public class HomeController {
                         @Override
                         public void run() {
                             sendEmail2(principal,request);
-
                         }
                     });
                     thread2.start();
@@ -213,18 +212,18 @@ public class HomeController {
         List<Customer> list = iCustomerRepository.ListCustomerInjection2(customer.getDestination().getId());
 
         if (checkDestinationIsOpen()) {
+            System.out.println("here");
             for (Customer c : list) {
                 String[] arr = c.getDate_vaccine().trim().split("-");
                 String date = arr[2] + "-" + arr[1] + "-" + arr[0];
                 if (date.compareTo(dateBefore) <= 0  ) {
                     // && Objects.equals(c.getVerificationCode(),null)
                     // gửi mail thông báo tiêm lần 2
-//                    setDayTimeVaccine(c);
+                    setDayTimeVaccine(c);
 //                     iCustomerRepository.save(c);
                     c.setIsInjection2(-1);
                     iCustomerRepository.save(c);
                     sendMailConfirmTwice(c,url);
-
                 }
             }
         }
@@ -439,17 +438,17 @@ public class HomeController {
 
         //Test phân ngày
 
-//        try {
-//
-//            setDayTimeVaccine(user);
-//            user.setEnabled(true);
-//            iCustomerRepository.save(user);
-//        } catch (Exception e) {
-//            ModelAndView modelAndView = new ModelAndView("/index/form");
-//            modelAndView.addObject("user", new Customer());
-//            modelAndView.addObject("fail", "Đã xảy ra lỗi sắp xếp ngày!!!");
-//            return modelAndView;
-//        }
+        try {
+
+            setDayTimeVaccine(user);
+            user.setEnabled(true);
+            iCustomerRepository.save(user);
+        } catch (Exception e) {
+            ModelAndView modelAndView = new ModelAndView("/index/form");
+            modelAndView.addObject("user", new Customer());
+            modelAndView.addObject("fail", "Đã xảy ra lỗi sắp xếp ngày!!!");
+            return modelAndView;
+        }
 
 
         try {
@@ -478,9 +477,9 @@ public class HomeController {
         modelAndView.addObject("user", new Customer());
 
         //  Gửi email đa luồng
-        if (user.getEmail() != null) {
-            thread1.start();
-        }
+//        if (user.getEmail() != null) {
+//            thread1.start();
+//        }
         if (user.getDate_vaccine() != null) {
             Vaccine vaccine = iVaccineRepository.findById(user.getVaccine().getId()).get();
             vaccine.setRegister_amount(vaccine.getRegister_amount() - 1);
