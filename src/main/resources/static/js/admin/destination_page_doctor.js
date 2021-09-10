@@ -306,6 +306,8 @@ $('input[name="search"]').keyup(function () {
 });
                 // Lấy theo danh sách ngày
 function getCustomerByDay(value){
+    if(value == -1)
+        return;
     $.ajax({
         type: 'POST',
         url: '/doctor/getCustomerByDay/' + value,

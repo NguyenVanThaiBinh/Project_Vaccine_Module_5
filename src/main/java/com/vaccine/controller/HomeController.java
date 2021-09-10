@@ -437,17 +437,17 @@ public class HomeController {
 
         //Test phân ngày
 
-//        try {
-//
-//            setDayTimeVaccine(user);
-//            user.setEnabled(true);
-//            iCustomerRepository.save(user);
-//        } catch (Exception e) {
-//            ModelAndView modelAndView = new ModelAndView("/index/form");
-//            modelAndView.addObject("user", new Customer());
-//            modelAndView.addObject("fail", "Đã xảy ra lỗi sắp xếp ngày!!!");
-//            return modelAndView;
-//        }
+        try {
+
+            setDayTimeVaccine(user);
+            user.setEnabled(true);
+            iCustomerRepository.save(user);
+        } catch (Exception e) {
+            ModelAndView modelAndView = new ModelAndView("/index/form");
+            modelAndView.addObject("user", new Customer());
+            modelAndView.addObject("fail", "Đã xảy ra lỗi sắp xếp ngày!!!");
+            return modelAndView;
+        }
 
 
         try {
@@ -475,10 +475,10 @@ public class HomeController {
         ModelAndView modelAndView = new ModelAndView("/index/form");
         modelAndView.addObject("user", new Customer());
 
-        //  Gửi email đa luồng
-        if (user.getEmail() != null) {
-            thread1.start();
-        }
+        // ---------------------- Gửi email đa luồng
+//        if (user.getEmail() != null) {
+//            thread1.start();
+//        }
         if (user.getDate_vaccine() != null) {
             Vaccine vaccine = iVaccineRepository.findById(user.getVaccine().getId()).get();
             vaccine.setRegister_amount(vaccine.getRegister_amount() - 1);
