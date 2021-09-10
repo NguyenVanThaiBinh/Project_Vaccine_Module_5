@@ -87,7 +87,7 @@ public interface ICustomerRepository extends JpaRepository<Customer, Long> {
                  // Dashboard
     @Query("SELECT DISTINCT  e.date_vaccine from Customer e")
     List<String> ListDayOfAllCustomer();
-    @Query("SELECT DISTINCT  e.destination.destination_name from Customer e where e.destination.isDelete = 0")
+    @Query("SELECT DISTINCT  e.destination.destination_name from Customer e  where e.destination.isDelete = 0 ")
     List<String> ListDestinationChart();
 
     @Query("SELECT  count (e) from Customer e where e.date_vaccine = ?1")
@@ -99,6 +99,7 @@ public interface ICustomerRepository extends JpaRepository<Customer, Long> {
     int getIsInjectionNumberInOneDay(String day) ;
     @Query("SELECT  count (e) from Customer e where e.destination.destination_name = ?1 and (e.isInjection = 1 or e.isInjection2 = 3 )")
     int getIsInjectionNumberDestination(String name_destination) ;
+    //---------------------------------
 
 
     @Query("SELECT max(c.id) from Customer c WHERE c.destination.id=?1 and c.date_vaccine=?2 and c.vaccine.id=?3")

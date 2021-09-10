@@ -1,8 +1,9 @@
 function foo() {
     $.ajax({
         type: 'GET',
-        url: '/admin/api-full',
+        url: '/admin/api-full-chart',
         success: function (data) {
+            console.log(data);
 
             let count = 0;
             for (let i = 0; i < data.content.length; i++) {
@@ -10,6 +11,7 @@ function foo() {
                     count++;
                 }
             }
+
             $('#amount1').html(count);
             $('#amount2').html(data.totalElements);
         }
@@ -18,7 +20,7 @@ function foo() {
 }
 
 foo();
-setInterval(foo, 7000);
+// setInterval(foo, 7000);
 //    <---------------------------- Chart -------------------------------------------->
 
 let listDay = new Array();
@@ -97,7 +99,7 @@ $.ajax({
     success: function (chartDataList) {
 
         for (const listDayCustomerElement of chartDataList) {
-            console.log(listDayCustomerElement)
+
             listDestination.push(listDayCustomerElement.destination);
             listRegisterDestination.push(listDayCustomerElement.registerNumber);
             listInjectionDestination.push(listDayCustomerElement.injectedNumber);
