@@ -261,8 +261,6 @@ public class HomeController {
         String dateNow = LocalDate.now().toString();
         Iterable<Destination> listDes = iDestinationRepository.findAllOpen();
         for (Destination destination : listDes) {
-            String[] arrStart = destination.getDate_start().trim().split("-");
-            String dateStart = arrStart[2] + "-" + arrStart[1] + "-" + arrStart[0];
             String[] arrEnd = destination.getDate_end().trim().split("-");
             String dateEnd = arrEnd[2] + "-" + arrEnd[1] + "-" + arrEnd[0];
             if (dateNow.compareTo(dateEnd) > 0 || checkAmountRegisterByDes(destination)) {
@@ -273,9 +271,9 @@ public class HomeController {
     }
 
     public boolean checkAmountRegisterByDes(Destination destination) {
-        Iterable<Customer> iterable = iCustomerRepository.ListCustomerInjectionByDes(destination.getId(), destination.getDate_end());
+        Iterable<Customer> iterable = iCustomerRepository.ListCustomerInjectionByDes(destination.getId());
         int people_perHour = destination.getPeople_perHour();
-        if (iterable.spliterator().getExactSizeIfKnown() == people_perHour * 4) {
+        if (iterable.spliterator().getExactSizeIfKnown() == people_perHour * 4*minusDay(destination)) {
             return true;
         }
         return false;
@@ -801,5 +799,14 @@ public class HomeController {
     public static String encrytePassword(String password) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         return encoder.encode(password);
+    }
+
+    // minus date-end and date-start
+    public int minusDay(Destination destination){
+        String[] arr1 = destination.getDate_start().trim().split("-");
+        LocalDate localDateStart = LocalDate.parse((arr1[2]+"-"+arr1[1]+"-"+arr1[0]));
+        String[] arr2 = destination.getDate_end().trim().split("-");
+        LocalDate localDateEnd= LocalDate.parse((arr2[2]+"-"+arr2[1]+"-"+arr2[0]));
+        return localDateEnd.getDayOfYear() - localDateStart.getDayOfYear() + 1;
     }
 }
