@@ -154,7 +154,8 @@ function changePage(value) {
         $(`#${value + 1}_button`).removeClass("active");
         $("#prev").val(value - 1);
 
-    } else {
+    }
+    else {
         if (value == 0) {
             $(`#${value}_button`).addClass("active");
             $(`#${value + 1}_button`).removeClass("active");
